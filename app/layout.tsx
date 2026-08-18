@@ -13,8 +13,8 @@ const sans = Google_Sans_Flex({
 });
 
 export const metadata: Metadata = {
-  title: "Bibliothek",
-  description: "Persönliche Spielfbibliothek — Filter, Bewertung, Priorität.",
+  title: "gGrid",
+  description: "gGrid — Game. Manage. Learn.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

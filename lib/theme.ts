@@ -29,10 +29,10 @@ export const MATERIAL_CONTRAST_LEVEL = 0;
 export const THEME_STORAGE_KEY = "game-library.theme.v1";
 
 export const schemeVariants = [
+  "expressive",
+  "vibrant",
   "tonalSpot",
   "neutral",
-  "vibrant",
-  "expressive",
   "monochrome",
 ] as const;
 export type SchemeVariant = (typeof schemeVariants)[number];
@@ -206,7 +206,7 @@ function resolveTokens(
 /** Core API: seed + variant → complete light/dark token pair. */
 export function generateThemePair(
   seed: string,
-  variant: SchemeVariant = "tonalSpot",
+  variant: SchemeVariant = "expressive",
 ): ThemePair {
   const normalized = normalizeHexColor(seed) ?? DEFAULT_THEME_SEED;
   return {
@@ -530,7 +530,7 @@ export const FALLBACK_THEME_PAIR: ThemePair = {
 
 export const DEFAULT_THEME_PREFERENCES: ThemePreferences = {
   seed: DEFAULT_THEME_SEED,
-  variant: "tonalSpot",
+  variant: "expressive",
   mode: "system",
   source: "preset",
   pair: FALLBACK_THEME_PAIR,
@@ -542,7 +542,7 @@ export function parseThemePreferences(raw: unknown): ThemePreferences {
   const seed = normalizeHexColor(String(value.seed ?? "")) ?? DEFAULT_THEME_SEED;
   const variant = schemeVariants.includes(value.variant as SchemeVariant)
     ? (value.variant as SchemeVariant)
-    : "tonalSpot";
+    : "expressive";
   const mode: ThemeMode =
     value.mode === "light" || value.mode === "dark" || value.mode === "system"
       ? value.mode

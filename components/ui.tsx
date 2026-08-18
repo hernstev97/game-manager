@@ -1,6 +1,12 @@
 "use client";
 
-import { useEffect, useId, useRef, type ButtonHTMLAttributes, type ReactNode } from "react";
+import {
+  useEffect,
+  useId,
+  useRef,
+  type ButtonHTMLAttributes,
+  type ReactNode,
+} from "react";
 import { cn } from "@/lib/cn";
 
 export function IconButton({
@@ -65,6 +71,18 @@ export function DangerButton({
 }: ButtonHTMLAttributes<HTMLButtonElement>) {
   return (
     <button type="button" className={cn("btn btn-danger", className)} {...props}>
+      {children}
+    </button>
+  );
+}
+
+export function OutlinedButton({
+  className,
+  children,
+  ...props
+}: ButtonHTMLAttributes<HTMLButtonElement>) {
+  return (
+    <button type="button" className={cn("btn btn-outlined", className)} {...props}>
       {children}
     </button>
   );
@@ -135,13 +153,13 @@ export function Switch({
 }) {
   const id = useId();
   return (
-    <label className={cn("switch-row", disabled && "is-disabled")} htmlFor={id}>
-      <span>{label}</span>
+    <div className={cn("switch-row", disabled && "is-disabled")}>
+      <span id={`${id}-label`}>{label}</span>
       <button
         id={id}
         type="button"
         role="switch"
-        aria-label={label}
+        aria-labelledby={`${id}-label`}
         aria-checked={checked}
         disabled={disabled}
         className={cn("switch", checked && "is-on")}
@@ -149,7 +167,7 @@ export function Switch({
       >
         <span className="switch-thumb" />
       </button>
-    </label>
+    </div>
   );
 }
 
@@ -295,21 +313,57 @@ export function Modal({
   children: ReactNode;
   wide?: boolean;
 }) {
+  const titleId = useId();
+  const modalRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     if (!open) return;
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") onClose();
     };
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const focusTimer = window.setTimeout(() => {
+      const firstField = modalRef.current?.querySelector<HTMLElement>(
+        "input:not([type='hidden']), select, textarea",
+      );
+      (firstField ?? modalRef.current?.querySelector<HTMLElement>("button"))?.focus();
+    }, 0);
     document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
+    return () => {
+      window.clearTimeout(focusTimer);
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", onKey);
+    };
   }, [open, onClose]);
   if (!open) return null;
   return (
     <div className="modal-root" role="presentation">
       <button type="button" className="scrim" aria-label="Schließen" onClick={onClose} />
-      <div className={cn("modal", wide && "modal-wide")} role="dialog" aria-modal="true" aria-label={title}>
+      <div
+        ref={modalRef}
+        className={cn("modal", wide && "modal-wide")}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+      >
         <header className="modal-head">
-          <h2>{title}</h2>
+          <h2 id={titleId}>{title}</h2>
+          <IconButton label="Schließen" onClick={onClose}>
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </IconButton>
         </header>
         {children}
       </div>

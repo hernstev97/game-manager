@@ -1,4 +1,6 @@
-# Bibliothek
+# gGrid
+
+Game. Manage. Learn.
 
 Persönliche Desktop-Bibliothek für gekaufte, gewünschte und gespielte Spiele. Alles bleibt lokal (`localStorage` + JSON-Export). Kein Login, keine Datenbank.
 

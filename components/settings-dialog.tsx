@@ -157,7 +157,19 @@ export function SettingsDialog({
   return (
     <Modal open={open} onClose={onClose} title="Einstellungen" wide>
       <div className="settings">
-        <section>
+        <div className="settings-intro">
+          <span className="settings-intro-mark" aria-hidden="true">
+            <span />
+            <span />
+          </span>
+          <div>
+            <span className="section-eyebrow">PERSONALISIEREN</span>
+            <h3>Mach die Bibliothek zu deiner.</h3>
+            <p>Farbkern, Datenquelle und Darstellung bleiben unter deiner Kontrolle.</p>
+          </div>
+        </div>
+
+        <section className="settings-section">
           <h3>Steam</h3>
           <p className="settings-copy">
             Nur lokal gespeichert. Wird ausschließlich an Steam geschickt, nie geloggt.
@@ -188,7 +200,7 @@ export function SettingsDialog({
           </div>
         </section>
 
-        <section>
+        <section className="settings-section">
           <h3>Erscheinungsbild</h3>
           <div className="segmented">
             {(["light", "dark", "system"] as const).map((mode) => (
@@ -284,7 +296,7 @@ export function SettingsDialog({
           </div>
         </section>
 
-        <section>
+        <section className="settings-section settings-section-danger">
           <h3>Daten</h3>
           {confirmReset ? (
             <div className="confirm-row">

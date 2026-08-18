@@ -93,13 +93,23 @@ export function AddGameDialog({
   return (
     <Modal open={open} onClose={onClose} title="Spiel hinzufügen" wide>
       <div className="add-dialog">
-        <TextField
-          label="Name, Steam-URL oder App-ID"
-          value={query}
-          onChange={setQuery}
-          placeholder="Final Fantasy … oder 359870"
-          autoFocus
-        />
+        <div className="add-intro">
+          <span className="add-intro-shape" aria-hidden="true" />
+          <div>
+            <span className="section-eyebrow">NEW ENTRY</span>
+            <h3>Was möchtest du spielen?</h3>
+            <p>Suche nach einem Steam-Titel oder lege ein Spiel direkt in deiner Sammlung an.</p>
+          </div>
+        </div>
+        <div className="add-search-hero">
+          <TextField
+            label="Name, Steam-URL oder App-ID"
+            value={query}
+            onChange={setQuery}
+            placeholder="Final Fantasy … oder 359870"
+            autoFocus
+          />
+        </div>
 
         {existing.length > 0 ? (
           <section>

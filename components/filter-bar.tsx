@@ -16,7 +16,7 @@ import {
   type LibraryFilters,
 } from "@/lib/filter-games";
 import { Chip, Popover, TextButton } from "@/components/ui";
-import { ChevronDown, X } from "lucide-react";
+import { ChevronDown, Filter, X } from "lucide-react";
 import { cn } from "@/lib/cn";
 
 type FilterGroup = {
@@ -159,16 +159,17 @@ function FieldFilterControls({
   );
 }
 
-function groupIsActive(group: FilterGroup, filters: LibraryFilters): boolean {
-  return group.fields.some((field) => {
+function groupActiveCount(group: FilterGroup, filters: LibraryFilters): number {
+  let count = 0;
+  for (const field of group.fields) {
     const value = filters.fields[field.id];
-    if (!value) return false;
-    if (value.kind === "toggle") return value.on;
-    if (value.kind === "multi") return value.selected.length > 0;
-    if (value.kind === "rating") return value.selected.length > 0;
-    if (value.kind === "priority") return value.selected.length > 0;
-    return false;
-  });
+    if (!value) continue;
+    if (value.kind === "toggle" && value.on) count++;
+    if (value.kind === "multi") count += value.selected.length;
+    if (value.kind === "rating") count += value.selected.length;
+    if (value.kind === "priority") count += value.selected.length;
+  }
+  return count;
 }
 
 export function FilterBar({
@@ -227,53 +228,84 @@ export function FilterBar({
 
   return (
     <section className="filter-bar" aria-label="Filter">
+      <div className="filter-bar-heading">
+        <div className="filter-heading-copy">
+          <span className="section-eyebrow">NAVIGATE</span>
+          <h2>Deine Sammlung im Fokus</h2>
+        </div>
+        <div className="filter-count" aria-live="polite">
+          <strong>{visibleCount}</strong>
+          <span>von {games.length} sichtbar</span>
+        </div>
+      </div>
       <div className="filter-groups">
-        {groups.map((group) => (
-          <div key={group.key} className="filter-group">
-            <button
-              type="button"
-              className={cn("filter-trigger", groupIsActive(group, filters) && "is-active")}
-              onClick={() => setOpenKey((current) => (current === group.key ? null : group.key))}
-            >
-              {group.label}
-              <ChevronDown size={14} />
-            </button>
-            <Popover open={openKey === group.key} onClose={() => setOpenKey(null)}>
-              <div className="filter-popover">
-                <div className="filter-popover-label">{group.label}</div>
-                {group.fields.map((field) => (
-                  <FieldFilterControls
-                    key={field.id}
-                    field={field}
-                    games={games}
-                    value={filters.fields[field.id]}
-                    onChange={(next) => setField(field.id, next)}
-                  />
-                ))}
-              </div>
-            </Popover>
-          </div>
-        ))}
-        <span className="filter-count">
-          {visibleCount} von {games.length}
+        <span className="filter-lead-mark" aria-hidden="true">
+          <Filter size={16} strokeWidth={2.4} />
+          <span>Filter</span>
         </span>
+        {groups.map((group) => {
+          const activeCount = groupActiveCount(group, filters);
+          const isOpen = openKey === group.key;
+          return (
+            <div key={group.key} className="filter-group">
+              <button
+                type="button"
+                className={cn("filter-trigger", activeCount > 0 && "is-active")}
+                aria-expanded={isOpen}
+                onClick={() => setOpenKey((current) => (current === group.key ? null : group.key))}
+              >
+                <span>{group.label}</span>
+                {activeCount > 0 ? (
+                  <span className="filter-trigger-badge">{activeCount}</span>
+                ) : null}
+                <ChevronDown
+                  size={15}
+                  className="transition-transform duration-200"
+                  style={{ transform: isOpen ? "rotate(180deg)" : "rotate(0deg)" }}
+                />
+              </button>
+              <Popover open={isOpen} onClose={() => setOpenKey(null)}>
+                <div className="filter-popover">
+                  <div className="filter-popover-label">{group.label}</div>
+                  {group.fields.map((field) => (
+                    <FieldFilterControls
+                      key={field.id}
+                      field={field}
+                      games={games}
+                      value={filters.fields[field.id]}
+                      onChange={(next) => setField(field.id, next)}
+                    />
+                  ))}
+                </div>
+              </Popover>
+            </div>
+          );
+        })}
       </div>
 
       {active ? (
         <div className="active-filters">
-          {chips.map((chip) => (
-            <Chip
-              key={`${chip.fieldId}-${chip.token}`}
-              selected
-              tone="primary"
-              className="filter-chip-enter"
-              onDismiss={() => dismissChip(chip.fieldId, chip.token)}
-            >
-              {chip.label}
-            </Chip>
-          ))}
+          {chips.map((chip) => {
+            const tone =
+              chip.fieldId === "owned" || chip.fieldId === "wishlisted"
+                ? "secondary"
+                : chip.fieldId === "finished" || chip.fieldId === "franchise" || chip.fieldId === "genres"
+                  ? "tertiary"
+                  : "primary";
+            return (
+              <Chip
+                key={`${chip.fieldId}-${chip.token}`}
+                selected
+                tone={tone}
+                className="filter-chip-enter"
+                onDismiss={() => dismissChip(chip.fieldId, chip.token)}
+              >
+                {chip.label}
+              </Chip>
+            );
+          })}
           <TextButton onClick={onClear}>
-            <X size={14} />
+            <X size={15} />
             Alle löschen
           </TextButton>
         </div>

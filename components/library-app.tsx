@@ -142,7 +142,7 @@ export function LibraryApp() {
       <div className="library-shell">
         <div className="library-toolbar">
           <div className="toolbar-title">
-            <h1>Bibliothek</h1>
+            <h1>gGrid</h1>
             <p>Lädt …</p>
           </div>
         </div>
@@ -161,6 +161,7 @@ export function LibraryApp() {
         key={searchEpoch}
         query={filters.query}
         sort={sort}
+        totalCount={games.length}
         onQuery={onQuery}
         onSort={setSort}
         onImport={(file) => void importFile(file)}
@@ -192,8 +193,17 @@ export function LibraryApp() {
           setSearchEpoch((value) => value + 1);
         }}
       />
-      <button type="button" className="fab" aria-label="Spiel hinzufügen" onClick={() => setAddOpen(true)}>
-        <Plus size={26} />
+      <button
+        type="button"
+        className="fab"
+        aria-label="Spiel hinzufügen"
+        title="Spiel hinzufügen (Taste N)"
+        onClick={() => setAddOpen(true)}
+      >
+        <span className="fab-icon" aria-hidden="true">
+          <Plus size={22} strokeWidth={2.75} />
+        </span>
+        <span>Spiel hinzufügen</span>
       </button>
       <GameEditor
         game={selected}

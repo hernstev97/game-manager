@@ -14,7 +14,12 @@ export function BooleanChip({
 }) {
   if (!value) return null;
   return (
-    <Chip tone={(field.chipTone as ChipTone | undefined) ?? "neutral"}>{field.label}</Chip>
+    <Chip tone={(field.chipTone as ChipTone | undefined) ?? "neutral"}>
+      <span className="chip-check" aria-hidden="true">
+        ✓
+      </span>
+      {field.label}
+    </Chip>
   );
 }
 
@@ -28,7 +33,25 @@ export function RatingStars({
   compact?: boolean;
 }) {
   if (compact) {
-    return <span className="rating-compact">{value == null ? "—" : value.toFixed(1)}</span>;
+    if (value == null) {
+      return <span className="rating-compact">—</span>;
+    }
+    return (
+      <span className="rating-compact">
+        <svg
+          className="rating-star-icon"
+          width="13"
+          height="13"
+          viewBox="0 0 24 24"
+          fill="currentColor"
+          stroke="currentColor"
+          strokeWidth="1"
+        >
+          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+        </svg>
+        <span>{value.toFixed(1)}</span>
+      </span>
+    );
   }
   return (
     <div className="rating-editor">
@@ -42,8 +65,21 @@ export function RatingStars({
         onChange={(event) => onChange?.(Number(event.target.value))}
       />
       <div className="rating-editor-meta">
-        <strong>{value == null ? "—" : value.toFixed(1)}</strong>
-        {onChange ? (
+        <span className="rating-compact">
+          <svg
+            className="rating-star-icon"
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            stroke="currentColor"
+            strokeWidth="1"
+          >
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+          </svg>
+          <strong>{value == null ? "—" : value.toFixed(1)}</strong>
+        </span>
+        {onChange && value != null ? (
           <button type="button" className="btn btn-text" onClick={() => onChange(null)}>
             Zurücksetzen
           </button>

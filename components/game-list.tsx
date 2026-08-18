@@ -66,18 +66,32 @@ export function GameList({
       onDragEnd={onDragEnd}
     >
       <SortableContext items={games.map((game) => game.id)} strategy={verticalListSortingStrategy}>
-        <div className="game-list" role="listbox" aria-label="Spiele">
-          {games.map((game) => (
-            <GameRow
-              key={game.id}
-              game={game}
-              selected={game.id === selectedId}
-              draggingEnabled={sortByPriority}
-              onOpen={() => onOpen(game.id)}
-              onSelect={() => onSelect(game.id)}
-            />
-          ))}
-        </div>
+        <section className="collection-list" aria-labelledby="collection-list-title">
+          <header className="collection-list-head">
+            <div>
+              <span className="section-eyebrow">COLLECTION / {sortByPriority ? "PRIORITY ORDER" : "LIBRARY VIEW"}</span>
+              <h2 id="collection-list-title">Spiele, die dich weiterbringen</h2>
+            </div>
+            <span className="collection-list-shape" aria-hidden="true">
+              <span />
+              <span />
+              <span />
+            </span>
+          </header>
+          <div className="game-list" role="list" aria-label="Spiele">
+            {games.map((game, index) => (
+              <GameRow
+                key={game.id}
+                game={game}
+                index={index}
+                selected={game.id === selectedId}
+                draggingEnabled={sortByPriority}
+                onOpen={() => onOpen(game.id)}
+                onSelect={() => onSelect(game.id)}
+              />
+            ))}
+          </div>
+        </section>
       </SortableContext>
     </DndContext>
   );

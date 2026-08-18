@@ -8,6 +8,7 @@ import {
   type GameRecord,
 } from "@/lib/game-fields";
 import { EditorField } from "@/components/field-widgets";
+import { CoverImage } from "@/components/cover-image";
 import { DangerButton, IconButton, TextButton } from "@/components/ui";
 
 function DeleteFooter({ onDelete }: { onDelete: () => void }) {
@@ -56,9 +57,19 @@ export function GameEditor({
         {game ? (
           <>
             <header className="drawer-head">
-              <div>
-                <p className="drawer-kicker">Bearbeiten</p>
-                <h2>{game.name || "Unbenanntes Spiel"}</h2>
+              <div className="drawer-identity">
+                <div className="drawer-cover">
+                  <CoverImage
+                    name={game.name}
+                    franchise={game.franchise}
+                    coverUrl={game.coverUrl}
+                    steamAppId={game.steamAppId}
+                  />
+                </div>
+                <div>
+                  <p className="drawer-kicker">Bearbeiten</p>
+                  <h2>{game.name || "Unbenanntes Spiel"}</h2>
+                </div>
               </div>
               <IconButton label="Schließen" onClick={onClose}>
                 <X size={18} />
