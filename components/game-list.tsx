@@ -15,19 +15,23 @@ import type { GameRecord } from "@/lib/game-fields";
 
 export function GameList({
   games,
+  libraryEmpty,
   selectedId,
   sortByPriority,
   onOpen,
   onSelect,
   onReorder,
+  onAdd,
   onClearFilters,
 }: {
   games: GameRecord[];
+  libraryEmpty: boolean;
   selectedId: string | null;
   sortByPriority: boolean;
   onOpen: (id: string) => void;
   onSelect: (id: string) => void;
   onReorder: (orderedIds: string[]) => void;
+  onAdd: () => void;
   onClearFilters: () => void;
 }) {
   const sensors = useSensors(
@@ -48,6 +52,17 @@ export function GameList({
   };
 
   if (games.length === 0) {
+    if (libraryEmpty) {
+      return (
+        <m3-card variant="outlined" className="empty-state">
+          <h2 slot="header">Noch keine Spiele</h2>
+          <p>Lege ein Spiel an oder importiere eine JSON-Sicherung.</p>
+          <m3-button slot="actions" onClick={onAdd}>
+            Spiel hinzufügen
+          </m3-button>
+        </m3-card>
+      );
+    }
     return (
       <m3-card variant="outlined" className="empty-state">
         <h2 slot="header">Keine Treffer</h2>

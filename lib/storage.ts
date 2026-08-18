@@ -5,7 +5,6 @@ import {
   type GameRecord,
 } from "./game-fields";
 import { defaultSortFor, type SortState } from "./filter-games";
-import { SEED_GAMES } from "./seed-games";
 
 export const LIBRARY_STORAGE_KEY = "game-library.v1";
 
@@ -131,13 +130,21 @@ export function parseLibraryDocument(raw: unknown): {
   };
 }
 
+function isSeedGameId(id: string): boolean {
+  return id.startsWith("seed-");
+}
+
 export function loadLibraryDocument(): LibraryDocument | null {
   if (typeof window === "undefined") return null;
   const raw = window.localStorage.getItem(LIBRARY_STORAGE_KEY);
   if (!raw) return null;
   try {
     const { document } = parseLibraryDocument(JSON.parse(raw));
-    return document;
+    const games = document.games.filter((game) => !isSeedGameId(String(game.id)));
+    if (games.length === document.games.length) return document;
+    const cleaned = { ...document, games };
+    saveLibraryDocument(cleaned);
+    return cleaned;
   } catch {
     return null;
   }
@@ -148,12 +155,6 @@ export function saveLibraryDocument(document: LibraryDocument) {
   window.localStorage.setItem(LIBRARY_STORAGE_KEY, JSON.stringify(document));
 }
 
-export function seedLibraryDocument(): LibraryDocument {
-  const games = SEED_GAMES.map((game) => ({ ...game }));
-  const sort = defaultSortFor(games);
-  return buildLibraryDocument(games, {
-    ...DEFAULT_SETTINGS,
-    sortBy: sort.by,
-    sortDir: sort.dir,
-  });
+export function emptyLibraryDocument(): LibraryDocument {
+  return buildLibraryDocument([], DEFAULT_SETTINGS);
 }

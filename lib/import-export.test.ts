@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest";
 import { mergeImportedGames } from "./import-export";
 import { normalizeGame } from "./game-fields";
 import { parseLibraryDocument } from "./storage";
-import { createSeedGames } from "./seed-games";
 
 describe("normalizeGame", () => {
   it("fills registry defaults and keeps extra keys", () => {
@@ -48,17 +47,20 @@ describe("import merge", () => {
     expect(games.some((g) => g.name === "D")).toBe(true);
   });
 
-  it("round-trips seed JSON aside from exportedAt", () => {
-    const seeds = createSeedGames();
+  it("round-trips library JSON aside from exportedAt", () => {
+    const games = [
+      normalizeGame({ id: "1", name: "Alpha", steamAppId: 10 }),
+      normalizeGame({ id: "2", name: "Beta", steamAppId: 20 }),
+    ];
     const raw = {
       version: 1,
       exportedAt: "2026-08-18T18:00:00.000Z",
       settings: { sortBy: "name", sortDir: "asc", steamId: "", steamApiKey: "" },
-      games: seeds,
+      games,
     };
     const parsed = parseLibraryDocument(raw);
     expect(parsed.skipped).toBe(0);
-    expect(parsed.document.games).toHaveLength(19);
-    expect(parsed.document.games.map((g) => g.name)).toEqual(seeds.map((g) => g.name));
+    expect(parsed.document.games).toHaveLength(2);
+    expect(parsed.document.games.map((g) => g.name)).toEqual(["Alpha", "Beta"]);
   });
 });

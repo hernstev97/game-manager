@@ -54,7 +54,7 @@ export function LibraryApp() {
   const reorderPriorities = useLibrary((state) => state.reorderPriorities);
   const addGame = useLibrary((state) => state.addGame);
   const deleteGame = useLibrary((state) => state.deleteGame);
-  const resetToSeed = useLibrary((state) => state.resetToSeed);
+  const clearLibrary = useLibrary((state) => state.clearLibrary);
   const importJson = useLibrary((state) => state.importJson);
   const exportJson = useLibrary((state) => state.exportJson);
   const setSteamCredentials = useLibrary((state) => state.setSteamCredentials);
@@ -198,26 +198,30 @@ export function LibraryApp() {
         <m3-divider />
         <GameList
           games={visible}
+          libraryEmpty={games.length === 0}
           selectedId={selectedId}
           sortByPriority={sort.by === "priority"}
           onOpen={openEditor}
           onSelect={selectGame}
           onReorder={reorderPriorities}
+          onAdd={() => setAddOpen(true)}
           onClearFilters={() => {
             clearFilters();
             setSearchEpoch((value) => value + 1);
           }}
         />
       </div>
-      <GameEditor
-        game={selected}
-        games={games}
-        open={editorOpen && Boolean(selected)}
-        onClose={closeEditor}
-        onChange={updateGame}
-        onPriority={setGamePriority}
-        onDelete={deleteGame}
-      />
+      {editorOpen && selected ? (
+        <GameEditor
+          game={selected}
+          games={games}
+          open
+          onClose={closeEditor}
+          onChange={updateGame}
+          onPriority={setGamePriority}
+          onDelete={deleteGame}
+        />
+      ) : null}
       {addOpen ? (
         <AddGameDialog
           open
@@ -238,7 +242,7 @@ export function LibraryApp() {
           steamApiKey={steamApiKey}
           games={games}
           onSteamCredentials={setSteamCredentials}
-          onReset={resetToSeed}
+          onClearLibrary={clearLibrary}
           onApplyPlaytime={applySteamPlaytime}
           onRefreshIdentity={refreshSteamIdentity}
         />

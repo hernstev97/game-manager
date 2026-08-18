@@ -8,7 +8,6 @@ import {
 } from "@/lib/game-fields";
 import {
   EMPTY_FILTERS,
-  defaultSortFor,
   type LibraryFilters,
   type SortState,
 } from "@/lib/filter-games";
@@ -18,7 +17,7 @@ import {
   buildLibraryDocument,
   loadLibraryDocument,
   saveLibraryDocument,
-  seedLibraryDocument,
+  emptyLibraryDocument,
   settingsFromSort,
   sortFromSettings,
   type LibrarySettings,
@@ -52,7 +51,7 @@ type LibraryState = {
   reorderPriorities: (visibleOrderedIds: string[]) => void;
   addGame: (partial: Partial<GameRecord>) => GameRecord;
   deleteGame: (id: string) => void;
-  resetToSeed: () => void;
+  clearLibrary: () => void;
   importJson: (raw: unknown) => { added: number; updated: number; skipped: number; total: number };
   exportJson: () => void;
   setSteamCredentials: (steamId: string, steamApiKey: string) => void;
@@ -85,7 +84,7 @@ export const useLibrary = create<LibraryState>((set, get) => ({
   hydrate: () => {
     if (get().hydrated) return;
     const stored = loadLibraryDocument();
-    const document = stored ?? seedLibraryDocument();
+    const document = stored ?? emptyLibraryDocument();
     if (!stored) {
       saveLibraryDocument(document);
     }
@@ -181,15 +180,10 @@ export const useLibrary = create<LibraryState>((set, get) => ({
     persistNow(get());
   },
 
-  resetToSeed: () => {
-    const document = seedLibraryDocument();
-    const steamId = get().steamId;
-    const steamApiKey = get().steamApiKey;
+  clearLibrary: () => {
     set({
-      games: document.games,
-      sort: defaultSortFor(document.games),
-      steamId,
-      steamApiKey,
+      games: [],
+      sort: { by: "name", dir: "asc" },
       filters: EMPTY_FILTERS,
       selectedId: null,
       editorOpen: false,

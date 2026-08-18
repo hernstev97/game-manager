@@ -16,8 +16,7 @@
  *      defaultValue: null,
  *      group: "identity",
  *    }
- * 2. Optionally add seed values in seed-games.ts.
- * 3. Bump JSON `version` only if you need a migrator. Prefer default-fill
+ * 2. Bump JSON `version` only if you need a migrator. Prefer default-fill
  *    on load so old JSON still works.
  *
  * That is the entire process. Filters, editor, row slots, import defaults,

@@ -29,7 +29,7 @@ export function SettingsDialog({
   steamApiKey,
   games,
   onSteamCredentials,
-  onReset,
+  onClearLibrary,
   onApplyPlaytime,
   onRefreshIdentity,
 }: {
@@ -39,7 +39,7 @@ export function SettingsDialog({
   steamApiKey: string;
   games: GameRecord[];
   onSteamCredentials: (steamId: string, steamApiKey: string) => void;
-  onReset: () => void;
+  onClearLibrary: () => void;
   onApplyPlaytime: (
     owned: Array<{ appId: number; name: string; playtimeMinutes: number }>,
   ) => { updated: number; markedOwned: number };
@@ -290,16 +290,16 @@ export function SettingsDialog({
         <section id="settings-data" className="settings" hidden={tab !== 2}>
           {confirmReset ? (
             <div className="confirm-row">
-              <span>Bibliothek auf die 19 Beispieleinträge zurücksetzen?</span>
+              <span>Alle Spiele in der Bibliothek löschen?</span>
               <m3-button
                 className="danger-button"
                 onClick={() => {
-                  onReset();
+                  onClearLibrary();
                   setConfirmReset(false);
-                  toast.success("Beispieldaten wiederhergestellt.");
+                  toast.success("Bibliothek geleert.");
                 }}
               >
-                Zurücksetzen
+                Löschen
               </m3-button>
               <m3-button variant="text" onClick={() => setConfirmReset(false)}>
                 Abbrechen
@@ -307,7 +307,7 @@ export function SettingsDialog({
             </div>
           ) : (
             <m3-button className="danger-button" variant="outlined" onClick={() => setConfirmReset(true)}>
-              Auf Beispieldaten zurücksetzen
+              Bibliothek leeren
             </m3-button>
           )}
         </section>

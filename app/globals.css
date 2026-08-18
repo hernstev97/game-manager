@@ -214,8 +214,8 @@ m3-top-app-bar {
 
 .cover-img,
 .cover-placeholder {
-  width: 92px;
-  height: 42px;
+  width: 175px;
+  height: 82px;
   object-fit: cover;
   border-radius: 8px;
   display: block;
