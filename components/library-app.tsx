@@ -1,8 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Plus } from "lucide-react";
-import { toast, Toaster } from "sonner";
 import { useLibrary } from "@/store/library";
 import { applyFiltersAndSort } from "@/lib/filter-games";
 import { LibraryToolbar, filtersWithQuery } from "@/components/library-toolbar";
@@ -11,6 +9,24 @@ import { GameList } from "@/components/game-list";
 import { GameEditor } from "@/components/game-editor";
 import { AddGameDialog } from "@/components/add-game-dialog";
 import { SettingsDialog } from "@/components/settings-dialog";
+import { registerM3Components } from "@/components/m3/register";
+import { IconAdd } from "@/components/m3/icons";
+import { SnackbarHost, toast } from "@/components/m3/snackbar";
+import { MorphLoader } from "@/components/morph-loader";
+
+function isTypingTarget(target: EventTarget | null) {
+  if (!(target instanceof HTMLElement)) return false;
+  const tag = target.tagName;
+  return (
+    target.isContentEditable ||
+    tag === "INPUT" ||
+    tag === "TEXTAREA" ||
+    tag === "SELECT" ||
+    tag === "M3-TEXT-FIELD" ||
+    tag === "M3-SEARCH-BAR" ||
+    tag === "M3-SLIDER"
+  );
+}
 
 export function LibraryApp() {
   const hydrated = useLibrary((state) => state.hydrated);
@@ -45,16 +61,22 @@ export function LibraryApp() {
   const applySteamPlaytime = useLibrary((state) => state.applySteamPlaytime);
   const refreshSteamIdentity = useLibrary((state) => state.refreshSteamIdentity);
 
+  const [m3Ready, setM3Ready] = useState(false);
+  const [searchEpoch, setSearchEpoch] = useState(0);
+
   useEffect(() => {
     hydrate();
   }, [hydrate]);
+
+  useEffect(() => {
+    void registerM3Components().then(() => setM3Ready(true));
+  }, []);
 
   const visible = useMemo(
     () => applyFiltersAndSort(games, filters, sort),
     [games, filters, sort],
   );
   const selected = games.find((game) => game.id === selectedId) ?? null;
-  const [searchEpoch, setSearchEpoch] = useState(0);
 
   const onQuery = useCallback(
     (query: string) => {
@@ -78,15 +100,8 @@ export function LibraryApp() {
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
-      const target = event.target as HTMLElement | null;
-      const typing =
-        target &&
-        (target.tagName === "INPUT" ||
-          target.tagName === "TEXTAREA" ||
-          target.tagName === "SELECT" ||
-          target.isContentEditable);
-      if (typing) {
-        if (event.key === "Escape") (target as HTMLElement).blur();
+      if (isTypingTarget(event.target)) {
+        if (event.key === "Escape") (event.target as HTMLElement).blur();
         return;
       }
       const state = useLibrary.getState();
@@ -109,7 +124,7 @@ export function LibraryApp() {
       }
       if (event.key === "/" && !event.ctrlKey && !event.metaKey) {
         event.preventDefault();
-        document.querySelector<HTMLInputElement>('input[type="search"]')?.focus();
+        document.querySelector<HTMLElement>("m3-search-bar")?.focus();
         return;
       }
       if (event.key === "n" && !event.ctrlKey && !event.metaKey) {
@@ -137,74 +152,63 @@ export function LibraryApp() {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  if (!hydrated) {
+  if (!hydrated || !m3Ready) {
     return (
-      <div className="library-shell">
-        <div className="library-toolbar">
-          <div className="toolbar-title">
-            <h1>gGrid</h1>
-            <p>Lädt …</p>
-          </div>
-        </div>
-        <div className="game-list">
-          {Array.from({ length: 8 }).map((_, index) => (
-            <div key={index} className="game-row is-skeleton" />
-          ))}
-        </div>
+      <div className="loading-state">
+        <MorphLoader size={56} label="Bibliothek wird geladen" />
+        <p>Lädt …</p>
       </div>
     );
   }
 
   return (
-    <div className="library-shell">
-      <LibraryToolbar
-        key={searchEpoch}
-        query={filters.query}
-        sort={sort}
-        totalCount={games.length}
-        onQuery={onQuery}
-        onSort={setSort}
-        onImport={(file) => void importFile(file)}
-        onExport={exportJson}
-        onSettings={() => setSettingsOpen(true)}
-      />
-      <FilterBar
-        games={games}
-        filters={filters}
-        visibleCount={visible.length}
-        onChange={(next) => {
-          if (!next.query && filters.query) setSearchEpoch((value) => value + 1);
-          setFilters(next);
-        }}
-        onClear={() => {
-          clearFilters();
-          setSearchEpoch((value) => value + 1);
-        }}
-      />
-      <GameList
-        games={visible}
-        selectedId={selectedId}
-        sortByPriority={sort.by === "priority"}
-        onOpen={openEditor}
-        onSelect={selectGame}
-        onReorder={reorderPriorities}
-        onClearFilters={() => {
-          clearFilters();
-          setSearchEpoch((value) => value + 1);
-        }}
-      />
-      <button
-        type="button"
-        className="fab"
-        aria-label="Spiel hinzufügen"
-        title="Spiel hinzufügen (Taste N)"
-        onClick={() => setAddOpen(true)}
-      >
-        <span className="fab-icon" aria-hidden="true">
-          <Plus size={22} strokeWidth={2.75} />
-        </span>
-        <span>Spiel hinzufügen</span>
-      </button>
+    <div className="library-app">
+      <m3-top-app-bar >
+        gGrid
+        <m3-button slot="actions" onClick={() => setAddOpen(true)}>
+          <IconAdd slot="icon" width={18} height={18} />
+          Spiel hinzufügen
+        </m3-button>
+      </m3-top-app-bar>
+      <div className="library-shell">
+        <LibraryToolbar
+          key={searchEpoch}
+          query={filters.query}
+          sort={sort}
+          totalCount={games.length}
+          onQuery={onQuery}
+          onSort={setSort}
+          onImport={(file) => void importFile(file)}
+          onExport={exportJson}
+          onSettings={() => setSettingsOpen(true)}
+        />
+        <FilterBar
+          games={games}
+          filters={filters}
+          visibleCount={visible.length}
+          onChange={(next) => {
+            if (!next.query && filters.query) setSearchEpoch((value) => value + 1);
+            setFilters(next);
+          }}
+          onClear={() => {
+            clearFilters();
+            setSearchEpoch((value) => value + 1);
+          }}
+        />
+        <m3-divider />
+        <GameList
+          games={visible}
+          selectedId={selectedId}
+          sortByPriority={sort.by === "priority"}
+          onOpen={openEditor}
+          onSelect={selectGame}
+          onReorder={reorderPriorities}
+          onClearFilters={() => {
+            clearFilters();
+            setSearchEpoch((value) => value + 1);
+          }}
+        />
+      </div>
       <GameEditor
         game={selected}
         games={games}
@@ -239,7 +243,7 @@ export function LibraryApp() {
           onRefreshIdentity={refreshSteamIdentity}
         />
       ) : null}
-      <Toaster position="bottom-left" richColors closeButton />
+      <SnackbarHost />
     </div>
   );
 }

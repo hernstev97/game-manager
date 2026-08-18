@@ -443,6 +443,7 @@ export function applyThemeTokens(
   const dark = tokensAreDark(tokens);
   root.style.colorScheme = dark ? "dark" : "light";
   root.dataset.theme = dark ? "dark" : "light";
+  root.setAttribute("theme", dark ? "dark" : "light");
 }
 
 export function resolveThemeMode(
@@ -595,4 +596,4 @@ export async function seedsFromImageFile(file: File): Promise<string[]> {
 }
 
 /** Inline boot: apply last-known tokens before first paint (no MCU in the script). */
-export const THEME_BOOT_SCRIPT = `(function(){try{var k=${JSON.stringify(THEME_STORAGE_KEY)};var raw=localStorage.getItem(k);var data=raw?JSON.parse(raw):null;var mode=data&&data.mode?data.mode:"system";var dark=mode==="dark"||(mode==="system"&&window.matchMedia("(prefers-color-scheme: dark)").matches);var pair=data&&data.pair;var tokens=pair?(dark?pair.dark:pair.light):null;var root=document.documentElement;root.dataset.theme=dark?"dark":"light";root.style.colorScheme=dark?"dark":"light";if(tokens){for(var name in tokens){if(Object.prototype.hasOwnProperty.call(tokens,name))root.style.setProperty(name,tokens[name]);}}}catch(e){}})();`;
+export const THEME_BOOT_SCRIPT = `(function(){try{var k=${JSON.stringify(THEME_STORAGE_KEY)};var raw=localStorage.getItem(k);var data=raw?JSON.parse(raw):null;var mode=data&&data.mode?data.mode:"system";var dark=mode==="dark"||(mode==="system"&&window.matchMedia("(prefers-color-scheme: dark)").matches);var pair=data&&data.pair;var tokens=pair?(dark?pair.dark:pair.light):null;var root=document.documentElement;root.dataset.theme=dark?"dark":"light";root.setAttribute("theme",dark?"dark":"light");root.style.colorScheme=dark?"dark":"light";if(tokens){for(var name in tokens){if(Object.prototype.hasOwnProperty.call(tokens,name))root.style.setProperty(name,tokens[name]);}}}catch(e){}})();`;

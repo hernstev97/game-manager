@@ -1,9 +1,11 @@
 "use client";
 
-import type { AnyGameField, ChipTone, GameRecord } from "@/lib/game-fields";
+import { useState } from "react";
+import type { AnyGameField, GameRecord } from "@/lib/game-fields";
 import { collectFieldOptions, formatDate, formatPlaytime } from "@/lib/game-fields";
-import { Chip, SelectField, Switch, TextArea, TextField } from "@/components/ui";
 import { CoverImage } from "@/components/cover-image";
+import { IconCheck } from "@/components/m3/icons";
+import { M3Chip, M3Menu, M3Slider, M3Switch, M3TextField } from "@/components/m3/host";
 
 export function BooleanChip({
   field,
@@ -13,14 +15,7 @@ export function BooleanChip({
   value: boolean;
 }) {
   if (!value) return null;
-  return (
-    <Chip tone={(field.chipTone as ChipTone | undefined) ?? "neutral"}>
-      <span className="chip-check" aria-hidden="true">
-        ✓
-      </span>
-      {field.label}
-    </Chip>
-  );
+  return <M3Chip>{field.label}</M3Chip>;
 }
 
 export function RatingStars({
@@ -33,56 +28,24 @@ export function RatingStars({
   compact?: boolean;
 }) {
   if (compact) {
-    if (value == null) {
-      return <span className="rating-compact">—</span>;
-    }
-    return (
-      <span className="rating-compact">
-        <svg
-          className="rating-star-icon"
-          width="13"
-          height="13"
-          viewBox="0 0 24 24"
-          fill="currentColor"
-          stroke="currentColor"
-          strokeWidth="1"
-        >
-          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-        </svg>
-        <span>{value.toFixed(1)}</span>
-      </span>
-    );
+    return <span>{value == null ? "—" : value.toFixed(1)}</span>;
   }
   return (
-    <div className="rating-editor">
-      <input
-        type="range"
+    <div className="filter-stack">
+      <M3Slider
+        label="Bewertung"
         min={1}
         max={10}
         step={0.5}
         value={value ?? 1}
-        aria-label="Bewertung"
-        onChange={(event) => onChange?.(Number(event.target.value))}
+        onChange={(next) => onChange?.(next)}
       />
-      <div className="rating-editor-meta">
-        <span className="rating-compact">
-          <svg
-            className="rating-star-icon"
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="currentColor"
-            stroke="currentColor"
-            strokeWidth="1"
-          >
-            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-          </svg>
-          <strong>{value == null ? "—" : value.toFixed(1)}</strong>
-        </span>
+      <div className="confirm-row">
+        <strong>{value == null ? "—" : value.toFixed(1)}</strong>
         {onChange && value != null ? (
-          <button type="button" className="btn btn-text" onClick={() => onChange(null)}>
+          <m3-button variant="text" onClick={() => onChange(null)}>
             Zurücksetzen
-          </button>
+          </m3-button>
         ) : null}
       </div>
     </div>
@@ -90,18 +53,52 @@ export function RatingStars({
 }
 
 export function PriorityBadge({ value }: { value: number | null }) {
-  if (value == null) return <span className="priority-empty" />;
-  const tone = value === 1 ? "loud" : value <= 3 ? "mid" : "quiet";
-  return <span className={`priority-badge priority-${tone}`}>#{value}</span>;
+  if (value == null) return null;
+  return <M3Chip>#{value}</M3Chip>;
 }
 
 export function NotesPreview({ value }: { value: string }) {
   const line = value.split(/\r?\n/, 1)[0]?.trim() ?? "";
-  if (!line) return <span className="notes-preview is-empty" />;
+  if (!line) return null;
+  return <span title={value}>{line}</span>;
+}
+
+function EnumField({
+  label,
+  value,
+  options,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  options: readonly string[];
+  onChange: (value: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
   return (
-    <span className="notes-preview" title={value}>
-      {line}
-    </span>
+    <div className="field">
+      <span className="field-label">{label}</span>
+      <div className="anchor">
+        <m3-button variant="outlined" onClick={() => setOpen((current) => !current)}>
+          {value}
+        </m3-button>
+        <M3Menu
+          open={open}
+          onOpenChange={setOpen}
+          onSelect={(next) => {
+            onChange(next);
+            setOpen(false);
+          }}
+        >
+          {options.map((option) => (
+            <m3-menu-item key={option} value={option}>
+              {option}
+              {option === value ? <IconCheck slot="trailing-icon" /> : null}
+            </m3-menu-item>
+          ))}
+        </M3Menu>
+      </div>
+    </div>
   );
 }
 
@@ -123,7 +120,7 @@ export function EditorField({
 
   if (field.type === "boolean") {
     return (
-      <Switch
+      <M3Switch
         label={field.label}
         checked={Boolean(value)}
         onChange={(next) => onChange({ [field.id]: next })}
@@ -134,17 +131,22 @@ export function EditorField({
 
   if (field.type === "text") {
     return (
-      <TextArea
-        label={field.label}
-        value={typeof value === "string" ? value : ""}
-        onChange={(next) => onChange({ [field.id]: next })}
-      />
+      <label className="field">
+        <span className="field-label">{field.label}</span>
+        <textarea
+          className="notes-input"
+          value={typeof value === "string" ? value : ""}
+          aria-label={field.label}
+          rows={5}
+          onChange={(event) => onChange({ [field.id]: event.target.value })}
+        />
+      </label>
     );
   }
 
   if (field.type === "enum") {
     return (
-      <SelectField
+      <EnumField
         label={field.label}
         value={typeof value === "string" ? value : String(field.defaultValue ?? "")}
         options={options}
@@ -163,10 +165,10 @@ export function EditorField({
           {options.map((option) => {
             const isOn = selected.includes(option);
             return (
-              <Chip
+              <M3Chip
                 key={option}
+                variant="filter"
                 selected={isOn}
-                tone={isOn ? "primary" : "neutral"}
                 onClick={() => {
                   if (isOn) {
                     onChange({ [field.id]: selected.filter((item) => item !== option) });
@@ -180,7 +182,7 @@ export function EditorField({
                 }}
               >
                 {option}
-              </Chip>
+              </M3Chip>
             );
           })}
         </div>
@@ -206,29 +208,26 @@ export function EditorField({
       <div className="field">
         <span className="field-label">{field.label}</span>
         <div className="priority-editor">
-          <input
-            className="field-input"
+          <M3TextField
+            label="Rang"
             type="number"
-            min={1}
-            placeholder="—"
-            value={current ?? ""}
-            onChange={(event) => {
-              const raw = event.target.value;
-              if (raw === "") {
+            value={current == null ? "" : String(current)}
+            onChange={(next) => {
+              if (next === "") {
                 onPriority(null);
                 return;
               }
-              const parsed = Number(raw);
+              const parsed = Number(next);
               if (Number.isFinite(parsed)) onPriority(parsed);
             }}
           />
-          <button type="button" className="btn btn-tonal" onClick={() => onPriority(1)}>
+          <m3-button variant="tonal" onClick={() => onPriority(1)}>
             Auf Platz 1
-          </button>
+          </m3-button>
           {current != null ? (
-            <button type="button" className="btn btn-text" onClick={() => onPriority(null)}>
+            <m3-button variant="text" onClick={() => onPriority(null)}>
               Rang entfernen
-            </button>
+            </m3-button>
           ) : null}
         </div>
       </div>
@@ -238,7 +237,7 @@ export function EditorField({
   if (field.type === "cover") {
     return (
       <div className="field">
-        <TextField
+        <M3TextField
           label={field.label}
           value={typeof value === "string" ? value : ""}
           onChange={(next) => onChange({ [field.id]: next })}
@@ -258,7 +257,7 @@ export function EditorField({
 
   if (field.type === "steamAppId") {
     return (
-      <TextField
+      <M3TextField
         label={field.label}
         value={typeof value === "number" ? String(value) : ""}
         onChange={(next) => {
@@ -281,8 +280,9 @@ export function EditorField({
     if (field.id === "playtimeMinutes") {
       const minutes = typeof value === "number" ? value : null;
       return (
-        <TextField
-          label={`${field.label}${minutes != null ? ` (${formatPlaytime(minutes)})` : ""}`}
+        <M3TextField
+          label={field.label}
+          helperText={minutes != null ? formatPlaytime(minutes) : undefined}
           value={minutes == null ? "" : String(minutes)}
           onChange={(next) => {
             if (next.trim() === "") {
@@ -297,7 +297,7 @@ export function EditorField({
       );
     }
     return (
-      <TextField
+      <M3TextField
         label={field.label}
         value={typeof value === "number" ? String(value) : ""}
         onChange={(next) => {
@@ -314,7 +314,7 @@ export function EditorField({
 
   if (field.type === "date") {
     return (
-      <TextField
+      <M3TextField
         label={field.label}
         value={formatDate(typeof value === "string" ? value : null)}
         onChange={() => undefined}
@@ -324,7 +324,7 @@ export function EditorField({
   }
 
   return (
-    <TextField
+    <M3TextField
       label={field.label}
       value={typeof value === "string" ? value : ""}
       onChange={(next) => onChange({ [field.id]: next })}

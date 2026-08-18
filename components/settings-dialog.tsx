@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { toast } from "sonner";
+import { toast } from "@/components/m3/snackbar";
 import {
   DEFAULT_THEME_SEED,
   SCHEME_VARIANT_LABELS,
@@ -10,17 +10,17 @@ import {
   generateThemePair,
   normalizeHexColor,
   resolveBrowserAccent,
-  schemeVariants,
   seedsFromImageFile,
+  schemeVariants,
   themeSwatch,
   type SchemeVariant,
   type WallpaperTheme,
 } from "@/lib/theme";
-import { DangerButton, FilledButton, Modal, TextButton, TextField } from "@/components/ui";
+import { M3Chip, M3Dialog, M3Radio, M3Tabs, M3TextField } from "@/components/m3/host";
 import { useTheme } from "@/components/theme-provider";
 import { fetchOwnedSteamGames, fetchSteamAppDetails, parseSteamIdentity, steamCover } from "@/lib/steam";
 import type { GameRecord } from "@/lib/game-fields";
-import { cn } from "@/lib/cn";
+import { MorphLoader } from "@/components/morph-loader";
 
 export function SettingsDialog({
   open,
@@ -54,6 +54,7 @@ export function SettingsDialog({
   const [busy, setBusy] = useState(false);
   const [confirmReset, setConfirmReset] = useState(false);
   const [wallpaper, setWallpaper] = useState<WallpaperTheme[]>([]);
+  const [tab, setTab] = useState(0);
 
   const saveSteam = () => {
     onSteamCredentials(idDraft.trim(), keyDraft.trim());
@@ -155,153 +156,143 @@ export function SettingsDialog({
   };
 
   return (
-    <Modal open={open} onClose={onClose} title="Einstellungen" wide>
+    <M3Dialog open={open} onClose={onClose} headline="Einstellungen">
       <div className="settings">
-        <div className="settings-intro">
-          <span className="settings-intro-mark" aria-hidden="true">
-            <span />
-            <span />
-          </span>
-          <div>
-            <span className="section-eyebrow">PERSONALISIEREN</span>
-            <h3>Mach die Bibliothek zu deiner.</h3>
-            <p>Farbkern, Datenquelle und Darstellung bleiben unter deiner Kontrolle.</p>
-          </div>
-        </div>
+        {busy ? <MorphLoader size={36} label="Steam wird abgefragt" /> : null}
+        <M3Tabs activeTab={tab} onChange={(index) => setTab(index)}>
+          <m3-tab panel="settings-steam" value="steam">
+            Steam
+          </m3-tab>
+          <m3-tab panel="settings-theme" value="theme">
+            Erscheinungsbild
+          </m3-tab>
+          <m3-tab panel="settings-data" value="data">
+            Daten
+          </m3-tab>
+        </M3Tabs>
 
-        <section className="settings-section">
-          <h3>Steam</h3>
+        <section id="settings-steam" className="settings" hidden={tab !== 0}>
           <p className="settings-copy">
             Nur lokal gespeichert. Wird ausschließlich an Steam geschickt, nie geloggt.
             Custom-URL und Profil-Link werden automatisch in eine 64-bit-ID aufgelöst.
           </p>
-          <div className="settings-grid">
-            <TextField
-              label="Steam-ID, Custom-URL oder Profil-Link"
-              value={idDraft}
-              onChange={setIdDraft}
-              placeholder="7656119… oder steamcommunity.com/id/…"
-            />
-            <TextField
-              label="Web-API-Schlüssel"
-              value={keyDraft}
-              onChange={setKeyDraft}
-              type="password"
-            />
-          </div>
-          <div className="chip-row">
-            <FilledButton onClick={saveSteam}>Speichern</FilledButton>
-            <TextButton disabled={busy} onClick={() => void refreshCovers()}>
+          <M3TextField
+            label="Steam-ID, Custom-URL oder Profil-Link"
+            value={idDraft}
+            onChange={setIdDraft}
+            placeholder="7656119… oder steamcommunity.com/id/…"
+          />
+          <M3TextField
+            label="Web-API-Schlüssel"
+            value={keyDraft}
+            onChange={setKeyDraft}
+            type="password"
+          />
+          <div className="settings-actions">
+            <m3-button onClick={saveSteam}>Speichern</m3-button>
+            <m3-button variant="text" disabled={busy} onClick={() => void refreshCovers()}>
               Cover &amp; Namen aktualisieren
-            </TextButton>
-            <TextButton disabled={busy} onClick={() => void pullPlaytime()}>
+            </m3-button>
+            <m3-button variant="text" disabled={busy} onClick={() => void pullPlaytime()}>
               Spielzeit holen
-            </TextButton>
+            </m3-button>
           </div>
         </section>
 
-        <section className="settings-section">
-          <h3>Erscheinungsbild</h3>
-          <div className="segmented">
-            {(["light", "dark", "system"] as const).map((mode) => (
-              <button
-                key={mode}
-                type="button"
-                className={cn(prefs.mode === mode && "is-active")}
-                onClick={() => setMode(mode)}
-              >
-                {mode === "light" ? "Hell" : mode === "dark" ? "Dunkel" : "System"}
-              </button>
-            ))}
+        <section id="settings-theme" className="settings" hidden={tab !== 1}>
+          <span className="field-label">Modus</span>
+          <div className="chip-row">
+            <M3Radio name="theme-mode" value="light" checked={prefs.mode === "light"} onChange={() => setMode("light")} label="Hell" />
+            <M3Radio name="theme-mode" value="dark" checked={prefs.mode === "dark"} onChange={() => setMode("dark")} label="Dunkel" />
+            <M3Radio name="theme-mode" value="system" checked={prefs.mode === "system"} onChange={() => setMode("system")} label="System" />
           </div>
-          <div className="field">
-            <span className="field-label">Schema</span>
-            <div className="chip-row">
-              {schemeVariants.map((variant) => {
-                const pair = generateThemePair(prefs.seed, variant);
-                const swatch = themeSwatch(pair);
-                return (
-                  <button
-                    key={variant}
-                    type="button"
-                    className={cn("swatch-chip", prefs.variant === variant && "is-active")}
-                    onClick={() => setVariant(variant as SchemeVariant)}
-                  >
-                    <span className="swatch">
-                      {swatch.map((color) => (
-                        <i key={color} style={{ background: color }} />
-                      ))}
-                    </span>
-                    {SCHEME_VARIANT_LABELS[variant]}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-          <div className="field">
-            <span className="field-label">Farbkern</span>
-            <div className="chip-row">
-              {THEME_PRESETS.map((preset) => (
-                <button
-                  key={preset.id}
-                  type="button"
-                  className={cn("swatch-chip", prefs.seed === preset.seed && prefs.source === "preset" && "is-active")}
-                  onClick={() => {
-                    setHexDraft(preset.seed);
-                    setSeed(preset.seed, "preset");
-                  }}
+          <span className="field-label">Schema</span>
+          <div className="chip-row">
+            {schemeVariants.map((variant) => {
+              const pair = generateThemePair(prefs.seed, variant);
+              const swatch = themeSwatch(pair);
+              return (
+                <M3Chip
+                  key={variant}
+                  variant="filter"
+                  selected={prefs.variant === variant}
+                  onClick={() => setVariant(variant as SchemeVariant)}
                 >
-                  <i className="seed-dot" style={{ background: preset.seed }} />
-                  {preset.label}
-                </button>
-              ))}
-              <TextButton onClick={useAccent}>Systemakzent</TextButton>
-            </div>
-            <div className="hex-row">
-              <TextField label="Hex" value={hexDraft} onChange={setHexDraft} placeholder={DEFAULT_THEME_SEED} />
-              <FilledButton onClick={applyHex}>Übernehmen</FilledButton>
-            </div>
-            <label className="file-pick">
-              Farben aus Bild ableiten
-              <input
-                type="file"
-                accept="image/*"
-                hidden
-                onChange={(event) => {
-                  const file = event.target.files?.[0];
-                  if (file) void onImage(file);
-                  event.target.value = "";
-                }}
-              />
-            </label>
-            {wallpaper.length > 0 ? (
-              <div className="chip-row">
-                {wallpaper.map((item, index) => (
-                  <button
-                    key={`${item.seed}-${item.variant}-${index}`}
-                    type="button"
-                    className="swatch-chip"
-                    onClick={() => applyWallpaper(item)}
-                  >
-                    <span className="swatch">
-                      {item.swatch.map((color) => (
-                        <i key={color} style={{ background: color }} />
-                      ))}
-                    </span>
-                    {SCHEME_VARIANT_LABELS[item.variant]}
-                  </button>
-                ))}
-              </div>
-            ) : null}
+                  <span className="swatch" slot="icon">
+                    {swatch.map((color) => (
+                      <i key={color} style={{ background: color }} />
+                    ))}
+                  </span>
+                  {SCHEME_VARIANT_LABELS[variant]}
+                </M3Chip>
+              );
+            })}
           </div>
+          <span className="field-label">Farbkern</span>
+          <div className="chip-row">
+            {THEME_PRESETS.map((preset) => (
+              <M3Chip
+                key={preset.id}
+                variant="filter"
+                selected={prefs.seed === preset.seed && prefs.source === "preset"}
+                onClick={() => {
+                  setHexDraft(preset.seed);
+                  setSeed(preset.seed, "preset");
+                }}
+              >
+                <i className="seed-dot" slot="icon" style={{ background: preset.seed }} />
+                {preset.label}
+              </M3Chip>
+            ))}
+            <m3-button variant="text" onClick={useAccent}>
+              Systemakzent
+            </m3-button>
+          </div>
+          <div className="hex-row">
+            <M3TextField label="Hex" value={hexDraft} onChange={setHexDraft} placeholder={DEFAULT_THEME_SEED} />
+            <m3-button onClick={applyHex}>Übernehmen</m3-button>
+          </div>
+          <label>
+            <m3-button variant="outlined" onClick={() => document.getElementById("wallpaper-file")?.click()}>
+              Farben aus Bild ableiten
+            </m3-button>
+            <input
+              id="wallpaper-file"
+              type="file"
+              accept="image/*"
+              hidden
+              onChange={(event) => {
+                const file = event.target.files?.[0];
+                if (file) void onImage(file);
+                event.target.value = "";
+              }}
+            />
+          </label>
+          {wallpaper.length > 0 ? (
+            <div className="chip-row">
+              {wallpaper.map((item, index) => (
+                <M3Chip
+                  key={`${item.seed}-${item.variant}-${index}`}
+                  onClick={() => applyWallpaper(item)}
+                >
+                  <span className="swatch" slot="icon">
+                    {item.swatch.map((color) => (
+                      <i key={color} style={{ background: color }} />
+                    ))}
+                  </span>
+                  {SCHEME_VARIANT_LABELS[item.variant]}
+                </M3Chip>
+              ))}
+            </div>
+          ) : null}
         </section>
 
-        <section className="settings-section settings-section-danger">
-          <h3>Daten</h3>
+        <section id="settings-data" className="settings" hidden={tab !== 2}>
           {confirmReset ? (
             <div className="confirm-row">
               <span>Bibliothek auf die 19 Beispieleinträge zurücksetzen?</span>
-              <DangerButton
+              <m3-button
+                className="danger-button"
                 onClick={() => {
                   onReset();
                   setConfirmReset(false);
@@ -309,16 +300,18 @@ export function SettingsDialog({
                 }}
               >
                 Zurücksetzen
-              </DangerButton>
-              <TextButton onClick={() => setConfirmReset(false)}>Abbrechen</TextButton>
+              </m3-button>
+              <m3-button variant="text" onClick={() => setConfirmReset(false)}>
+                Abbrechen
+              </m3-button>
             </div>
           ) : (
-            <DangerButton onClick={() => setConfirmReset(true)}>
+            <m3-button className="danger-button" variant="outlined" onClick={() => setConfirmReset(true)}>
               Auf Beispieldaten zurücksetzen
-            </DangerButton>
+            </m3-button>
           )}
         </section>
       </div>
-    </Modal>
+    </M3Dialog>
   );
 }

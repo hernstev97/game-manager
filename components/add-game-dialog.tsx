@@ -1,11 +1,43 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { toast } from "sonner";
-import { FilledButton, Modal, TextButton, TextField } from "@/components/ui";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { toast } from "@/components/m3/snackbar";
+import { M3Dialog, M3TextField } from "@/components/m3/host";
 import { CoverImage } from "@/components/cover-image";
 import type { GameRecord } from "@/lib/game-fields";
 import { fetchSteamAppDetails, parseSteamInput, searchSteamStore, steamCover } from "@/lib/steam";
+import { useHostEvent } from "@/components/m3/events";
+import { MorphLoader } from "@/components/morph-loader";
+
+function ResultItem({
+  id,
+  name,
+  supporting,
+  coverUrl,
+  steamAppId,
+  disabled,
+  onChoose,
+}: {
+  id: string;
+  name: string;
+  supporting: string;
+  coverUrl: string;
+  steamAppId: number | null;
+  disabled?: boolean;
+  onChoose: () => void;
+}) {
+  const ref = useRef<HTMLElement>(null);
+  useHostEvent(ref, "item-click", onChoose);
+  return (
+    <m3-list-item ref={ref} lines="2" clickable disabled={disabled} value={id} shape="rounded">
+      <span slot="leading">
+        <CoverImage name={name} coverUrl={coverUrl} steamAppId={steamAppId} />
+      </span>
+      {name}
+      <span slot="supporting-text">{supporting}</span>
+    </m3-list-item>
+  );
+}
 
 export function AddGameDialog({
   open,
@@ -23,6 +55,7 @@ export function AddGameDialog({
   const [query, setQuery] = useState("");
   const [busy, setBusy] = useState(false);
   const [hits, setHits] = useState<Array<{ appId: number; name: string; coverUrl: string }>>([]);
+  const [resolvedQuery, setResolvedQuery] = useState("");
 
   const steamId = parseSteamInput(query);
   const existing = useMemo(() => {
@@ -45,6 +78,8 @@ export function AddGameDialog({
         if (!cancelled) setHits(results);
       } catch {
         if (!cancelled) setHits([]);
+      } finally {
+        if (!cancelled) setResolvedQuery(query);
       }
     }, 280);
     return () => {
@@ -53,20 +88,9 @@ export function AddGameDialog({
     };
   }, [open, query, steamId]);
 
-  const visibleHits = !steamId && query.trim().length >= 3 ? hits : [];
+  const searching = Boolean(open && !steamId && query.trim().length >= 3 && resolvedQuery !== query);
 
-  const createManual = () => {
-    const name = query.trim();
-    if (steamId) {
-      void createFromSteam(steamId);
-      return;
-    }
-    if (!name) {
-      toast.error("Bitte einen Namen oder eine Steam-App-ID eingeben.");
-      return;
-    }
-    onCreate({ name });
-  };
+  const visibleHits = !steamId && query.trim().length >= 3 ? hits : [];
 
   const createFromSteam = async (appId: number) => {
     setBusy(true);
@@ -90,87 +114,88 @@ export function AddGameDialog({
     }
   };
 
+  const createManual = () => {
+    const name = query.trim();
+    if (steamId) {
+      void createFromSteam(steamId);
+      return;
+    }
+    if (!name) {
+      toast.error("Bitte einen Namen oder eine Steam-App-ID eingeben.");
+      return;
+    }
+    onCreate({ name });
+  };
+
   return (
-    <Modal open={open} onClose={onClose} title="Spiel hinzufügen" wide>
+    <M3Dialog
+      open={open}
+      onClose={onClose}
+      headline="Spiel hinzufügen"
+      actions={
+        <>
+          <m3-button slot="actions" variant="text" onClick={onClose}>
+            Abbrechen
+          </m3-button>
+          <m3-button slot="actions" loading={busy} onClick={createManual}>
+            {steamId ? "Von Steam anlegen" : "Manuell anlegen"}
+          </m3-button>
+        </>
+      }
+    >
       <div className="add-dialog">
-        <div className="add-intro">
-          <span className="add-intro-shape" aria-hidden="true" />
-          <div>
-            <span className="section-eyebrow">NEW ENTRY</span>
-            <h3>Was möchtest du spielen?</h3>
-            <p>Suche nach einem Steam-Titel oder lege ein Spiel direkt in deiner Sammlung an.</p>
-          </div>
-        </div>
-        <div className="add-search-hero">
-          <TextField
-            label="Name, Steam-URL oder App-ID"
-            value={query}
-            onChange={setQuery}
-            placeholder="Final Fantasy … oder 359870"
-            autoFocus
-          />
-        </div>
+        <M3TextField
+          label="Name, Steam-URL oder App-ID"
+          value={query}
+          onChange={setQuery}
+          placeholder="Final Fantasy … oder 359870"
+          autoFocus
+        />
 
         {existing.length > 0 ? (
           <section>
             <h3>Bereits in der Bibliothek</h3>
-            <ul className="add-results">
+            <m3-list>
               {existing.map((game) => (
-                <li key={game.id}>
-                  <button type="button" className="add-result" onClick={() => onOpenExisting(game.id)}>
-                    <CoverImage
-                      name={game.name}
-                      franchise={game.franchise}
-                      coverUrl={game.coverUrl}
-                      steamAppId={game.steamAppId}
-                    />
-                    <span>
-                      <strong>{game.name}</strong>
-                      <em>{game.franchise}</em>
-                    </span>
-                  </button>
-                </li>
+                <ResultItem
+                  key={game.id}
+                  id={game.id}
+                  name={game.name}
+                  supporting={game.franchise}
+                  coverUrl={game.coverUrl}
+                  steamAppId={game.steamAppId}
+                  onChoose={() => onOpenExisting(game.id)}
+                />
               ))}
-            </ul>
+            </m3-list>
           </section>
+        ) : null}
+
+        {searching ? (
+          <MorphLoader size={32} label="Steam-Suche läuft" />
         ) : null}
 
         {visibleHits.length > 0 ? (
           <section>
             <h3>Steam-Suche</h3>
-            <ul className="add-results">
+            {busy ? <MorphLoader size={32} label="Steam-Details werden geladen" /> : null}
+            <m3-list>
               {visibleHits.map((hit) => (
-                <li key={hit.appId}>
-                  <button
-                    type="button"
-                    className="add-result"
-                    disabled={busy}
-                    onClick={() => void createFromSteam(hit.appId)}
-                  >
-                    <CoverImage
-                      name={hit.name}
-                      franchise="Other"
-                      coverUrl={hit.coverUrl}
-                      steamAppId={hit.appId}
-                    />
-                    <span>
-                      <strong>{hit.name}</strong>
-                      <em>App {hit.appId}</em>
-                    </span>
-                  </button>
-                </li>
+                <ResultItem
+                  key={hit.appId}
+                  id={String(hit.appId)}
+                  name={hit.name}
+                  supporting={`App ${hit.appId}`}
+                  coverUrl={hit.coverUrl}
+                  steamAppId={hit.appId}
+                  disabled={busy}
+                  onChoose={() => void createFromSteam(hit.appId)}
+                />
               ))}
-            </ul>
+            </m3-list>
           </section>
         ) : null}
-
-        <div className="modal-actions">
-          <TextButton onClick={onClose}>Abbrechen</TextButton>
-          <FilledButton onClick={createManual} disabled={busy}>
-            {steamId ? "Von Steam anlegen" : "Manuell anlegen"}
-          </FilledButton>
-        </div>
       </div>
-    </Modal>
+    </M3Dialog>
   );
 }

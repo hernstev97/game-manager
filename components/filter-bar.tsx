@@ -15,9 +15,8 @@ import {
   type FieldFilterValue,
   type LibraryFilters,
 } from "@/lib/filter-games";
-import { Chip, Popover, TextButton } from "@/components/ui";
-import { ChevronDown, Filter, X } from "lucide-react";
-import { cn } from "@/lib/cn";
+import { IconCheck } from "@/components/m3/icons";
+import { M3Chip, M3Menu, M3Slider } from "@/components/m3/host";
 
 type FilterGroup = {
   key: string;
@@ -44,121 +43,6 @@ function groupFilterFields(fields: AnyGameField[]): FilterGroup[] {
   return groups;
 }
 
-function FieldFilterControls({
-  field,
-  value,
-  games,
-  onChange,
-}: {
-  field: AnyGameField;
-  value: FieldFilterValue | undefined;
-  games: GameRecord[];
-  onChange: (next: FieldFilterValue) => void;
-}) {
-  if (field.type === "text" || field.filterWidget === "toggle") {
-    const current = value?.kind === "toggle" ? value : { kind: "toggle" as const, on: false };
-    return (
-      <Chip selected={current.on} tone="primary" onClick={() => onChange({ ...current, on: !current.on })}>
-        {field.filterTrueLabel ?? field.label}
-      </Chip>
-    );
-  }
-
-  if (field.type === "rating") {
-    const current = value?.kind === "rating" ? value : { kind: "rating" as const, selected: [], gte: 7 };
-    const toggle = (token: "rated" | "unrated" | "gte") => {
-      const selected = current.selected.includes(token)
-        ? current.selected.filter((item) => item !== token)
-        : [...current.selected, token];
-      onChange({ ...current, selected });
-    };
-    return (
-      <div className="filter-stack">
-        <div className="chip-row">
-          <Chip selected={current.selected.includes("rated")} onClick={() => toggle("rated")}>
-            Bewertet
-          </Chip>
-          <Chip selected={current.selected.includes("unrated")} onClick={() => toggle("unrated")}>
-            Unbewertet
-          </Chip>
-          <Chip selected={current.selected.includes("gte")} onClick={() => toggle("gte")}>
-            ≥ {current.gte}
-          </Chip>
-        </div>
-        {current.selected.includes("gte") ? (
-          <label className="range-row">
-            <span>Mindestens</span>
-            <input
-              type="range"
-              min={1}
-              max={10}
-              step={0.5}
-              value={current.gte}
-              onChange={(event) => onChange({ ...current, gte: Number(event.target.value) })}
-            />
-            <strong>{current.gte}</strong>
-          </label>
-        ) : null}
-      </div>
-    );
-  }
-
-  if (field.type === "priority") {
-    const current = value?.kind === "priority" ? value : { kind: "priority" as const, selected: [] };
-    const toggle = (token: "has" | "top5" | "none") => {
-      const selected = current.selected.includes(token)
-        ? current.selected.filter((item) => item !== token)
-        : [...current.selected, token];
-      onChange({ ...current, selected });
-    };
-    return (
-      <div className="chip-row">
-        <Chip selected={current.selected.includes("has")} onClick={() => toggle("has")}>
-          Hat Priorität
-        </Chip>
-        <Chip selected={current.selected.includes("top5")} onClick={() => toggle("top5")}>
-          Top 5
-        </Chip>
-        <Chip selected={current.selected.includes("none")} onClick={() => toggle("none")}>
-          Ohne Rang
-        </Chip>
-      </div>
-    );
-  }
-
-  const current = value?.kind === "multi" ? value : { kind: "multi" as const, selected: [] };
-  const toggle = (token: string) => {
-    const selected = current.selected.includes(token)
-      ? current.selected.filter((item) => item !== token)
-      : [...current.selected, token];
-    onChange({ ...current, selected });
-  };
-
-  if (field.type === "boolean") {
-    return (
-      <div className="chip-row">
-        <Chip selected={current.selected.includes("true")} onClick={() => toggle("true")}>
-          {field.filterTrueLabel ?? field.label}
-        </Chip>
-        <Chip selected={current.selected.includes("false")} onClick={() => toggle("false")}>
-          {field.filterFalseLabel ?? `Nicht ${field.label}`}
-        </Chip>
-      </div>
-    );
-  }
-
-  const options = collectFieldOptions(field, games);
-  return (
-    <div className="chip-row">
-      {options.map((option) => (
-        <Chip key={option} selected={current.selected.includes(option)} onClick={() => toggle(option)}>
-          {option}
-        </Chip>
-      ))}
-    </div>
-  );
-}
-
 function groupActiveCount(group: FilterGroup, filters: LibraryFilters): number {
   let count = 0;
   for (const field of group.fields) {
@@ -170,6 +54,50 @@ function groupActiveCount(group: FilterGroup, filters: LibraryFilters): number {
     if (value.kind === "priority") count += value.selected.length;
   }
   return count;
+}
+
+function menuChoices(field: AnyGameField, games: GameRecord[]): Array<{ token: string; label: string }> {
+  if (field.type === "text" || field.filterWidget === "toggle") {
+    return [{ token: "on", label: field.filterTrueLabel ?? field.label }];
+  }
+  if (field.type === "rating") {
+    return [
+      { token: "rated", label: "Bewertet" },
+      { token: "unrated", label: "Unbewertet" },
+      { token: "gte", label: "Mindestbewertung" },
+    ];
+  }
+  if (field.type === "priority") {
+    return [
+      { token: "has", label: "Hat Priorität" },
+      { token: "top5", label: "Top 5" },
+      { token: "none", label: "Ohne Rang" },
+    ];
+  }
+  if (field.type === "boolean") {
+    return [
+      { token: "true", label: field.filterTrueLabel ?? field.label },
+      { token: "false", label: field.filterFalseLabel ?? `Nicht ${field.label}` },
+    ];
+  }
+  return collectFieldOptions(field, games).map((option) => ({ token: option, label: option }));
+}
+
+function isTokenSelected(value: FieldFilterValue | undefined, token: string): boolean {
+  if (!value) return false;
+  if (value.kind === "toggle") return token === "on" && value.on;
+  return value.selected.includes(token as never);
+}
+
+function toggleToken(field: AnyGameField, value: FieldFilterValue | undefined, token: string): FieldFilterValue {
+  const current = value ?? emptyFieldFilter(field);
+  if (current.kind === "toggle") {
+    return { ...current, on: !current.on };
+  }
+  const selected = current.selected.includes(token as never)
+    ? current.selected.filter((item) => item !== token)
+    : [...current.selected, token];
+  return { ...current, selected } as FieldFilterValue;
 }
 
 export function FilterBar({
@@ -189,6 +117,7 @@ export function FilterBar({
   const groups = useMemo(() => groupFilterFields(filterableFields()), []);
   const chips = activeFilterChips(filters);
   const active = isFilterActive(filters);
+  const rating = filters.fields.rating?.kind === "rating" ? filters.fields.rating : null;
 
   const setField = (fieldId: string, value: FieldFilterValue) => {
     onChange({
@@ -209,105 +138,89 @@ export function FilterBar({
       setField(fieldId, { ...current, on: false });
       return;
     }
-    if (current.kind === "multi") {
-      setField(fieldId, { ...current, selected: current.selected.filter((item) => item !== token) });
-      return;
-    }
-    if (current.kind === "rating") {
-      setField(fieldId, {
-        ...current,
-        selected: current.selected.filter((item) => item !== token),
-      });
-      return;
-    }
     setField(fieldId, {
       ...current,
       selected: current.selected.filter((item) => item !== token),
-    });
+    } as FieldFilterValue);
   };
 
   return (
     <section className="filter-bar" aria-label="Filter">
-      <div className="filter-bar-heading">
-        <div className="filter-heading-copy">
-          <span className="section-eyebrow">NAVIGATE</span>
-          <h2>Deine Sammlung im Fokus</h2>
-        </div>
-        <div className="filter-count" aria-live="polite">
-          <strong>{visibleCount}</strong>
-          <span>von {games.length} sichtbar</span>
-        </div>
+      <div className="filter-count" aria-live="polite">
+        {visibleCount} von {games.length} sichtbar
       </div>
-      <div className="filter-groups">
-        <span className="filter-lead-mark" aria-hidden="true">
-          <Filter size={16} strokeWidth={2.4} />
-          <span>Filter</span>
-        </span>
+      <div className="chip-row">
         {groups.map((group) => {
           const activeCount = groupActiveCount(group, filters);
           const isOpen = openKey === group.key;
           return (
-            <div key={group.key} className="filter-group">
-              <button
-                type="button"
-                className={cn("filter-trigger", activeCount > 0 && "is-active")}
-                aria-expanded={isOpen}
+            <div key={group.key} className="anchor">
+              <m3-button
+                variant={activeCount > 0 ? "tonal" : "outlined"}
                 onClick={() => setOpenKey((current) => (current === group.key ? null : group.key))}
               >
-                <span>{group.label}</span>
-                {activeCount > 0 ? (
-                  <span className="filter-trigger-badge">{activeCount}</span>
-                ) : null}
-                <ChevronDown
-                  size={15}
-                  className="transition-transform duration-200"
-                  style={{ transform: isOpen ? "rotate(180deg)" : "rotate(0deg)" }}
-                />
-              </button>
-              <Popover open={isOpen} onClose={() => setOpenKey(null)}>
-                <div className="filter-popover">
-                  <div className="filter-popover-label">{group.label}</div>
-                  {group.fields.map((field) => (
-                    <FieldFilterControls
-                      key={field.id}
-                      field={field}
-                      games={games}
-                      value={filters.fields[field.id]}
-                      onChange={(next) => setField(field.id, next)}
-                    />
-                  ))}
-                </div>
-              </Popover>
+                {group.label}
+                {activeCount > 0 ? ` (${activeCount})` : ""}
+              </m3-button>
+              <M3Menu
+                open={isOpen}
+                onOpenChange={(open) => {
+                  if (!open) setOpenKey((current) => (current === group.key ? null : current));
+                }}
+                onSelect={(packed) => {
+                  const [fieldId, token] = packed.split("\u001f");
+                  const field = fieldById(fieldId);
+                  if (!field || !token) return;
+                  setField(fieldId, toggleToken(field, filters.fields[fieldId], token));
+                }}
+              >
+                {group.fields.flatMap((field) =>
+                  menuChoices(field, games).map((choice) => {
+                    const selected = isTokenSelected(filters.fields[field.id], choice.token);
+                    return (
+                      <m3-menu-item key={`${field.id}-${choice.token}`} value={`${field.id}\u001f${choice.token}`}>
+                        {choice.label}
+                        {selected ? <IconCheck slot="trailing-icon" /> : null}
+                      </m3-menu-item>
+                    );
+                  }),
+                )}
+              </M3Menu>
             </div>
           );
         })}
       </div>
 
+      {rating?.selected.includes("gte") ? (
+        <label className="range-row">
+          <span>Mindestens</span>
+          <M3Slider
+            label="Mindestbewertung"
+            min={1}
+            max={10}
+            step={0.5}
+            value={rating.gte}
+            onChange={(gte) => setField("rating", { ...rating, gte })}
+          />
+          <strong>{rating.gte}</strong>
+        </label>
+      ) : null}
+
       {active ? (
         <div className="active-filters">
-          {chips.map((chip) => {
-            const tone =
-              chip.fieldId === "owned" || chip.fieldId === "wishlisted"
-                ? "secondary"
-                : chip.fieldId === "finished" || chip.fieldId === "franchise" || chip.fieldId === "genres"
-                  ? "tertiary"
-                  : "primary";
-            return (
-              <Chip
-                key={`${chip.fieldId}-${chip.token}`}
-                selected
-                tone={tone}
-                className="filter-chip-enter"
-                onDismiss={() => dismissChip(chip.fieldId, chip.token)}
-              >
-                {chip.label}
-              </Chip>
-            );
-          })}
-          <TextButton onClick={onClear}>
-            <X size={15} />
+          {chips.map((chip) => (
+            <M3Chip
+              key={`${chip.fieldId}-${chip.token}`}
+              variant="input"
+              removable
+              onRemove={() => dismissChip(chip.fieldId, chip.token)}
+            >
+              {chip.label}
+            </M3Chip>
+          ))}
+          <m3-button variant="text" onClick={onClear}>
             Alle löschen
-          </TextButton>
+          </m3-button>
         </div>
       ) : null}
     </section>
