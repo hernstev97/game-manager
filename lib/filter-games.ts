@@ -117,6 +117,16 @@ export function gameMatchesFilters(game: GameRecord, filters: LibraryFilters): b
   return true;
 }
 
+export function adjacentGameId(
+  games: readonly { id: string }[],
+  currentId: string,
+  delta: -1 | 1,
+): string | null {
+  const index = games.findIndex((game) => game.id === currentId);
+  if (index < 0) return null;
+  return games[index + delta]?.id ?? null;
+}
+
 function compareNullable(
   a: number | null,
   b: number | null,

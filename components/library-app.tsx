@@ -215,8 +215,10 @@ export function LibraryApp() {
         <GameEditor
           game={selected}
           games={games}
+          visibleGames={visible}
           open
           onClose={closeEditor}
+          onSelect={selectGame}
           onChange={updateGame}
           onPriority={setGamePriority}
           onDelete={deleteGame}
