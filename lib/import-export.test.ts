@@ -9,7 +9,8 @@ describe("normalizeGame", () => {
       name: "Pragmata",
       customFlag: "keep-me",
     });
-    expect(game.franchise).toBe("Other");
+    expect(game.franchise).toBe("");
+    expect(game.difficultyTo100).toBe("");
     expect(game.owned).toBe(false);
     expect(game.genres).toEqual([]);
     expect(game.customFlag).toBe("keep-me");

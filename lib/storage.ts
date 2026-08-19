@@ -130,24 +130,12 @@ export function parseLibraryDocument(raw: unknown): {
   };
 }
 
-function isSeedGameId(id: string): boolean {
-  return id.startsWith("seed-");
-}
-
 export function loadLibraryDocument(): LibraryDocument | null {
   if (typeof window === "undefined") return null;
   const raw = window.localStorage.getItem(LIBRARY_STORAGE_KEY);
   if (!raw) return null;
-  try {
-    const { document } = parseLibraryDocument(JSON.parse(raw));
-    const games = document.games.filter((game) => !isSeedGameId(String(game.id)));
-    if (games.length === document.games.length) return document;
-    const cleaned = { ...document, games };
-    saveLibraryDocument(cleaned);
-    return cleaned;
-  } catch {
-    return null;
-  }
+  const { document } = parseLibraryDocument(JSON.parse(raw));
+  return document;
 }
 
 export function saveLibraryDocument(document: LibraryDocument) {
