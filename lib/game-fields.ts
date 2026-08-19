@@ -42,6 +42,7 @@ export const FIELD_TYPES = [
   "cover",
   "steamAppId",
   "steamPrice",
+  "igdbId",
   "date",
 ] as const;
 
@@ -102,7 +103,22 @@ export interface GameFieldDef {
   emptyLabel?: string;
 }
 
-export const PLATFORMS = ["PC", "Switch", "PS5", "Xbox"] as const;
+export const PLATFORMS = [
+  "PC",
+  "Switch 2",
+  "Switch",
+  "Wii U",
+  "Wii",
+  "GameCube",
+  "N64",
+  "PS5",
+  "PS4",
+  "PS3",
+  "PS2",
+  "PS1",
+  "PSP",
+  "Xbox",
+] as const;
 
 export const FIELD_GROUP_LABELS: Record<FieldGroup, string> = {
   identity: "Identität",
@@ -146,6 +162,17 @@ export const GAME_FIELDS = [
     defaultValue: null,
     group: "identity",
     readOnly: true,
+  },
+  {
+    id: "igdbId",
+    label: "IGDB-ID",
+    type: "igdbId",
+    filterable: false,
+    sortable: false,
+    showInRow: false,
+    showInEditor: true,
+    defaultValue: null,
+    group: "identity",
   },
   {
     id: "name",
@@ -428,7 +455,7 @@ type FieldTs<T extends FieldType> = T extends "string" | "text" | "cover" | "enu
     ? boolean
     : T extends "multiEnum"
       ? string[]
-      : T extends "number" | "rating" | "priority" | "steamAppId"
+      : T extends "number" | "rating" | "priority" | "steamAppId" | "igdbId"
         ? number | null
         : T extends "steamPrice"
           ? SteamPriceSnapshot | null
@@ -502,6 +529,8 @@ function zodForField(field: GameFieldDef): z.ZodType {
     case "priority":
     case "steamAppId":
       return orDefault(z.number().nullable());
+    case "igdbId":
+      return orDefault(z.number().int().positive().nullable());
     case "multiEnum":
       return orDefault(z.array(z.string()));
     case "date":

@@ -39,6 +39,8 @@ export function LibraryApp() {
   const settingsOpen = useLibrary((state) => state.settingsOpen);
   const steamId = useLibrary((state) => state.steamId);
   const steamApiKey = useLibrary((state) => state.steamApiKey);
+  const igdbClientId = useLibrary((state) => state.igdbClientId);
+  const igdbClientSecret = useLibrary((state) => state.igdbClientSecret);
 
   const hydrate = useLibrary((state) => state.hydrate);
   const setFilters = useLibrary((state) => state.setFilters);
@@ -58,6 +60,7 @@ export function LibraryApp() {
   const importJson = useLibrary((state) => state.importJson);
   const exportJson = useLibrary((state) => state.exportJson);
   const setSteamCredentials = useLibrary((state) => state.setSteamCredentials);
+  const setIgdbCredentials = useLibrary((state) => state.setIgdbCredentials);
   const applySteamPlaytime = useLibrary((state) => state.applySteamPlaytime);
   const refreshSteamIdentity = useLibrary((state) => state.refreshSteamIdentity);
 
@@ -228,6 +231,8 @@ export function LibraryApp() {
         <AddGameDialog
           open
           games={games}
+          igdbClientId={igdbClientId}
+          igdbClientSecret={igdbClientSecret}
           onClose={() => setAddOpen(false)}
           onCreate={addGame}
           onOpenExisting={(id) => {
@@ -242,8 +247,11 @@ export function LibraryApp() {
           onClose={() => setSettingsOpen(false)}
           steamId={steamId}
           steamApiKey={steamApiKey}
+          igdbClientId={igdbClientId}
+          igdbClientSecret={igdbClientSecret}
           games={games}
           onSteamCredentials={setSteamCredentials}
+          onIgdbCredentials={setIgdbCredentials}
           onClearLibrary={clearLibrary}
           onApplyPlaytime={applySteamPlaytime}
           onRefreshIdentity={refreshSteamIdentity}

@@ -25,16 +25,28 @@ import {
   steamCover,
   type SteamPriceSnapshot,
 } from "@/lib/steam";
+import {
+  fetchIgdbGame,
+  hasIgdbCredentials,
+  mergeCatalogFields,
+} from "@/lib/igdb";
 import type { GameRecord } from "@/lib/game-fields";
 import { MorphLoader } from "@/components/morph-loader";
+
+function delay(ms: number) {
+  return new Promise((resolve) => window.setTimeout(resolve, ms));
+}
 
 export function SettingsDialog({
   open,
   onClose,
   steamId,
   steamApiKey,
+  igdbClientId,
+  igdbClientSecret,
   games,
   onSteamCredentials,
+  onIgdbCredentials,
   onClearLibrary,
   onApplyPlaytime,
   onRefreshIdentity,
@@ -43,8 +55,11 @@ export function SettingsDialog({
   onClose: () => void;
   steamId: string;
   steamApiKey: string;
+  igdbClientId: string;
+  igdbClientSecret: string;
   games: GameRecord[];
   onSteamCredentials: (steamId: string, steamApiKey: string) => void;
+  onIgdbCredentials: (clientId: string, clientSecret: string) => void;
   onClearLibrary: () => void;
   onApplyPlaytime: (
     owned: Array<{ appId: number; name: string; playtimeMinutes: number }>,
@@ -56,12 +71,19 @@ export function SettingsDialog({
       coverUrl?: string;
       released?: boolean;
       steamPrice?: SteamPriceSnapshot | null;
+      genres?: string[];
+      franchise?: string;
+      platforms?: string[];
+      igdbId?: number | null;
+      steamAppId?: number | null;
     }>,
   ) => number;
 }) {
   const { prefs, setMode, setVariant, setSeed, applyWallpaper } = useTheme();
   const [idDraft, setIdDraft] = useState(steamId);
   const [keyDraft, setKeyDraft] = useState(steamApiKey);
+  const [igdbIdDraft, setIgdbIdDraft] = useState(igdbClientId);
+  const [igdbSecretDraft, setIgdbSecretDraft] = useState(igdbClientSecret);
   const [hexDraft, setHexDraft] = useState(prefs.seed);
   const [busy, setBusy] = useState(false);
   const [confirmReset, setConfirmReset] = useState(false);
@@ -71,6 +93,11 @@ export function SettingsDialog({
   const saveSteam = () => {
     onSteamCredentials(idDraft.trim(), keyDraft.trim());
     toast.success("Steam-Zugangsdaten gespeichert.");
+  };
+
+  const saveIgdb = () => {
+    onIgdbCredentials(igdbIdDraft.trim(), igdbSecretDraft.trim());
+    toast.success("IGDB-Zugangsdaten gespeichert.");
   };
 
   const refreshCovers = async () => {
@@ -148,6 +175,64 @@ export function SettingsDialog({
     }
   };
 
+  const refreshIgdb = async () => {
+    const clientId = (igdbIdDraft || igdbClientId).trim();
+    const clientSecret = (igdbSecretDraft || igdbClientSecret).trim();
+    if (!hasIgdbCredentials({ clientId, clientSecret })) {
+      toast.error("Bitte Twitch-Client-ID und Client-Secret eintragen.");
+      return;
+    }
+    const withIds = games.filter((game) => game.igdbId != null);
+    if (withIds.length === 0) {
+      toast.error("Kein Spiel hat eine IGDB-ID.");
+      return;
+    }
+    onIgdbCredentials(clientId, clientSecret);
+    setBusy(true);
+    try {
+      const creds = { clientId, clientSecret };
+      const updates: Array<{
+        id: string;
+        name?: string;
+        coverUrl?: string;
+        released?: boolean;
+        genres?: string[];
+        franchise?: string;
+        platforms?: string[];
+        igdbId?: number | null;
+        steamAppId?: number | null;
+      }> = [];
+      let failures = 0;
+      for (const [index, game] of withIds.entries()) {
+        try {
+          const details = await fetchIgdbGame({ kind: "id", value: game.igdbId! }, creds);
+          if (details) {
+            updates.push({ id: game.id, ...mergeCatalogFields(game, details) });
+          } else {
+            failures += 1;
+          }
+        } catch {
+          failures += 1;
+        }
+        if (index < withIds.length - 1) await delay(280);
+      }
+      const count = onRefreshIdentity(updates);
+      if (count === 0) {
+        toast.error("Keine IGDB-Metadaten geladen.");
+      } else if (failures > 0) {
+        toast.success(
+          `${count} IGDB-Metadaten aktualisiert, ${failures} fehlgeschlagen.`,
+        );
+      } else {
+        toast.success(`${count} IGDB-Metadaten aktualisiert.`);
+      }
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "IGDB-Aktualisierung fehlgeschlagen.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
   const applyHex = () => {
     const hex = normalizeHexColor(hexDraft);
     if (!hex) {
@@ -181,10 +266,13 @@ export function SettingsDialog({
   return (
     <M3Dialog open={open} onClose={onClose} headline="Einstellungen">
       <div className="settings">
-        {busy ? <MorphLoader size={36} label="Steam wird abgefragt" /> : null}
+        {busy ? <MorphLoader size={36} label="Katalog wird abgefragt" /> : null}
         <M3Tabs activeTab={tab} onChange={(index) => setTab(index)}>
           <m3-tab panel="settings-steam" value="steam">
             Steam
+          </m3-tab>
+          <m3-tab panel="settings-igdb" value="igdb">
+            IGDB
           </m3-tab>
           <m3-tab panel="settings-theme" value="theme">
             Erscheinungsbild
@@ -222,7 +310,41 @@ export function SettingsDialog({
           </div>
         </section>
 
-        <section id="settings-theme" className="settings" hidden={tab !== 1}>
+        <section id="settings-igdb" className="settings" hidden={tab !== 1}>
+          <p className="settings-copy">
+            Allgemeiner Spielekatalog (Cover, Genre, Franchise, Plattformen) für Steam, Switch, Retro
+            und den Rest. Kostenlos über eine Twitch-App:{" "}
+            <a href="https://dev.twitch.tv/console/apps/create" target="_blank" rel="noreferrer">
+              Developer Console
+            </a>
+            , Typ Confidential, OAuth-Redirect <code>localhost</code>. Nur lokal gespeichert, geht an
+            Twitch/IGDB, nie in ein Log. Daten von{" "}
+            <a href="https://www.igdb.com/" target="_blank" rel="noreferrer">
+              IGDB.com
+            </a>
+            .
+          </p>
+          <M3TextField
+            label="Twitch Client-ID"
+            value={igdbIdDraft}
+            onChange={setIgdbIdDraft}
+            placeholder="Client-ID"
+          />
+          <M3TextField
+            label="Twitch Client-Secret"
+            value={igdbSecretDraft}
+            onChange={setIgdbSecretDraft}
+            type="password"
+          />
+          <div className="settings-actions">
+            <m3-button onClick={saveIgdb}>Speichern</m3-button>
+            <m3-button variant="text" disabled={busy} onClick={() => void refreshIgdb()}>
+              Metadaten aktualisieren
+            </m3-button>
+          </div>
+        </section>
+
+        <section id="settings-theme" className="settings" hidden={tab !== 2}>
           <span className="field-label">Modus</span>
           <div className="chip-row">
             <M3Radio name="theme-mode" value="light" checked={prefs.mode === "light"} onChange={() => setMode("light")} label="Hell" />
@@ -310,7 +432,7 @@ export function SettingsDialog({
           ) : null}
         </section>
 
-        <section id="settings-data" className="settings" hidden={tab !== 2}>
+        <section id="settings-data" className="settings" hidden={tab !== 3}>
           {confirmReset ? (
             <div className="confirm-row">
               <span>Alle Spiele in der Bibliothek löschen?</span>
