@@ -18,7 +18,13 @@ import {
 } from "@/lib/theme";
 import { M3Chip, M3Dialog, M3Radio, M3Tabs, M3TextField } from "@/components/m3/host";
 import { useTheme } from "@/components/theme-provider";
-import { fetchOwnedSteamGames, fetchSteamAppDetails, parseSteamIdentity, steamCover } from "@/lib/steam";
+import {
+  fetchOwnedSteamGames,
+  fetchSteamAppDetails,
+  parseSteamIdentity,
+  steamCover,
+  type SteamPriceSnapshot,
+} from "@/lib/steam";
 import type { GameRecord } from "@/lib/game-fields";
 import { MorphLoader } from "@/components/morph-loader";
 
@@ -44,7 +50,13 @@ export function SettingsDialog({
     owned: Array<{ appId: number; name: string; playtimeMinutes: number }>,
   ) => { updated: number; markedOwned: number };
   onRefreshIdentity: (
-    updates: Array<{ id: string; name?: string; coverUrl?: string; released?: boolean }>,
+    updates: Array<{
+      id: string;
+      name?: string;
+      coverUrl?: string;
+      released?: boolean;
+      steamPrice?: SteamPriceSnapshot | null;
+    }>,
   ) => number;
 }) {
   const { prefs, setMode, setVariant, setSeed, applyWallpaper } = useTheme();
@@ -65,23 +77,34 @@ export function SettingsDialog({
     setBusy(true);
     try {
       const withIds = games.filter((game) => game.steamAppId != null);
-      const updates: Array<{ id: string; name?: string; coverUrl?: string; released?: boolean }> = [];
+      const updates: Array<{
+        id: string;
+        name?: string;
+        coverUrl?: string;
+        released?: boolean;
+        steamPrice?: SteamPriceSnapshot | null;
+      }> = [];
       for (const game of withIds) {
         const appId = game.steamAppId!;
         try {
           const details = await fetchSteamAppDetails(appId);
-          updates.push({
-            id: game.id,
-            name: details?.name || game.name,
-            coverUrl: details?.coverUrl || steamCover(appId),
-            released: details?.released,
-          });
+          if (details) {
+            updates.push({
+              id: game.id,
+              name: details.name || game.name,
+              coverUrl: details.coverUrl || steamCover(appId),
+              released: details.released,
+              steamPrice: details.price,
+            });
+          } else {
+            updates.push({ id: game.id, coverUrl: steamCover(appId) });
+          }
         } catch {
           updates.push({ id: game.id, coverUrl: steamCover(appId) });
         }
       }
       const count = onRefreshIdentity(updates);
-      toast.success(`${count} Cover und Namen aktualisiert.`);
+      toast.success(`${count} Cover, Namen und Preise aktualisiert.`);
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Steam-Aktualisierung fehlgeschlagen.");
     } finally {
@@ -191,7 +214,7 @@ export function SettingsDialog({
           <div className="settings-actions">
             <m3-button onClick={saveSteam}>Speichern</m3-button>
             <m3-button variant="text" disabled={busy} onClick={() => void refreshCovers()}>
-              Cover &amp; Namen aktualisieren
+              Cover, Namen &amp; Preise aktualisieren
             </m3-button>
             <m3-button variant="text" disabled={busy} onClick={() => void pullPlaytime()}>
               Spielzeit holen

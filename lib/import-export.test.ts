@@ -14,7 +14,26 @@ describe("normalizeGame", () => {
     expect(game.owned).toBe(false);
     expect(game.genres).toEqual([]);
     expect(game.customFlag).toBe("keep-me");
+    expect(game.steamPrice).toBeNull();
     expect(game.id).toBeTruthy();
+  });
+
+  it("keeps a steam price snapshot", () => {
+    const game = normalizeGame({
+      name: "Elden Ring",
+      steamPrice: {
+        source: "steam",
+        currency: "EUR",
+        initialCents: 5999,
+        finalCents: 2999,
+        discountPercent: 50,
+        isFree: false,
+        formatted: "29,99 €",
+        updatedAt: "2026-08-19T12:00:00.000Z",
+      },
+    });
+    expect(game.steamPrice?.finalCents).toBe(2999);
+    expect(game.steamPrice?.discountPercent).toBe(50);
   });
 
   it("clamps genres to two", () => {

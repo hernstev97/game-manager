@@ -22,7 +22,7 @@ import {
   sortFromSettings,
   type LibrarySettings,
 } from "@/lib/storage";
-import { steamCover, type SteamOwnedGame } from "@/lib/steam";
+import { steamCover, type SteamOwnedGame, type SteamPriceSnapshot } from "@/lib/steam";
 
 type LibraryState = {
   hydrated: boolean;
@@ -57,7 +57,13 @@ type LibraryState = {
   setSteamCredentials: (steamId: string, steamApiKey: string) => void;
   applySteamPlaytime: (owned: SteamOwnedGame[]) => { updated: number; markedOwned: number };
   refreshSteamIdentity: (
-    updates: Array<{ id: string; name?: string; coverUrl?: string; released?: boolean }>,
+    updates: Array<{
+      id: string;
+      name?: string;
+      coverUrl?: string;
+      released?: boolean;
+      steamPrice?: SteamPriceSnapshot | null;
+    }>,
   ) => number;
 };
 
@@ -280,6 +286,7 @@ export const useLibrary = create<LibraryState>((set, get) => ({
           name: patch.name || game.name,
           coverUrl: patch.coverUrl || game.coverUrl,
           released: patch.released ?? game.released,
+          steamPrice: patch.steamPrice !== undefined ? patch.steamPrice : game.steamPrice,
           lastSynced: new Date().toISOString(),
         });
       }),

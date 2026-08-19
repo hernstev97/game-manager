@@ -14,6 +14,7 @@ const SORT_LABEL_OVERRIDES: Record<string, string> = {
   franchise: "Franchise",
   dateAdded: "Hinzugefügt",
   playtimeMinutes: "Spielzeit",
+  steamPrice: "Steam-Preis",
   status: "Status",
 };
 

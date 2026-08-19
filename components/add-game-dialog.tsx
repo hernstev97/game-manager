@@ -101,6 +101,7 @@ export function AddGameDialog({
         name: details?.name || query.trim() || `Steam ${appId}`,
         coverUrl: details?.coverUrl || steamCover(appId),
         released: details?.released ?? true,
+        steamPrice: details?.price ?? null,
       });
     } catch {
       onCreate({

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { AnyGameField, GameRecord } from "@/lib/game-fields";
 import {
   collectEditorOptions,
@@ -12,6 +12,14 @@ import {
 import { CoverImage } from "@/components/cover-image";
 import { IconCheck } from "@/components/m3/icons";
 import { M3Chip, M3Menu, M3Slider, M3Switch, M3TextField } from "@/components/m3/host";
+import { toast } from "@/components/m3/snackbar";
+import { MorphLoader } from "@/components/morph-loader";
+import {
+  fetchSteamAppDetails,
+  formatMoneyFromCents,
+  isSteamPriceSnapshot,
+  steamStoreUrl,
+} from "@/lib/steam";
 
 export function BooleanChip({
   field,
@@ -293,6 +301,102 @@ function ComboMultiEnumField({
   );
 }
 
+function SteamPriceField({
+  game,
+  onChange,
+}: {
+  game: GameRecord;
+  onChange: (patch: Partial<GameRecord>) => void;
+}) {
+  const appId = game.steamAppId;
+  const price = isSteamPriceSnapshot(game.steamPrice) ? game.steamPrice : null;
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const attemptedFor = useRef<number | null>(null);
+  const appIdRef = useRef(appId);
+
+  const load = useCallback(
+    async (id: number, manual: boolean) => {
+      setBusy(true);
+      if (manual) setError(null);
+      try {
+        const details = await fetchSteamAppDetails(id);
+        if (appIdRef.current !== id) return;
+        if (!details) {
+          setError("Steam lieferte keine Spieldetails.");
+          return;
+        }
+        onChange({ steamPrice: details.price, released: details.released });
+        setError(details.price ? null : "Steam hat keinen Store-Preis geliefert.");
+      } catch (err) {
+        const message = err instanceof Error ? err.message : "Preis konnte nicht geladen werden.";
+        setError(message);
+        if (manual) toast.error(message);
+      } finally {
+        setBusy(false);
+      }
+    },
+    [onChange],
+  );
+
+  useEffect(() => {
+    appIdRef.current = appId;
+    if (appId == null) {
+      attemptedFor.current = null;
+      return;
+    }
+    if (price) return;
+    if (attemptedFor.current === appId) return;
+    attemptedFor.current = appId;
+    void load(appId, false);
+  }, [appId, price, load]);
+
+  const original =
+    price &&
+    !price.isFree &&
+    price.initialCents != null &&
+    price.finalCents != null &&
+    price.initialCents > price.finalCents
+      ? formatMoneyFromCents(price.initialCents, price.currency)
+      : null;
+
+  return (
+    <div className="field">
+      <span className="field-label">Steam-Preis</span>
+      {appId == null ? (
+        <p className="settings-copy">Keine Steam-App-ID — Preis kann nicht geladen werden.</p>
+      ) : (
+        <>
+          <div className="steam-price">
+            {busy && !price ? (
+              <MorphLoader size={28} label="Steam-Preis wird geladen" />
+            ) : price ? (
+              <>
+                <div className="steam-price-line">
+                  {original ? <span className="steam-price-was">{original}</span> : null}
+                  <strong className="steam-price-value">{price.formatted}</strong>
+                  {price.discountPercent > 0 ? <M3Chip>−{price.discountPercent}%</M3Chip> : null}
+                </div>
+                <span className="settings-copy">Stand: {formatDate(price.updatedAt)}</span>
+              </>
+            ) : (
+              <p className="settings-copy">{error || "Noch kein Preis geladen."}</p>
+            )}
+            {price && error ? <p className="settings-copy">{error}</p> : null}
+          </div>
+          <div className="confirm-row">
+            <m3-button variant="text" disabled={busy} onClick={() => void load(appId, true)}>
+              Preis aktualisieren
+            </m3-button>
+            {busy && price ? <MorphLoader size={24} label="Steam-Preis wird aktualisiert" /> : null}
+          </div>
+          <span className="settings-copy">Steam-Storepreis für Deutschland. Snapshot, nicht live.</span>
+        </>
+      )}
+    </div>
+  );
+}
+
 export function EditorField({
   field,
   game,
@@ -476,24 +580,46 @@ export function EditorField({
   }
 
   if (field.type === "steamAppId") {
+    const appId = typeof value === "number" ? value : null;
     return (
-      <M3TextField
-        label={field.label}
-        value={typeof value === "number" ? String(value) : ""}
-        onChange={(next) => {
-          const trimmed = next.trim();
-          if (!trimmed) {
-            onChange({ steamAppId: null });
-            return;
-          }
-          const parsed = Number(trimmed);
-          if (Number.isInteger(parsed) && parsed > 0) {
-            onChange({ steamAppId: parsed });
-          }
-        }}
-        placeholder="359870"
-      />
+      <div className="field">
+        <M3TextField
+          label={field.label}
+          value={appId == null ? "" : String(appId)}
+          onChange={(next) => {
+            const trimmed = next.trim();
+            if (!trimmed) {
+              onChange({ steamAppId: null, steamPrice: null });
+              return;
+            }
+            const parsed = Number(trimmed);
+            if (Number.isInteger(parsed) && parsed > 0) {
+              onChange({
+                steamAppId: parsed,
+                steamPrice: parsed === game.steamAppId ? game.steamPrice : null,
+              });
+            }
+          }}
+          placeholder="359870"
+        />
+        <div className="confirm-row">
+          <m3-button
+            variant="outlined"
+            disabled={appId == null}
+            onClick={() => {
+              if (appId == null) return;
+              window.open(steamStoreUrl(appId), "_blank", "noopener,noreferrer");
+            }}
+          >
+            Im Steam Store öffnen
+          </m3-button>
+        </div>
+      </div>
     );
+  }
+
+  if (field.type === "steamPrice") {
+    return <SteamPriceField game={game} onChange={onChange} />;
   }
 
   if (field.type === "number") {

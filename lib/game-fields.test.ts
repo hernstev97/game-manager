@@ -28,6 +28,8 @@ describe("field registry", () => {
     expect(sortableFieldOptions().some((item) => item.id === "name")).toBe(true);
     expect(fieldById("rating")?.type).toBe("rating");
     expect(GAME_FIELDS.some((field) => field.id === "name")).toBe(true);
+    expect(fieldById("steamPrice")?.group).toBe("identity");
+    expect(fieldById("steamPrice")?.type).toBe("steamPrice");
   });
 
   it("keeps franchise, genre, and difficulty as open vocabularies", () => {

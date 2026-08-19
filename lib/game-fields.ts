@@ -28,6 +28,7 @@
  * `showInHero` is reserved for a future detail view. Do not build the hero page.
  */
 import { z } from "zod";
+import type { SteamPriceSnapshot } from "./steam";
 
 export const FIELD_TYPES = [
   "string",
@@ -40,6 +41,7 @@ export const FIELD_TYPES = [
   "priority",
   "cover",
   "steamAppId",
+  "steamPrice",
   "date",
 ] as const;
 
@@ -131,6 +133,19 @@ export const GAME_FIELDS = [
     showInEditor: true,
     defaultValue: null,
     group: "identity",
+  },
+  {
+    id: "steamPrice",
+    label: "Steam-Preis",
+    type: "steamPrice",
+    filterable: false,
+    sortable: true,
+    showInRow: true,
+    showInEditor: true,
+    rowSlot: "meta",
+    defaultValue: null,
+    group: "identity",
+    readOnly: true,
   },
   {
     id: "name",
@@ -415,9 +430,11 @@ type FieldTs<T extends FieldType> = T extends "string" | "text" | "cover" | "enu
       ? string[]
       : T extends "number" | "rating" | "priority" | "steamAppId"
         ? number | null
-        : T extends "date"
-          ? string | null
-          : unknown;
+        : T extends "steamPrice"
+          ? SteamPriceSnapshot | null
+          : T extends "date"
+            ? string | null
+            : unknown;
 
 /** Derived from GAME_FIELDS. Adding a field updates this automatically. */
 export type Game = {
@@ -489,6 +506,21 @@ function zodForField(field: GameFieldDef): z.ZodType {
       return orDefault(z.array(z.string()));
     case "date":
       return orDefault(z.union([z.string(), z.null()]));
+    case "steamPrice":
+      return orDefault(
+        z
+          .object({
+            source: z.literal("steam").catch("steam"),
+            currency: z.string(),
+            initialCents: z.number().nullable(),
+            finalCents: z.number().nullable(),
+            discountPercent: z.number(),
+            isFree: z.boolean(),
+            formatted: z.string(),
+            updatedAt: z.string(),
+          })
+          .nullable(),
+      );
   }
 }
 

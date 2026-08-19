@@ -4,6 +4,7 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import type { GameRecord } from "@/lib/game-fields";
 import { fieldsForRowSlot, formatPlaytime } from "@/lib/game-fields";
+import { steamPriceLabel } from "@/lib/steam";
 import { CoverImage } from "@/components/cover-image";
 import { PriorityBadge, RatingStars } from "@/components/field-widgets";
 import { IconGrip } from "@/components/m3/icons";
@@ -51,6 +52,10 @@ export function GameRow({
     const value = game[field.id];
     if (field.type === "number" && field.id === "playtimeMinutes") {
       const formatted = formatPlaytime(typeof value === "number" ? value : null);
+      return formatted ? [formatted] : [];
+    }
+    if (field.type === "steamPrice") {
+      const formatted = steamPriceLabel(game.steamPrice);
       return formatted ? [formatted] : [];
     }
     if (Array.isArray(value)) return value.length ? [value.join(", ")] : [];
