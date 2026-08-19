@@ -338,6 +338,10 @@ m3-text-field,
   gap: 8px;
 }
 
+.confirm-row m3-text-field {
+  flex: 1 1 180px;
+}
+
 .danger-button {
   --md-sys-color-primary: var(--md-sys-color-error);
   --md-sys-color-on-primary: var(--md-sys-color-on-error);

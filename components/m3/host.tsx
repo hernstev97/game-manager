@@ -218,6 +218,7 @@ export function M3TextField({
   label,
   value,
   onChange,
+  onCommit,
   placeholder,
   type = "text",
   disabled,
@@ -227,6 +228,7 @@ export function M3TextField({
   label?: string;
   value: string;
   onChange: (value: string) => void;
+  onCommit?: (value: string) => void;
   placeholder?: string;
   type?: string;
   disabled?: boolean;
@@ -235,6 +237,7 @@ export function M3TextField({
 }) {
   const ref = useRef<HTMLElement>(null);
   useHostEvent(ref, "input", (event) => onChange(hostValue(event)));
+  useHostEvent(ref, "change", (event) => onCommit?.(hostValue(event)));
   useEffect(() => {
     if (autoFocus) ref.current?.focus();
   }, [autoFocus]);

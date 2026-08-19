@@ -1,5 +1,4 @@
 import {
-  DIFFICULTIES,
   FIELD_BY_ID,
   fieldById,
   type AnyGameField,
@@ -134,8 +133,6 @@ function statusRank(game: GameRecord): number {
   return 2;
 }
 
-const DIFFICULTY_INDEX = new Map(DIFFICULTIES.map((value, index) => [value, index]));
-
 function compareGames(a: GameRecord, b: GameRecord, sort: SortState): number {
   const dir: 1 | -1 = sort.dir === "desc" ? -1 : 1;
   const field = FIELD_BY_ID[sort.by];
@@ -143,10 +140,6 @@ function compareGames(a: GameRecord, b: GameRecord, sort: SortState): number {
   let result = 0;
   if (sort.by === "status") {
     result = (statusRank(a) - statusRank(b)) * dir;
-  } else if (sort.by === "difficultyTo100") {
-    const aIndex = DIFFICULTY_INDEX.get(a.difficultyTo100 as (typeof DIFFICULTIES)[number]) ?? Number.MAX_SAFE_INTEGER;
-    const bIndex = DIFFICULTY_INDEX.get(b.difficultyTo100 as (typeof DIFFICULTIES)[number]) ?? Number.MAX_SAFE_INTEGER;
-    result = (aIndex - bIndex) * dir;
   } else if (field?.type === "rating" || field?.type === "priority" || field?.type === "number") {
     const aValue = typeof a[sort.by] === "number" ? (a[sort.by] as number) : null;
     const bValue = typeof b[sort.by] === "number" ? (b[sort.by] as number) : null;

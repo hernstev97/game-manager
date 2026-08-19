@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import {
-  collectFieldOptions,
+  collectFilterOptions,
   fieldById,
   filterableFields,
   type AnyGameField,
@@ -80,7 +80,7 @@ function menuChoices(field: AnyGameField, games: GameRecord[]): Array<{ token: s
       { token: "false", label: field.filterFalseLabel ?? `Nicht ${field.label}` },
     ];
   }
-  return collectFieldOptions(field, games).map((option) => ({ token: option, label: option }));
+  return collectFilterOptions(field, games).map((option) => ({ token: option, label: option }));
 }
 
 function isTokenSelected(value: FieldFilterValue | undefined, token: string): boolean {
@@ -114,7 +114,13 @@ export function FilterBar({
   onClear: () => void;
 }) {
   const [openKey, setOpenKey] = useState<string | null>(null);
-  const groups = useMemo(() => groupFilterFields(filterableFields()), []);
+  const groups = useMemo(
+    () =>
+      groupFilterFields(filterableFields()).filter((group) =>
+        group.fields.some((field) => menuChoices(field, games).length > 0),
+      ),
+    [games],
+  );
   const chips = activeFilterChips(filters);
   const active = isFilterActive(filters);
   const rating = filters.fields.rating?.kind === "rating" ? filters.fields.rating : null;

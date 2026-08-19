@@ -114,9 +114,9 @@ describe("applyFiltersAndSort", () => {
     expect(byRating.map((g) => g.id)).toEqual(["a", "c", "b"]);
   });
 
-  it("sorts difficulty by registry order and status finished first", () => {
+  it("sorts difficulty alphabetically and status finished first", () => {
     const byDiff = applyFiltersAndSort(library, EMPTY_FILTERS, { by: "difficultyTo100", dir: "asc" });
-    expect(byDiff.map((g) => g.difficultyTo100)).toEqual(["Low", "Medium", "High (Grindy)"]);
+    expect(byDiff.map((g) => g.difficultyTo100)).toEqual(["High (Grindy)", "Low", "Medium"]);
 
     const byStatus = applyFiltersAndSort(library, EMPTY_FILTERS, { by: "status", dir: "asc" });
     expect(byStatus.map((g) => g.id)).toEqual(["b", "a", "c"]);

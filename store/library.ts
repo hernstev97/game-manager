@@ -83,18 +83,28 @@ export const useLibrary = create<LibraryState>((set, get) => ({
 
   hydrate: () => {
     if (get().hydrated) return;
-    const stored = loadLibraryDocument();
-    const document = stored ?? emptyLibraryDocument();
-    if (!stored) {
-      saveLibraryDocument(document);
+    try {
+      const stored = loadLibraryDocument();
+      const document = stored ?? emptyLibraryDocument();
+      if (!stored) {
+        saveLibraryDocument(document);
+      }
+      set({
+        hydrated: true,
+        games: document.games,
+        sort: sortFromSettings(document.settings, document.games),
+        steamId: document.settings.steamId,
+        steamApiKey: document.settings.steamApiKey,
+      });
+    } catch {
+      set({
+        hydrated: true,
+        games: [],
+        sort: { by: "name", dir: "asc" },
+        steamId: "",
+        steamApiKey: "",
+      });
     }
-    set({
-      hydrated: true,
-      games: document.games,
-      sort: sortFromSettings(document.settings, document.games),
-      steamId: document.settings.steamId,
-      steamApiKey: document.settings.steamApiKey,
-    });
   },
 
   persist: () => {
@@ -199,13 +209,14 @@ export const useLibrary = create<LibraryState>((set, get) => ({
       steamId: current.steamId,
       steamApiKey: current.steamApiKey,
     });
-    set({
+    const next = {
       games: result.document.games,
       sort: sortFromSettings(result.document.settings, result.document.games),
       steamId: result.document.settings.steamId,
       steamApiKey: result.document.settings.steamApiKey,
-    });
-    persistNow(get());
+    };
+    persistNow(next);
+    set(next);
     return {
       added: result.added,
       updated: result.updated,

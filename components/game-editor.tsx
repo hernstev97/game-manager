@@ -80,7 +80,7 @@ export function GameEditor({
             >
               {group.fields.map((field) => (
                 <EditorField
-                  key={field.id}
+                  key={`${game.id}-${field.id}`}
                   field={field}
                   game={game}
                   games={games}
