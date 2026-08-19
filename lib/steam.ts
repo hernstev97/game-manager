@@ -44,6 +44,10 @@ export function steamStoreUrl(appId: number): string {
   return `https://store.steampowered.com/app/${appId}`;
 }
 
+function isNonNegativeInt(value: unknown): value is number {
+  return typeof value === "number" && Number.isInteger(value) && value >= 0;
+}
+
 export function isSteamPriceSnapshot(value: unknown): value is SteamPriceSnapshot {
   if (!value || typeof value !== "object") return false;
   const price = value as SteamPriceSnapshot;
@@ -53,7 +57,9 @@ export function isSteamPriceSnapshot(value: unknown): value is SteamPriceSnapsho
     typeof price.isFree === "boolean" &&
     typeof price.formatted === "string" &&
     typeof price.updatedAt === "string" &&
-    typeof price.discountPercent === "number"
+    isNonNegativeInt(price.discountPercent) &&
+    (price.initialCents === null || isNonNegativeInt(price.initialCents)) &&
+    (price.finalCents === null || isNonNegativeInt(price.finalCents))
   );
 }
 

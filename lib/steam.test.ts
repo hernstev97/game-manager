@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  isSteamPriceSnapshot,
   parseSteamAppDetailsPayload,
   parseSteamIdentity,
   parseSteamPrice,
@@ -106,5 +107,19 @@ describe("steam store and price", () => {
     expect(details?.name).toBe("Counter-Strike");
     expect(details?.price?.finalCents).toBe(819);
     expect(parseSteamAppDetailsPayload(10, { "10": { success: false } })).toBeNull();
+  });
+
+  it("rejects malformed price snapshots", () => {
+    const valid = parseSteamPrice(
+      {
+        is_free: false,
+        price_overview: { currency: "EUR", initial: 5999, final: 2999, discount_percent: 50 },
+      },
+      now,
+    );
+    expect(isSteamPriceSnapshot(valid)).toBe(true);
+    expect(isSteamPriceSnapshot({ ...valid, source: "itad" })).toBe(false);
+    expect(isSteamPriceSnapshot({ ...valid, finalCents: -1 })).toBe(false);
+    expect(isSteamPriceSnapshot({ ...valid, discountPercent: 12.5 })).toBe(false);
   });
 });

@@ -36,6 +36,22 @@ describe("normalizeGame", () => {
     expect(game.steamPrice?.discountPercent).toBe(50);
   });
 
+  it("drops malformed steam price snapshots", () => {
+    const base = {
+      source: "steam" as const,
+      currency: "EUR",
+      initialCents: 5999,
+      finalCents: 2999,
+      discountPercent: 50,
+      isFree: false,
+      formatted: "29,99 €",
+      updatedAt: "2026-08-19T12:00:00.000Z",
+    };
+    expect(normalizeGame({ name: "X", steamPrice: { ...base, source: "itad" } }).steamPrice).toBeNull();
+    expect(normalizeGame({ name: "X", steamPrice: { ...base, finalCents: -1 } }).steamPrice).toBeNull();
+    expect(normalizeGame({ name: "X", steamPrice: { ...base, discountPercent: 12.5 } }).steamPrice).toBeNull();
+  });
+
   it("clamps genres to two", () => {
     const game = normalizeGame({
       name: "X",

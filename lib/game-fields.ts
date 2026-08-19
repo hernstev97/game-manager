@@ -510,11 +510,11 @@ function zodForField(field: GameFieldDef): z.ZodType {
       return orDefault(
         z
           .object({
-            source: z.literal("steam").catch("steam"),
+            source: z.literal("steam"),
             currency: z.string(),
-            initialCents: z.number().nullable(),
-            finalCents: z.number().nullable(),
-            discountPercent: z.number(),
+            initialCents: z.number().int().nonnegative().nullable(),
+            finalCents: z.number().int().nonnegative().nullable(),
+            discountPercent: z.number().int().nonnegative(),
             isFree: z.boolean(),
             formatted: z.string(),
             updatedAt: z.string(),

@@ -301,6 +301,81 @@ function ComboMultiEnumField({
   );
 }
 
+const STEAM_APP_ID_DEBOUNCE_MS = 400;
+
+function parsePositiveAppId(raw: string): number | null {
+  const trimmed = raw.trim();
+  if (!trimmed) return null;
+  const parsed = Number(trimmed);
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : null;
+}
+
+function SteamAppIdField({
+  game,
+  onChange,
+}: {
+  game: GameRecord;
+  onChange: (patch: Partial<GameRecord>) => void;
+}) {
+  const committed = typeof game.steamAppId === "number" ? game.steamAppId : null;
+  const [draft, setDraft] = useState(committed == null ? "" : String(committed));
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+
+  useEffect(() => {
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, []);
+
+  const apply = useCallback(
+    (raw: string) => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+      const parsed = parsePositiveAppId(raw);
+      if (raw.trim() === "") {
+        if (committed != null) onChange({ steamAppId: null, steamPrice: null });
+        return;
+      }
+      if (parsed == null || parsed === committed) return;
+      onChange({
+        steamAppId: parsed,
+        steamPrice: null,
+      });
+    },
+    [committed, onChange],
+  );
+
+  const storeId = parsePositiveAppId(draft) ?? committed;
+
+  return (
+    <div className="field">
+      <M3TextField
+        label="Steam App-ID"
+        value={draft}
+        onChange={(next) => {
+          setDraft(next);
+          if (debounceRef.current) clearTimeout(debounceRef.current);
+          debounceRef.current = setTimeout(() => apply(next), STEAM_APP_ID_DEBOUNCE_MS);
+        }}
+        onCommit={apply}
+        placeholder="359870"
+      />
+      <div className="confirm-row">
+        <m3-button
+          variant="outlined"
+          disabled={storeId == null}
+          onClick={() => {
+            if (storeId == null) return;
+            apply(draft);
+            window.open(steamStoreUrl(storeId), "_blank", "noopener,noreferrer");
+          }}
+        >
+          Im Steam Store öffnen
+        </m3-button>
+      </div>
+    </div>
+  );
+}
+
 function SteamPriceField({
   game,
   onChange,
@@ -314,14 +389,16 @@ function SteamPriceField({
   const [error, setError] = useState<string | null>(null);
   const attemptedFor = useRef<number | null>(null);
   const appIdRef = useRef(appId);
+  const requestSeq = useRef(0);
 
   const load = useCallback(
     async (id: number, manual: boolean) => {
+      const seq = ++requestSeq.current;
       setBusy(true);
       if (manual) setError(null);
       try {
         const details = await fetchSteamAppDetails(id);
-        if (appIdRef.current !== id) return;
+        if (seq !== requestSeq.current) return;
         if (!details) {
           setError("Steam lieferte keine Spieldetails.");
           return;
@@ -329,11 +406,12 @@ function SteamPriceField({
         onChange({ steamPrice: details.price, released: details.released });
         setError(details.price ? null : "Steam hat keinen Store-Preis geliefert.");
       } catch (err) {
+        if (seq !== requestSeq.current) return;
         const message = err instanceof Error ? err.message : "Preis konnte nicht geladen werden.";
         setError(message);
         if (manual) toast.error(message);
       } finally {
-        setBusy(false);
+        if (seq === requestSeq.current) setBusy(false);
       }
     },
     [onChange],
@@ -343,6 +421,7 @@ function SteamPriceField({
     appIdRef.current = appId;
     if (appId == null) {
       attemptedFor.current = null;
+      requestSeq.current += 1;
       return;
     }
     if (price) return;
@@ -580,42 +659,7 @@ export function EditorField({
   }
 
   if (field.type === "steamAppId") {
-    const appId = typeof value === "number" ? value : null;
-    return (
-      <div className="field">
-        <M3TextField
-          label={field.label}
-          value={appId == null ? "" : String(appId)}
-          onChange={(next) => {
-            const trimmed = next.trim();
-            if (!trimmed) {
-              onChange({ steamAppId: null, steamPrice: null });
-              return;
-            }
-            const parsed = Number(trimmed);
-            if (Number.isInteger(parsed) && parsed > 0) {
-              onChange({
-                steamAppId: parsed,
-                steamPrice: parsed === game.steamAppId ? game.steamPrice : null,
-              });
-            }
-          }}
-          placeholder="359870"
-        />
-        <div className="confirm-row">
-          <m3-button
-            variant="outlined"
-            disabled={appId == null}
-            onClick={() => {
-              if (appId == null) return;
-              window.open(steamStoreUrl(appId), "_blank", "noopener,noreferrer");
-            }}
-          >
-            Im Steam Store öffnen
-          </m3-button>
-        </div>
-      </div>
-    );
+    return <SteamAppIdField game={game} onChange={onChange} />;
   }
 
   if (field.type === "steamPrice") {
