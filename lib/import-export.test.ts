@@ -15,7 +15,15 @@ describe("normalizeGame", () => {
     expect(game.genres).toEqual([]);
     expect(game.customFlag).toBe("keep-me");
     expect(game.steamPrice).toBeNull();
+    expect(game.igdbId).toBeNull();
     expect(game.id).toBeTruthy();
+  });
+
+  it("keeps a positive igdbId and drops invalid ones", () => {
+    expect(normalizeGame({ name: "X", igdbId: 1026 }).igdbId).toBe(1026);
+    expect(normalizeGame({ name: "X", igdbId: 0 }).igdbId).toBeNull();
+    expect(normalizeGame({ name: "X", igdbId: -1 }).igdbId).toBeNull();
+    expect(normalizeGame({ name: "X", igdbId: 1.5 }).igdbId).toBeNull();
   });
 
   it("keeps a steam price snapshot", () => {
@@ -62,24 +70,27 @@ describe("normalizeGame", () => {
 });
 
 describe("import merge", () => {
-  it("matches by id, then steamAppId, then name; incoming wins", () => {
+  it("matches by id, then steamAppId, then igdbId, then name; incoming wins", () => {
     const current = [
       normalizeGame({ id: "1", name: "A", steamAppId: 10, rating: 5 }),
       normalizeGame({ id: "2", name: "B", steamAppId: 20, rating: 6 }),
       normalizeGame({ id: "3", name: "C", steamAppId: null, rating: 7 }),
+      normalizeGame({ id: "5", name: "E", igdbId: 1026, rating: 4 }),
     ];
     const incoming = [
       normalizeGame({ id: "1", name: "A-updated", steamAppId: 10, rating: 9 }),
       normalizeGame({ id: "x", name: "Other", steamAppId: 20, rating: 8 }),
       normalizeGame({ id: "y", name: "C", steamAppId: null, rating: 1 }),
       normalizeGame({ id: "4", name: "D", steamAppId: 40, rating: 4 }),
+      normalizeGame({ id: "z", name: "Wind Waker", igdbId: 1026, rating: 10 }),
     ];
     const { games, added, updated } = mergeImportedGames(current, incoming);
-    expect(updated).toBe(3);
+    expect(updated).toBe(4);
     expect(added).toBe(1);
     expect(games.find((g) => g.id === "1")?.name).toBe("A-updated");
     expect(games.find((g) => g.id === "2")?.rating).toBe(8);
     expect(games.find((g) => g.id === "3")?.rating).toBe(1);
+    expect(games.find((g) => g.id === "5")?.rating).toBe(10);
     expect(games.some((g) => g.name === "D")).toBe(true);
   });
 
@@ -91,7 +102,14 @@ describe("import merge", () => {
     const raw = {
       version: 1,
       exportedAt: "2026-08-18T18:00:00.000Z",
-      settings: { sortBy: "name", sortDir: "asc", steamId: "", steamApiKey: "" },
+      settings: {
+        sortBy: "name",
+        sortDir: "asc",
+        steamId: "",
+        steamApiKey: "",
+        igdbClientId: "",
+        igdbClientSecret: "",
+      },
       games,
     };
     const parsed = parseLibraryDocument(raw);

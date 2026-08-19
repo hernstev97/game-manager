@@ -100,6 +100,26 @@ describe("library localStorage", () => {
     expect(loadLibraryDocument()?.games.map((game) => game.name)).toEqual(["Pragmata"]);
   });
 
+  it("fills missing IGDB settings from older library JSON", () => {
+    const memory = installMemoryStorage();
+    restore = memory.restore;
+    memory.map.set(
+      LIBRARY_STORAGE_KEY,
+      JSON.stringify({
+        version: 1,
+        exportedAt: "2026-08-18T18:00:00.000Z",
+        settings: { sortBy: "name", sortDir: "asc", steamId: "1", steamApiKey: "k" },
+        games: [{ id: "abc", name: "Pragmata" }],
+      }),
+    );
+
+    const loaded = loadLibraryDocument();
+    expect(loaded?.settings.steamId).toBe("1");
+    expect(loaded?.settings.igdbClientId).toBe("");
+    expect(loaded?.settings.igdbClientSecret).toBe("");
+    expect(loaded?.games[0]?.igdbId).toBeNull();
+  });
+
   it("throws on corrupt storage instead of pretending it is empty", () => {
     const memory = installMemoryStorage();
     restore = memory.restore;
