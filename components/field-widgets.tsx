@@ -396,6 +396,7 @@ function IgdbIdField({
   const [draft, setDraft] = useState(committed == null ? "" : String(committed));
   const [busy, setBusy] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const requestSeq = useRef(0);
 
   useEffect(() => {
     return () => {
@@ -432,19 +433,25 @@ function IgdbIdField({
       return;
     }
     apply(draft);
+    const seq = ++requestSeq.current;
+    const requestedId = id;
     setBusy(true);
     try {
-      const details = await fetchIgdbGame({ kind: "id", value: id }, creds);
+      const details = await fetchIgdbGame({ kind: "id", value: requestedId }, creds);
+      if (seq !== requestSeq.current) return;
       if (!details) {
         toast.error("IGDB hat kein Spiel zu dieser ID gefunden.");
         return;
       }
-      onChange(mergeCatalogFields(game, details));
+      const latest = useLibrary.getState().games.find((item) => item.id === game.id);
+      if (!latest || latest.igdbId !== requestedId) return;
+      onChange(mergeCatalogFields(latest, details));
       toast.success("IGDB-Metadaten übernommen.");
     } catch (error) {
+      if (seq !== requestSeq.current) return;
       toast.error(error instanceof Error ? error.message : "IGDB-Metadaten nicht geladen.");
     } finally {
-      setBusy(false);
+      if (seq === requestSeq.current) setBusy(false);
     }
   };
 

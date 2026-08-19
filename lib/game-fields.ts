@@ -528,8 +528,9 @@ function zodForField(field: GameFieldDef): z.ZodType {
     case "rating":
     case "priority":
     case "steamAppId":
-    case "igdbId":
       return orDefault(z.number().nullable());
+    case "igdbId":
+      return orDefault(z.number().int().positive().nullable());
     case "multiEnum":
       return orDefault(z.array(z.string()));
     case "date":

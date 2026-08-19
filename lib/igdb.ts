@@ -391,8 +391,8 @@ export async function searchIgdbGames(
   if (term.length < 2) return [];
   const payload = (await igdbProxy(creds, { op: "search", query: term })) as {
     hits?: IgdbSearchHit[];
-  };
-  return Array.isArray(payload.hits) ? payload.hits : [];
+  } | null;
+  return Array.isArray(payload?.hits) ? payload.hits : [];
 }
 
 export async function fetchIgdbGame(
@@ -402,8 +402,8 @@ export async function fetchIgdbGame(
   const payload = (await igdbProxy(
     creds,
     ref.kind === "id" ? { op: "game", id: ref.value } : { op: "game", slug: ref.value },
-  )) as { game?: IgdbGameDetails | null };
-  return payload.game ?? null;
+  )) as { game?: IgdbGameDetails | null } | null;
+  return payload?.game ?? null;
 }
 
 export const IGDB_SEARCH_FIELDS =

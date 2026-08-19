@@ -202,19 +202,30 @@ export function SettingsDialog({
         igdbId?: number | null;
         steamAppId?: number | null;
       }> = [];
+      let failures = 0;
       for (const [index, game] of withIds.entries()) {
         try {
           const details = await fetchIgdbGame({ kind: "id", value: game.igdbId! }, creds);
           if (details) {
             updates.push({ id: game.id, ...mergeCatalogFields(game, details) });
+          } else {
+            failures += 1;
           }
         } catch {
-          // Keep going; one failed title should not abort the batch.
+          failures += 1;
         }
         if (index < withIds.length - 1) await delay(280);
       }
       const count = onRefreshIdentity(updates);
-      toast.success(`${count} IGDB-Metadaten aktualisiert.`);
+      if (count === 0) {
+        toast.error("Keine IGDB-Metadaten geladen.");
+      } else if (failures > 0) {
+        toast.success(
+          `${count} IGDB-Metadaten aktualisiert, ${failures} fehlgeschlagen.`,
+        );
+      } else {
+        toast.success(`${count} IGDB-Metadaten aktualisiert.`);
+      }
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "IGDB-Aktualisierung fehlgeschlagen.");
     } finally {

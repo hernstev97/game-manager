@@ -174,8 +174,13 @@ export async function POST(request: NextRequest) {
     }
     return Response.json({ game: parseIgdbGamePayload(result.json) });
   } catch (error) {
+    if (error instanceof Error && error.name === "AbortError") {
+      return fail("IGDB hat nicht rechtzeitig geantwortet.", 504);
+    }
     const message = error instanceof Error ? error.message : "IGDB nicht erreichbar.";
-    const rejected = message.includes("abgelehnt");
-    return fail(message, rejected ? 401 : 502);
+    if (message.includes("abgelehnt")) {
+      return fail(message, 401);
+    }
+    return fail("IGDB nicht erreichbar.", 502);
   }
 }

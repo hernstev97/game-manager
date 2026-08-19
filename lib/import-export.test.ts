@@ -19,6 +19,13 @@ describe("normalizeGame", () => {
     expect(game.id).toBeTruthy();
   });
 
+  it("keeps a positive igdbId and drops invalid ones", () => {
+    expect(normalizeGame({ name: "X", igdbId: 1026 }).igdbId).toBe(1026);
+    expect(normalizeGame({ name: "X", igdbId: 0 }).igdbId).toBeNull();
+    expect(normalizeGame({ name: "X", igdbId: -1 }).igdbId).toBeNull();
+    expect(normalizeGame({ name: "X", igdbId: 1.5 }).igdbId).toBeNull();
+  });
+
   it("keeps a steam price snapshot", () => {
     const game = normalizeGame({
       name: "Elden Ring",
