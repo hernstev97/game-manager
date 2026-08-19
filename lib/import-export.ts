@@ -23,6 +23,10 @@ export function findExistingGame(
     const bySteam = existing.find((game) => game.steamAppId === incoming.steamAppId);
     if (bySteam) return bySteam;
   }
+  if (incoming.igdbId != null) {
+    const byIgdb = existing.find((game) => game.igdbId === incoming.igdbId);
+    if (byIgdb) return byIgdb;
+  }
   return existing.find((game) => game.name === incoming.name);
 }
 
@@ -61,6 +65,8 @@ export function importLibraryPayload(
     sortDir: document.settings.sortDir || currentSettings.sortDir,
     steamId: document.settings.steamId || currentSettings.steamId,
     steamApiKey: document.settings.steamApiKey || currentSettings.steamApiKey,
+    igdbClientId: document.settings.igdbClientId || currentSettings.igdbClientId,
+    igdbClientSecret: document.settings.igdbClientSecret || currentSettings.igdbClientSecret,
   };
   return {
     document: buildLibraryDocument(merged.games, settings, document.exportedAt),

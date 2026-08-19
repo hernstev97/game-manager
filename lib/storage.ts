@@ -13,6 +13,8 @@ export type LibrarySettings = {
   sortDir: "asc" | "desc";
   steamId: string;
   steamApiKey: string;
+  igdbClientId: string;
+  igdbClientSecret: string;
 };
 
 export type LibraryDocument = {
@@ -27,6 +29,8 @@ export const DEFAULT_SETTINGS: LibrarySettings = {
   sortDir: "asc",
   steamId: "",
   steamApiKey: "",
+  igdbClientId: "",
+  igdbClientSecret: "",
 };
 
 const settingsSchema = z
@@ -35,6 +39,8 @@ const settingsSchema = z
     sortDir: z.enum(["asc", "desc"]).catch("asc"),
     steamId: z.string().catch(""),
     steamApiKey: z.string().catch(""),
+    igdbClientId: z.string().catch(""),
+    igdbClientSecret: z.string().catch(""),
   })
   .passthrough();
 
@@ -47,12 +53,17 @@ export const libraryDocumentSchema = z
   })
   .passthrough();
 
-export function settingsFromSort(sort: SortState, steam: Pick<LibrarySettings, "steamId" | "steamApiKey">): LibrarySettings {
+export function settingsFromSort(
+  sort: SortState,
+  extras: Omit<LibrarySettings, "sortBy" | "sortDir">,
+): LibrarySettings {
   return {
     sortBy: sort.by,
     sortDir: sort.dir,
-    steamId: steam.steamId,
-    steamApiKey: steam.steamApiKey,
+    steamId: extras.steamId,
+    steamApiKey: extras.steamApiKey,
+    igdbClientId: extras.igdbClientId,
+    igdbClientSecret: extras.igdbClientSecret,
   };
 }
 
@@ -74,6 +85,8 @@ export function buildLibraryDocument(
       sortDir: settings.sortDir,
       steamId: settings.steamId,
       steamApiKey: settings.steamApiKey,
+      igdbClientId: settings.igdbClientId,
+      igdbClientSecret: settings.igdbClientSecret,
     },
     games: games.map((game) => ({ ...game })),
   };
@@ -117,6 +130,8 @@ export function parseLibraryDocument(raw: unknown): {
     sortDir: parsed.settings.sortDir,
     steamId: parsed.settings.steamId,
     steamApiKey: parsed.settings.steamApiKey,
+    igdbClientId: parsed.settings.igdbClientId,
+    igdbClientSecret: parsed.settings.igdbClientSecret,
   };
 
   return {

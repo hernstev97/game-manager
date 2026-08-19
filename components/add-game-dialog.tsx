@@ -5,7 +5,22 @@ import { toast } from "@/components/m3/snackbar";
 import { M3Dialog, M3TextField } from "@/components/m3/host";
 import { CoverImage } from "@/components/cover-image";
 import type { GameRecord } from "@/lib/game-fields";
-import { fetchSteamAppDetails, parseSteamInput, searchSteamStore, steamCover } from "@/lib/steam";
+import {
+  fetchSteamAppDetails,
+  parseSteamInput,
+  searchSteamStore,
+  steamCover,
+  type SteamPriceSnapshot,
+} from "@/lib/steam";
+import {
+  catalogFieldsFromIgdb,
+  fetchIgdbGame,
+  hasIgdbCredentials,
+  parseIgdbInput,
+  searchIgdbGames,
+  supportingTextForHit,
+  type IgdbSearchHit,
+} from "@/lib/igdb";
 import { useHostEvent } from "@/components/m3/events";
 import { MorphLoader } from "@/components/morph-loader";
 
@@ -42,42 +57,65 @@ function ResultItem({
 export function AddGameDialog({
   open,
   games,
+  igdbClientId,
+  igdbClientSecret,
   onClose,
   onCreate,
   onOpenExisting,
 }: {
   open: boolean;
   games: GameRecord[];
+  igdbClientId: string;
+  igdbClientSecret: string;
   onClose: () => void;
   onCreate: (partial: Partial<GameRecord>) => void;
   onOpenExisting: (id: string) => void;
 }) {
   const [query, setQuery] = useState("");
   const [busy, setBusy] = useState(false);
-  const [hits, setHits] = useState<Array<{ appId: number; name: string; coverUrl: string }>>([]);
+  const [steamHits, setSteamHits] = useState<Array<{ appId: number; name: string; coverUrl: string }>>(
+    [],
+  );
+  const [igdbHits, setIgdbHits] = useState<IgdbSearchHit[]>([]);
   const [resolvedQuery, setResolvedQuery] = useState("");
 
   const steamId = parseSteamInput(query);
+  const igdbRef = parseIgdbInput(query);
+  const igdbReady = hasIgdbCredentials({ clientId: igdbClientId, clientSecret: igdbClientSecret });
+  const creds = { clientId: igdbClientId, clientSecret: igdbClientSecret };
+  const catalogQuery = !steamId && !igdbRef && query.trim().length >= 3;
+  const igdbKey = igdbRef ? `${igdbRef.kind}:${igdbRef.value}` : "";
+
   const existing = useMemo(() => {
     const needle = query.trim().toLocaleLowerCase("de-DE");
-    if (needle.length < 2) return [];
+    if (needle.length < 2 && !steamId && !igdbRef) return [];
     return games
       .filter((game) => {
         if (steamId && game.steamAppId === steamId) return true;
+        if (igdbRef?.kind === "id" && game.igdbId === igdbRef.value) return true;
+        if (!needle || needle.length < 2) return false;
         return game.name.toLocaleLowerCase("de-DE").includes(needle);
       })
       .slice(0, 5);
-  }, [games, query, steamId]);
+  }, [games, query, steamId, igdbRef]);
 
   useEffect(() => {
-    if (!open || steamId || query.trim().length < 3) return;
+    if (!open || steamId || igdbKey || !catalogQuery) return;
     let cancelled = false;
     const handle = window.setTimeout(async () => {
       try {
-        const results = await searchSteamStore(query);
-        if (!cancelled) setHits(results);
-      } catch {
-        if (!cancelled) setHits([]);
+        const [steamResults, igdbResults] = await Promise.all([
+          searchSteamStore(query).catch(() => []),
+          igdbReady
+            ? searchIgdbGames(query, { clientId: igdbClientId, clientSecret: igdbClientSecret }).catch(
+                () => [],
+              )
+            : Promise.resolve([]),
+        ]);
+        if (!cancelled) {
+          setSteamHits(steamResults);
+          setIgdbHits(igdbResults);
+        }
       } finally {
         if (!cancelled) setResolvedQuery(query);
       }
@@ -86,11 +124,11 @@ export function AddGameDialog({
       cancelled = true;
       window.clearTimeout(handle);
     };
-  }, [open, query, steamId]);
+  }, [open, query, steamId, igdbKey, catalogQuery, igdbReady, igdbClientId, igdbClientSecret]);
 
-  const searching = Boolean(open && !steamId && query.trim().length >= 3 && resolvedQuery !== query);
-
-  const visibleHits = !steamId && query.trim().length >= 3 ? hits : [];
+  const searching = Boolean(open && catalogQuery && resolvedQuery !== query);
+  const visibleSteam = catalogQuery ? steamHits : [];
+  const visibleIgdb = catalogQuery ? igdbHits : [];
 
   const createFromSteam = async (appId: number) => {
     setBusy(true);
@@ -115,18 +153,101 @@ export function AddGameDialog({
     }
   };
 
+  const createFromIgdb = async () => {
+    if (!igdbRef) return;
+    if (!igdbReady) {
+      toast.error("IGDB in den Einstellungen verbinden (Twitch-Client-ID und Secret).");
+      return;
+    }
+    setBusy(true);
+    try {
+      const details = await fetchIgdbGame(igdbRef, creds);
+      if (!details) {
+        toast.error("IGDB hat kein Spiel zu dieser ID gefunden.");
+        return;
+      }
+      const fields = catalogFieldsFromIgdb(details);
+      let steamPrice: SteamPriceSnapshot | null = null;
+      if (fields.steamAppId) {
+        try {
+          const steam = await fetchSteamAppDetails(fields.steamAppId);
+          steamPrice = steam?.price ?? null;
+        } catch {
+          steamPrice = null;
+        }
+      }
+      onCreate({
+        ...fields,
+        steamPrice,
+      });
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "IGDB-Details nicht geladen.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const createFromIgdbHit = async (id: number) => {
+    if (!igdbReady) {
+      toast.error("IGDB in den Einstellungen verbinden (Twitch-Client-ID und Secret).");
+      return;
+    }
+    setBusy(true);
+    try {
+      const details = await fetchIgdbGame({ kind: "id", value: id }, creds);
+      const fallback = igdbHits.find((hit) => hit.id === id);
+      if (!details && !fallback) {
+        toast.error("IGDB-Details nicht geladen.");
+        return;
+      }
+      const fields = details
+        ? catalogFieldsFromIgdb(details)
+        : {
+            igdbId: fallback!.id,
+            name: fallback!.name,
+            coverUrl: fallback!.coverUrl,
+            platforms: fallback!.platforms,
+            released: true,
+          };
+      let steamPrice: SteamPriceSnapshot | null = null;
+      if ("steamAppId" in fields && fields.steamAppId) {
+        try {
+          const steam = await fetchSteamAppDetails(fields.steamAppId);
+          steamPrice = steam?.price ?? null;
+        } catch {
+          steamPrice = null;
+        }
+      }
+      onCreate({
+        ...fields,
+        name: fields.name || query.trim(),
+        steamPrice,
+      });
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "IGDB-Details nicht geladen.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
   const createManual = () => {
-    const name = query.trim();
     if (steamId) {
       void createFromSteam(steamId);
       return;
     }
+    if (igdbRef) {
+      void createFromIgdb();
+      return;
+    }
+    const name = query.trim();
     if (!name) {
-      toast.error("Bitte einen Namen oder eine Steam-App-ID eingeben.");
+      toast.error("Bitte einen Namen, eine Steam-App-ID oder eine IGDB-URL eingeben.");
       return;
     }
     onCreate({ name });
   };
+
+  const primaryLabel = steamId ? "Von Steam anlegen" : igdbRef ? "Von IGDB anlegen" : "Manuell anlegen";
 
   return (
     <M3Dialog
@@ -139,17 +260,17 @@ export function AddGameDialog({
             Abbrechen
           </m3-button>
           <m3-button slot="actions" loading={busy} onClick={createManual}>
-            {steamId ? "Von Steam anlegen" : "Manuell anlegen"}
+            {primaryLabel}
           </m3-button>
         </>
       }
     >
       <div className="add-dialog">
         <M3TextField
-          label="Name, Steam-URL oder App-ID"
+          label="Name, Steam-URL, App-ID oder IGDB-Link"
           value={query}
           onChange={setQuery}
-          placeholder="Final Fantasy … oder 359870"
+          placeholder="Wind Waker … oder igdb.com/games/…"
           autoFocus
         />
 
@@ -172,16 +293,44 @@ export function AddGameDialog({
           </section>
         ) : null}
 
-        {searching ? (
-          <MorphLoader size={32} label="Steam-Suche läuft" />
+        {searching ? <MorphLoader size={32} label="Suche läuft" /> : null}
+
+        {catalogQuery && !igdbReady ? (
+          <p className="settings-copy">
+            IGDB in den Einstellungen verbinden, um Cover und Plattformen für Switch, PlayStation und
+            Retro zu laden. Steam-Suche funktioniert ohne extra Schlüssel.
+          </p>
         ) : null}
 
-        {visibleHits.length > 0 ? (
+        {visibleIgdb.length > 0 ? (
           <section>
-            <h3>Steam-Suche</h3>
-            {busy ? <MorphLoader size={32} label="Steam-Details werden geladen" /> : null}
+            <h3>IGDB</h3>
+            {busy ? <MorphLoader size={32} label="Details werden geladen" /> : null}
             <m3-list>
-              {visibleHits.map((hit) => (
+              {visibleIgdb.map((hit) => (
+                <ResultItem
+                  key={`igdb-${hit.id}`}
+                  id={`igdb-${hit.id}`}
+                  name={hit.name}
+                  supporting={supportingTextForHit(hit)}
+                  coverUrl={hit.coverUrl}
+                  steamAppId={null}
+                  disabled={busy}
+                  onChoose={() => void createFromIgdbHit(hit.id)}
+                />
+              ))}
+            </m3-list>
+          </section>
+        ) : null}
+
+        {visibleSteam.length > 0 ? (
+          <section>
+            <h3>Steam</h3>
+            {busy && visibleIgdb.length === 0 ? (
+              <MorphLoader size={32} label="Steam-Details werden geladen" />
+            ) : null}
+            <m3-list>
+              {visibleSteam.map((hit) => (
                 <ResultItem
                   key={hit.appId}
                   id={String(hit.appId)}

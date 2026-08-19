@@ -37,7 +37,23 @@ describe("field registry", () => {
     expect(fieldById("genres")?.options).toBeUndefined();
     expect(fieldById("difficultyTo100")?.options).toBeUndefined();
     expect(fieldById("franchise")?.filterMinCount).toBe(2);
-    expect(fieldById("platforms")?.options).toEqual(["PC", "Switch", "PS5", "Xbox"]);
+    expect(fieldById("platforms")?.options).toEqual([
+      "PC",
+      "Switch 2",
+      "Switch",
+      "Wii U",
+      "Wii",
+      "GameCube",
+      "N64",
+      "PS5",
+      "PS4",
+      "PS3",
+      "PS2",
+      "PS1",
+      "PSP",
+      "Xbox",
+    ]);
+    expect(fieldById("igdbId")?.type).toBe("igdbId");
   });
 });
 
@@ -64,8 +80,18 @@ describe("collectFieldOptions", () => {
     const withDeck = [...library, game({ name: "Handheld", platforms: ["Steam Deck"] })];
     expect(collectFieldOptions(fieldById("platforms")!, withDeck)).toEqual([
       "PC",
+      "Switch 2",
       "Switch",
+      "Wii U",
+      "Wii",
+      "GameCube",
+      "N64",
       "PS5",
+      "PS4",
+      "PS3",
+      "PS2",
+      "PS1",
+      "PSP",
       "Xbox",
       "Steam Deck",
     ]);

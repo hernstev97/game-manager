@@ -30,6 +30,8 @@ type LibraryState = {
   sort: SortState;
   steamId: string;
   steamApiKey: string;
+  igdbClientId: string;
+  igdbClientSecret: string;
   filters: LibraryFilters;
   selectedId: string | null;
   editorOpen: boolean;
@@ -55,6 +57,7 @@ type LibraryState = {
   importJson: (raw: unknown) => { added: number; updated: number; skipped: number; total: number };
   exportJson: () => void;
   setSteamCredentials: (steamId: string, steamApiKey: string) => void;
+  setIgdbCredentials: (clientId: string, clientSecret: string) => void;
   applySteamPlaytime: (owned: SteamOwnedGame[]) => { updated: number; markedOwned: number };
   refreshSteamIdentity: (
     updates: Array<{
@@ -63,14 +66,26 @@ type LibraryState = {
       coverUrl?: string;
       released?: boolean;
       steamPrice?: SteamPriceSnapshot | null;
+      genres?: string[];
+      franchise?: string;
+      platforms?: string[];
+      igdbId?: number | null;
+      steamAppId?: number | null;
     }>,
   ) => number;
 };
 
-function persistNow(state: Pick<LibraryState, "games" | "sort" | "steamId" | "steamApiKey">) {
+function persistNow(
+  state: Pick<
+    LibraryState,
+    "games" | "sort" | "steamId" | "steamApiKey" | "igdbClientId" | "igdbClientSecret"
+  >,
+) {
   const settings: LibrarySettings = settingsFromSort(state.sort, {
     steamId: state.steamId,
     steamApiKey: state.steamApiKey,
+    igdbClientId: state.igdbClientId,
+    igdbClientSecret: state.igdbClientSecret,
   });
   saveLibraryDocument(buildLibraryDocument(state.games, settings));
 }
@@ -81,6 +96,8 @@ export const useLibrary = create<LibraryState>((set, get) => ({
   sort: { by: "name", dir: "asc" },
   steamId: "",
   steamApiKey: "",
+  igdbClientId: "",
+  igdbClientSecret: "",
   filters: EMPTY_FILTERS,
   selectedId: null,
   editorOpen: false,
@@ -101,6 +118,8 @@ export const useLibrary = create<LibraryState>((set, get) => ({
         sort: sortFromSettings(document.settings, document.games),
         steamId: document.settings.steamId,
         steamApiKey: document.settings.steamApiKey,
+        igdbClientId: document.settings.igdbClientId,
+        igdbClientSecret: document.settings.igdbClientSecret,
       });
     } catch {
       set({
@@ -109,6 +128,8 @@ export const useLibrary = create<LibraryState>((set, get) => ({
         sort: { by: "name", dir: "asc" },
         steamId: "",
         steamApiKey: "",
+        igdbClientId: "",
+        igdbClientSecret: "",
       });
     }
   },
@@ -214,12 +235,16 @@ export const useLibrary = create<LibraryState>((set, get) => ({
       sortDir: current.sort.dir,
       steamId: current.steamId,
       steamApiKey: current.steamApiKey,
+      igdbClientId: current.igdbClientId,
+      igdbClientSecret: current.igdbClientSecret,
     });
     const next = {
       games: result.document.games,
       sort: sortFromSettings(result.document.settings, result.document.games),
       steamId: result.document.settings.steamId,
       steamApiKey: result.document.settings.steamApiKey,
+      igdbClientId: result.document.settings.igdbClientId,
+      igdbClientSecret: result.document.settings.igdbClientSecret,
     };
     persistNow(next);
     set(next);
@@ -238,12 +263,19 @@ export const useLibrary = create<LibraryState>((set, get) => ({
       sortDir: state.sort.dir,
       steamId: state.steamId,
       steamApiKey: state.steamApiKey,
+      igdbClientId: state.igdbClientId,
+      igdbClientSecret: state.igdbClientSecret,
     });
     downloadTextFile("game-library.json", json);
   },
 
   setSteamCredentials: (steamId, steamApiKey) => {
     set({ steamId, steamApiKey });
+    persistNow(get());
+  },
+
+  setIgdbCredentials: (clientId, clientSecret) => {
+    set({ igdbClientId: clientId, igdbClientSecret: clientSecret });
     persistNow(get());
   },
 
@@ -287,6 +319,12 @@ export const useLibrary = create<LibraryState>((set, get) => ({
           coverUrl: patch.coverUrl || game.coverUrl,
           released: patch.released ?? game.released,
           steamPrice: patch.steamPrice !== undefined ? patch.steamPrice : game.steamPrice,
+          genres: patch.genres ?? game.genres,
+          franchise:
+            patch.franchise !== undefined ? patch.franchise || game.franchise : game.franchise,
+          platforms: patch.platforms ?? game.platforms,
+          igdbId: patch.igdbId !== undefined ? patch.igdbId : game.igdbId,
+          steamAppId: patch.steamAppId !== undefined ? patch.steamAppId : game.steamAppId,
           lastSynced: new Date().toISOString(),
         });
       }),
