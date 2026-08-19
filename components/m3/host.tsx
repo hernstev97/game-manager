@@ -48,7 +48,7 @@ export function M3Dialog({
   }, [open]);
 
   return (
-    <m3-dialog ref={ref as Ref<HTMLElement>} headline={headline} className={className}>
+    <m3-dialog ref={ref as Ref<HTMLElement>} open={open} headline={headline} className={className}>
       {children}
       {actions}
     </m3-dialog>

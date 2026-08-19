@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { applyFiltersAndSort, EMPTY_FILTERS, type LibraryFilters } from "./filter-games";
+import {
+  adjacentGameId,
+  applyFiltersAndSort,
+  EMPTY_FILTERS,
+  type LibraryFilters,
+} from "./filter-games";
 import { normalizeGame, type GameRecord } from "./game-fields";
 
 function game(partial: Partial<GameRecord>): GameRecord {
@@ -157,5 +162,21 @@ describe("applyFiltersAndSort", () => {
 
     const byStatus = applyFiltersAndSort(library, EMPTY_FILTERS, { by: "status", dir: "asc" });
     expect(byStatus.map((g) => g.id)).toEqual(["b", "a", "c"]);
+  });
+});
+
+describe("adjacentGameId", () => {
+  const ids = [{ id: "a" }, { id: "b" }, { id: "c" }];
+
+  it("returns the previous and next ids in list order", () => {
+    expect(adjacentGameId(ids, "b", -1)).toBe("a");
+    expect(adjacentGameId(ids, "b", 1)).toBe("c");
+  });
+
+  it("returns null at the ends and for unknown ids", () => {
+    expect(adjacentGameId(ids, "a", -1)).toBeNull();
+    expect(adjacentGameId(ids, "c", 1)).toBeNull();
+    expect(adjacentGameId(ids, "missing", 1)).toBeNull();
+    expect(adjacentGameId([{ id: "only" }], "only", 1)).toBeNull();
   });
 });

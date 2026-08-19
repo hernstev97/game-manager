@@ -58,6 +58,14 @@ export function IconArrowDown(props: IconProps) {
   return <Glyph path="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z" {...props} />;
 }
 
+export function IconChevronLeft(props: IconProps) {
+  return <Glyph path="M15.41 7.41 14 6l-6 6 6 6 1.41-1.41L10.83 12z" {...props} />;
+}
+
+export function IconChevronRight(props: IconProps) {
+  return <Glyph path="M10 6 8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" {...props} />;
+}
+
 export function IconCheck(props: IconProps) {
   return <Glyph path="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" {...props} />;
 }
