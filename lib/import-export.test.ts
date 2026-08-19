@@ -14,7 +14,42 @@ describe("normalizeGame", () => {
     expect(game.owned).toBe(false);
     expect(game.genres).toEqual([]);
     expect(game.customFlag).toBe("keep-me");
+    expect(game.steamPrice).toBeNull();
     expect(game.id).toBeTruthy();
+  });
+
+  it("keeps a steam price snapshot", () => {
+    const game = normalizeGame({
+      name: "Elden Ring",
+      steamPrice: {
+        source: "steam",
+        currency: "EUR",
+        initialCents: 5999,
+        finalCents: 2999,
+        discountPercent: 50,
+        isFree: false,
+        formatted: "29,99 €",
+        updatedAt: "2026-08-19T12:00:00.000Z",
+      },
+    });
+    expect(game.steamPrice?.finalCents).toBe(2999);
+    expect(game.steamPrice?.discountPercent).toBe(50);
+  });
+
+  it("drops malformed steam price snapshots", () => {
+    const base = {
+      source: "steam" as const,
+      currency: "EUR",
+      initialCents: 5999,
+      finalCents: 2999,
+      discountPercent: 50,
+      isFree: false,
+      formatted: "29,99 €",
+      updatedAt: "2026-08-19T12:00:00.000Z",
+    };
+    expect(normalizeGame({ name: "X", steamPrice: { ...base, source: "itad" } }).steamPrice).toBeNull();
+    expect(normalizeGame({ name: "X", steamPrice: { ...base, finalCents: -1 } }).steamPrice).toBeNull();
+    expect(normalizeGame({ name: "X", steamPrice: { ...base, discountPercent: 12.5 } }).steamPrice).toBeNull();
   });
 
   it("clamps genres to two", () => {

@@ -4,6 +4,7 @@ import {
   type AnyGameField,
   type GameRecord,
 } from "./game-fields";
+import { steamPriceSortValue } from "./steam";
 
 export type MultiFilterValue = {
   kind: "multi";
@@ -144,6 +145,8 @@ function compareGames(a: GameRecord, b: GameRecord, sort: SortState): number {
     const aValue = typeof a[sort.by] === "number" ? (a[sort.by] as number) : null;
     const bValue = typeof b[sort.by] === "number" ? (b[sort.by] as number) : null;
     result = compareNullable(aValue, bValue, dir);
+  } else if (field?.type === "steamPrice") {
+    result = compareNullable(steamPriceSortValue(a.steamPrice), steamPriceSortValue(b.steamPrice), dir);
   } else if (field?.type === "date") {
     const aValue = typeof a[sort.by] === "string" ? (a[sort.by] as string) : "";
     const bValue = typeof b[sort.by] === "string" ? (b[sort.by] as string) : "";

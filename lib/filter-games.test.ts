@@ -114,6 +114,43 @@ describe("applyFiltersAndSort", () => {
     expect(byRating.map((g) => g.id)).toEqual(["a", "c", "b"]);
   });
 
+  it("sorts steam prices with missing values last", () => {
+    const priced = [
+      game({
+        id: "cheap",
+        name: "Cheap",
+        steamPrice: {
+          source: "steam",
+          currency: "EUR",
+          initialCents: 999,
+          finalCents: 499,
+          discountPercent: 50,
+          isFree: false,
+          formatted: "4,99 €",
+          updatedAt: "2026-08-19T12:00:00.000Z",
+        },
+      }),
+      game({ id: "unknown", name: "Unknown", steamPrice: null }),
+      game({
+        id: "free",
+        name: "Free",
+        steamPrice: {
+          source: "steam",
+          currency: "EUR",
+          initialCents: 0,
+          finalCents: 0,
+          discountPercent: 0,
+          isFree: true,
+          formatted: "Kostenlos",
+          updatedAt: "2026-08-19T12:00:00.000Z",
+        },
+      }),
+    ];
+    expect(
+      applyFiltersAndSort(priced, EMPTY_FILTERS, { by: "steamPrice", dir: "asc" }).map((g) => g.id),
+    ).toEqual(["free", "cheap", "unknown"]);
+  });
+
   it("sorts difficulty alphabetically and status finished first", () => {
     const byDiff = applyFiltersAndSort(library, EMPTY_FILTERS, { by: "difficultyTo100", dir: "asc" });
     expect(byDiff.map((g) => g.difficultyTo100)).toEqual(["High (Grindy)", "Low", "Medium"]);
