@@ -204,12 +204,14 @@
   margin-top: 24px;
 }
 
-@media (max-width: 720px) {
+@media (max-width: 599px) {
   .bar {
     right: 8px;
     bottom: max(8px, env(safe-area-inset-bottom));
     left: 8px;
     grid-template-columns: 1fr auto;
+    gap: 8px;
+    padding: 10px 12px;
     border-radius: 20px;
   }
 

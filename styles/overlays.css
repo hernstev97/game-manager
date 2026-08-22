@@ -68,11 +68,15 @@ m3-snackbar {
 @media (max-width: 599px) {
   .mobile-add-fab {
     position: fixed;
-    right: 16px;
+    right: max(14px, env(safe-area-inset-right));
     bottom: max(16px, env(safe-area-inset-bottom));
     z-index: 45;
+    width: 56px;
+    min-width: 56px;
+    height: 56px;
+    padding: 0;
     --md-comp-button-container-height: 56px;
-    --md-comp-button-container-shape: 18px;
+    --md-comp-button-container-shape: 999px;
     --md-comp-button-label-text-size: 1rem;
     filter: drop-shadow(0 3px 5px color-mix(in srgb, var(--md-sys-color-scrim) 28%, transparent));
   }

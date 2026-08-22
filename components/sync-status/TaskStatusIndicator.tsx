@@ -38,19 +38,32 @@ export function TaskStatusIndicator({
       ? `${summary.offlinePaused} ${summary.offlinePaused === 1 ? "Aufgabe" : "Aufgaben"} offline pausiert`
       : summary.rateLimitPaused > 0
         ? `${summary.rateLimitPaused} ${summary.rateLimitPaused === 1 ? "Aufgabe wartet" : "Aufgaben warten"} auf den nächsten Versuch`
-        : summary.failed > 0
-          ? `${summary.failed} ${summary.failed === 1 ? "Aufgabe fehlgeschlagen" : "Aufgaben fehlgeschlagen"}`
-          : summary.active > 0
-            ? `${summary.active} ${summary.active === 1 ? "Aufgabe wartet" : "Aufgaben warten"}`
-            : "Keine offenen Aufgaben";
+        : status === "user-paused"
+          ? `${title ?? "Aufgabe"} pausiert`
+          : status === "interrupted"
+            ? `${title ?? "Aufgabe"} unterbrochen`
+            : summary.failed > 0
+              ? `${summary.failed} ${summary.failed === 1 ? "Aufgabe fehlgeschlagen" : "Aufgaben fehlgeschlagen"}`
+              : summary.active > 0
+                ? `${summary.active} ${summary.active === 1 ? "Aufgabe wartet" : "Aufgaben warten"}`
+                : "Keine offenen Aufgaben";
   const progressStyle = summary.progress.percent === null
     ? undefined
     : ({ "--compact-progress": `${summary.progress.percent}%` } as CSSProperties);
+  const indicatorClassName = [
+    styles.indicator,
+    status ? styles[`status-${status}`] : "",
+    status === "running" && summary.progress.percent === null ? styles.indeterminate : "",
+  ].filter(Boolean).join(" ");
+  const mobileActiveCount = summary.failed === 0 && summary.active > 1
+    ? summary.active
+    : null;
 
   return (
     <button
       type="button"
-      className={`${styles.indicator} ${status ? styles[`status-${status}`] : ""}`}
+      className={indicatorClassName}
+      style={progressStyle}
       onClick={onOpen}
       aria-controls={controlsId}
       aria-expanded={expanded}
@@ -64,12 +77,15 @@ export function TaskStatusIndicator({
         <span>{label}</span>
       </span>
       {summary.progress.percent !== null && jobs.length > 0 ? (
-        <span className={styles.progress} aria-hidden="true" style={progressStyle}>
+        <span className={styles.progress} aria-hidden="true">
           <span />
         </span>
       ) : null}
       {summary.failed > 0 ? (
         <span className={styles.badge} aria-hidden="true">{summary.failed}</span>
+      ) : null}
+      {mobileActiveCount !== null ? (
+        <span className={styles.mobileBadge} aria-hidden="true">{mobileActiveCount}</span>
       ) : null}
     </button>
   );
