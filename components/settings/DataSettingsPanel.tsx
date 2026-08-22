@@ -14,11 +14,12 @@ export function DataSettingsPanel({
   onExport,
 }: {
   hidden: boolean;
-  onClearLibrary: () => void;
+  onClearLibrary: () => Promise<void>;
   onImport: (file: File) => void;
   onExport: () => void;
 }) {
   const [confirmReset, setConfirmReset] = useState(false);
+  const [clearing, setClearing] = useState(false);
   const importRef = useRef<HTMLInputElement>(null);
 
   return (
@@ -57,13 +58,22 @@ export function DataSettingsPanel({
           <span>Alle Spiele in der Bibliothek löschen?</span>
           <m3-button
             className="danger-button"
+            disabled={clearing}
             onClick={() => {
-              void onClearLibrary();
-              setConfirmReset(false);
-              toast.success("Bibliothek geleert.");
+              setClearing(true);
+              void onClearLibrary()
+                .then(() => setConfirmReset(false))
+                .catch((error: unknown) => {
+                  toast.error(
+                    error instanceof Error
+                      ? error.message
+                      : "Bibliothek konnte nicht geleert werden.",
+                  );
+                })
+                .finally(() => setClearing(false));
             }}
           >
-            Löschen
+            {clearing ? "Sicherheitssnapshot wird erstellt …" : "Löschen"}
           </m3-button>
           <m3-button variant="text" onClick={() => setConfirmReset(false)}>
             Abbrechen

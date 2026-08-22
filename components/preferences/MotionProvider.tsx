@@ -29,7 +29,11 @@ type MotionContextValue = {
 };
 
 type ViewTransitionDocument = Document & {
-  startViewTransition?: (update: () => void | Promise<void>) => unknown;
+  startViewTransition?: (update: () => void | Promise<void>) => {
+    finished: Promise<void>;
+    ready: Promise<void>;
+    updateCallbackDone: Promise<void>;
+  };
 };
 
 const MotionContext = createContext<MotionContextValue | null>(null);
@@ -94,7 +98,20 @@ export function runMotionViewTransition(update: () => void) {
     return;
   }
   try {
-    motionDocument.startViewTransition(() => flushSync(update));
+    const transition = motionDocument.startViewTransition(() => flushSync(update));
+    const handleTransitionRejection = (error: unknown) => {
+      if (
+        error instanceof DOMException &&
+        error.name === "AbortError" &&
+        error.message === "Transition was skipped"
+      ) {
+        return;
+      }
+      console.error("View transition failed.", error);
+    };
+    void transition.ready.catch(handleTransitionRejection);
+    void transition.finished.catch(handleTransitionRejection);
+    void transition.updateCallbackDone.catch(handleTransitionRejection);
   } catch {
     update();
   }

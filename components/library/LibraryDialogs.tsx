@@ -139,7 +139,7 @@ export function LibraryDialogs({
           games={games}
           onSteamCredentials={setSteamCredentials}
           onIgdbCredentials={setIgdbCredentials}
-          onClearLibrary={() => void clearLibrarySafely()}
+          onClearLibrary={clearLibrarySafely}
           onQueueSteamMetadata={(targets) => queueMetadataJobs("steam", targets)}
           onQueueIgdbMetadata={(targets) => queueMetadataJobs("igdb", targets)}
           onOpenSteamImport={() => {

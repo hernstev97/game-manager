@@ -4,9 +4,10 @@ import { useState } from "react";
 import type { GameRecord } from "@/lib/game-fields";
 import {
   groupActiveCount,
+  facetChoices,
   isTokenSelected,
-  menuChoices,
   toggleToken,
+  resetFilterGroup,
   type FilterGroup,
 } from "@/components/filters/filter-logic";
 import type { FieldFilterValue, LibraryFilters } from "@/lib/filter-games";
@@ -55,6 +56,10 @@ export function FilterGroupMenu({
                   if (!open) setOpenKey((current) => (current === group.key ? null : current));
                 }}
                 onSelect={(packed) => {
+                  if (packed === `reset:${group.key}`) {
+                    onChange(resetFilterGroup(filters, group));
+                    return;
+                  }
                   const [fieldId, token] = packed.split("\u001f");
                   const field = groups
                     .flatMap((item) => item.fields)
@@ -64,16 +69,23 @@ export function FilterGroupMenu({
                 }}
               >
                 {group.fields.flatMap((field) =>
-                  menuChoices(field, games).map((choice) => {
+                  facetChoices(field, games, filters).map((choice) => {
                     const selected = isTokenSelected(filters.fields[field.id], choice.token);
                     return (
-                      <m3-menu-item key={`${field.id}-${choice.token}`} value={`${field.id}\u001f${choice.token}`}>
-                        {choice.label}
+                      <m3-menu-item
+                        key={`${field.id}-${choice.token}`}
+                        value={`${field.id}\u001f${choice.token}`}
+                        disabled={choice.count === 0 && !selected}
+                      >
+                        {choice.label} ({choice.count})
                         {selected ? <IconCheck slot="trailing-icon" /> : null}
                       </m3-menu-item>
                     );
                   }),
                 )}
+                {activeCount > 0 ? (
+                  <m3-menu-item value={`reset:${group.key}`}>Gruppe zurücksetzen</m3-menu-item>
+                ) : null}
               </M3Menu>
             </div>
           );

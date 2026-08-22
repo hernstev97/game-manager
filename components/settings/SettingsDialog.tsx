@@ -30,7 +30,7 @@ export type SettingsDialogProps = {
   games: GameRecord[];
   onSteamCredentials: (steamId: string, steamApiKey: string) => void;
   onIgdbCredentials: (clientId: string, clientSecret: string) => void;
-  onClearLibrary: () => void;
+  onClearLibrary: () => Promise<void>;
   onQueueSteamMetadata: (targets: MetadataRefreshTarget[]) => Promise<number>;
   onQueueIgdbMetadata: (targets: MetadataRefreshTarget[]) => Promise<number>;
   onOpenSteamImport: () => void;

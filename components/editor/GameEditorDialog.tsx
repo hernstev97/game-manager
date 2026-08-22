@@ -17,6 +17,8 @@ import { EditorTabs } from "@/components/editor/EditorTabs";
 import { EditorHero } from "@/components/editor/EditorHero";
 import { IdentityPanel } from "@/components/editor/IdentityPanel";
 import { EditorField } from "@/components/editor/fields/EditorField";
+import { FieldProvenanceNote } from "@/components/editor/FieldProvenanceNote";
+import { SaveStatusIndicator } from "@/components/save-status";
 
 export type GameEditorProps = {
   game: GameRecord | null;
@@ -88,9 +90,9 @@ export function GameEditor({
           </p>
           <EditorTabs groups={groups} activeTab={tab} onChange={setTab} />
           {activeGroup === "identity" ? (
-            <EditorHero game={game} onManageMedia={onManageMedia} />
+            <EditorHero key={game.id} game={game} onManageMedia={onManageMedia} />
           ) : null}
-          <span className="editor-save-state">Änderungen werden automatisch gespeichert.</span>
+          <span className="editor-save-state"><SaveStatusIndicator /></span>
           {groups.map((group) => (
             <section
               key={`${game.id}-${group.group}`}
@@ -109,15 +111,17 @@ export function GameEditor({
                 />
               ) : (
                 group.fields.map((field) => (
-                  <EditorField
-                    key={`${game.id}-${field.id}`}
-                    field={field}
-                    game={game}
-                    games={games}
-                    onChange={(patch) => onChange(game.id, patch)}
-                    onPriority={(priority) => onPriority(game.id, priority)}
-                    onPosition={(fieldId, position) => onPosition(game.id, fieldId, position)}
-                  />
+                  <div className="editor-field-with-provenance" key={`${game.id}-${field.id}`}>
+                    <EditorField
+                      field={field}
+                      game={game}
+                      games={games}
+                      onChange={(patch) => onChange(game.id, patch)}
+                      onPriority={(priority) => onPriority(game.id, priority)}
+                      onPosition={(fieldId, position) => onPosition(game.id, fieldId, position)}
+                    />
+                    <FieldProvenanceNote game={game} fieldId={field.id} />
+                  </div>
                 ))
               )}
             </section>

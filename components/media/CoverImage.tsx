@@ -15,6 +15,7 @@ export function CoverImage({
   className,
   eager = false,
   sizes = "(max-width: 599px) 104px, (max-width: 839px) 144px, 175px",
+  onSourceError,
 }: {
   name: string;
   franchise?: string;
@@ -23,6 +24,7 @@ export function CoverImage({
   className?: string;
   eager?: boolean;
   sizes?: string;
+  onSourceError?: (url: string) => void;
 }) {
   const sources = useMemo(() => {
     const list: string[] = [];
@@ -59,6 +61,7 @@ export function CoverImage({
       draggable={false}
       onError={() => {
         failedUrls.add(src);
+        onSourceError?.(src);
         setIndex((current) => current + 1);
       }}
     />

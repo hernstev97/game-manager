@@ -5,7 +5,12 @@ import {
   type AnyGameField,
   type GameRecord,
 } from "@/lib/game-fields";
-import { emptyFieldFilter, type FieldFilterValue, type LibraryFilters } from "@/lib/filter-games";
+import {
+  emptyFieldFilter,
+  gameMatchesFilters,
+  type FieldFilterValue,
+  type LibraryFilters,
+} from "@/lib/filter-games";
 
 export type FilterGroup = {
   key: string;
@@ -96,6 +101,38 @@ export function menuChoices(
   return collectFilterOptions(field, games).map((option) => ({ token: option, label: option }));
 }
 
+export type FacetChoice = { token: string; label: string; count: number };
+
+export function facetChoices(
+  field: AnyGameField,
+  games: readonly GameRecord[],
+  filters: LibraryFilters,
+): FacetChoice[] {
+  const otherFields = { ...filters.fields };
+  delete otherFields[field.id];
+  const current = filters.fields[field.id];
+  return menuChoices(field, [...games]).map((choice) => {
+    const empty = emptyFieldFilter(field);
+    const candidate: FieldFilterValue = empty.kind === "toggle"
+      ? { ...empty, on: true }
+      : empty.kind === "rating"
+        ? {
+            ...empty,
+            selected: [choice.token as "rated" | "unrated" | "gte"],
+            gte: current?.kind === "rating" ? current.gte : empty.gte,
+          }
+        : { ...empty, selected: [choice.token] } as FieldFilterValue;
+    const candidateFilters: LibraryFilters = {
+      ...filters,
+      fields: { ...otherFields, [field.id]: candidate },
+    };
+    return {
+      ...choice,
+      count: games.filter((game) => gameMatchesFilters(game, candidateFilters)).length,
+    };
+  });
+}
+
 export function isTokenSelected(value: FieldFilterValue | undefined, token: string): boolean {
   if (!value) return false;
   if (value.kind === "toggle") return token === "on" && value.on;
@@ -132,6 +169,15 @@ export function setFieldFilter(
     ...filters,
     fields: { ...filters.fields, [fieldId]: value },
   };
+}
+
+export function resetFilterGroup(
+  filters: LibraryFilters,
+  group: Pick<FilterGroup, "fields">,
+): LibraryFilters {
+  const fields = { ...filters.fields };
+  group.fields.forEach((field) => delete fields[field.id]);
+  return { ...filters, fields };
 }
 
 export function fieldForFilter(fieldId: string): AnyGameField | undefined {

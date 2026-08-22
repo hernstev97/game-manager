@@ -1,8 +1,9 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import type { GameFieldDef, GameRecord } from "@/lib/game-fields";
 import { EditorField } from "@/components/editor/fields/EditorField";
+import { FieldProvenanceNote } from "@/components/editor/FieldProvenanceNote";
 
 export function EditorFieldItem({
   field,
@@ -23,34 +24,49 @@ export function EditorFieldItem({
 }) {
   if (!field) return null;
   return (
-    <EditorField
-      field={field}
-      game={game}
-      games={games}
-      onChange={onChange}
-      onPriority={onPriority}
-      onPosition={onPosition}
-      showCoverPreview={showCoverPreview}
-    />
+    <div className="editor-field-with-provenance">
+      <EditorField
+        field={field}
+        game={game}
+        games={games}
+        onChange={onChange}
+        onPriority={onPriority}
+        onPosition={onPosition}
+        showCoverPreview={showCoverPreview}
+      />
+      <FieldProvenanceNote game={game} fieldId={field.id} />
+    </div>
   );
 }
 
 export function SourceCard({
   title,
   subtitle,
+  connected,
   children,
 }: {
   title: string;
   subtitle: string;
+  connected: boolean;
   children: ReactNode;
 }) {
+  const [expanded, setExpanded] = useState(connected);
   return (
-    <section className="editor-source-card">
-      <header className="editor-source-header">
-        <h3>{title}</h3>
-        <span>{subtitle}</span>
-      </header>
-      {children}
-    </section>
+    <details
+      className="editor-source-card"
+      open={expanded}
+      onToggle={(event) => setExpanded(event.currentTarget.open)}
+    >
+      <summary className="editor-source-header">
+        <span>
+          <strong>{title}</strong>
+          <small>{subtitle}</small>
+        </span>
+        <span className="editor-source-status" data-connected={connected}>
+          {connected ? "Verbunden" : "Nicht verbunden"}
+        </span>
+      </summary>
+      <div className="editor-source-fields">{children}</div>
+    </details>
   );
 }

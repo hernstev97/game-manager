@@ -74,6 +74,19 @@ m3-dialog.is-paged .editor-body {
   backdrop-filter: blur(8px);
 }
 
+.editor-cover-warning {
+  position: absolute;
+  z-index: 2;
+  left: 14px;
+  bottom: 14px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  color: var(--md-sys-color-on-error-container);
+  background: color-mix(in srgb, var(--md-sys-color-error-container) 92%, transparent);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
 .editor-cover-manage:focus-visible {
   outline: 3px solid var(--md-sys-color-tertiary-container);
   outline-offset: 2px;
@@ -116,12 +129,10 @@ m3-dialog.is-paged .editor-body {
 }
 
 .editor-source-card {
-  display: flex;
+  display: block;
   min-width: 0;
   margin: 0;
   padding: 16px;
-  flex-direction: column;
-  gap: 12px;
   border: 1px solid var(--md-sys-color-outline-variant);
   border-radius: 20px;
   background: color-mix(
@@ -131,24 +142,62 @@ m3-dialog.is-paged .editor-body {
   );
 }
 
+.editor-source-card[open] {
+  padding-bottom: 16px;
+}
+
 .editor-source-header {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
   gap: 12px;
   padding-bottom: 2px;
+  cursor: pointer;
+  list-style: none;
 }
 
-.editor-source-header h3 {
+.editor-source-header::-webkit-details-marker { display: none; }
+.editor-source-header > span:first-child { display: grid; gap: 2px; }
+
+.editor-source-header strong {
   margin: 0;
   color: var(--md-sys-color-on-surface);
   font-size: 1rem;
   font-weight: 650;
 }
 
-.editor-source-header span {
+.editor-source-header small {
   color: var(--md-sys-color-on-surface-variant);
   font-size: 0.75rem;
+}
+
+.editor-source-status {
+  padding: 4px 8px;
+  border-radius: 999px;
+  color: var(--md-sys-color-on-surface-variant);
+  background: var(--md-sys-color-surface-container-highest);
+  font-size: 0.72rem;
+}
+
+.editor-source-status[data-connected="true"] {
+  color: var(--md-sys-color-on-tertiary-container);
+  background: var(--md-sys-color-tertiary-container);
+}
+
+.editor-source-fields {
+  display: grid;
+  gap: 12px;
+  padding-top: 12px;
+}
+
+.editor-field-with-provenance {
+  display: grid;
+  gap: 4px;
+}
+
+.editor-field-provenance {
+  color: var(--md-sys-color-on-surface-variant);
+  font-size: 0.7rem;
 }
 
 .editor-mobile-nav {

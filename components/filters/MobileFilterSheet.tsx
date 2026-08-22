@@ -1,11 +1,13 @@
 "use client";
 
 import type { GameRecord } from "@/lib/game-fields";
-import { EMPTY_FILTERS, applyFiltersAndSort, type FieldFilterValue, type LibraryFilters } from "@/lib/filter-games";
+import { EMPTY_FILTERS, applyFiltersAndSort, emptyFieldFilter, type FieldFilterValue, type LibraryFilters } from "@/lib/filter-games";
 import { M3Chip, M3Dialog, M3Slider } from "@/components/m3/host";
 import {
   isTokenSelected,
-  menuChoices,
+  facetChoices,
+  groupActiveCount,
+  resetFilterGroup,
   toggleToken,
   type FilterGroup,
 } from "@/components/filters/filter-logic";
@@ -113,16 +115,34 @@ export function MobileFilterSheet({
       <div className="mobile-filter-sheet">
         {groups.map((group) => (
           <fieldset key={group.key} className="mobile-filter-group">
-            <legend>{group.label}</legend>
+            <legend>
+              {group.label}
+              {groupActiveCount(group, draftFilters) > 0 ? (
+                <button
+                  type="button"
+                  className="filter-group-reset"
+                  onClick={() => {
+                    const reset = resetFilterGroup(draftFilters, group);
+                    group.fields.forEach((field) => {
+                      const value = reset.fields[field.id] ?? emptyFieldFilter(field);
+                      onDraftField(field.id, value);
+                    });
+                  }}
+                >
+                  Zurücksetzen
+                </button>
+              ) : null}
+            </legend>
             <div className="chip-row">
               {group.fields.flatMap((field) =>
-                menuChoices(field, games).map((choice) => {
+                facetChoices(field, games, draftFilters).map((choice) => {
                   const selected = isTokenSelected(draftFilters.fields[field.id], choice.token);
                   return (
                     <M3Chip
                       key={`${field.id}-${choice.token}`}
                       variant="filter"
                       selected={selected}
+                      disabled={choice.count === 0 && !selected}
                       onClick={() =>
                         onDraftField(
                           field.id,
@@ -130,7 +150,7 @@ export function MobileFilterSheet({
                         )
                       }
                     >
-                      {choice.label}
+                      {choice.label} ({choice.count})
                     </M3Chip>
                   );
                 }),

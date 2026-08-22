@@ -17,12 +17,14 @@ import {
   type FilterGroup,
 } from "@/components/filters/filter-logic";
 import { FilterSummary } from "@/components/filters/FilterSummary";
+import { RecentFilterPresets } from "@/components/filters/RecentFilterPresets";
 import {
   emptyMobileFilters,
   MobileActiveFilters,
   MobileFilterOverview,
   MobileFilterSheet,
 } from "@/components/filters/MobileFilterSheet";
+import { recordRecentFilterPreset } from "@/lib/recent-filters";
 
 export function FilterBar({
   games,
@@ -44,8 +46,13 @@ export function FilterBar({
   const fieldChips = chips.filter((chip) => chip.fieldId !== "query");
   const active = isFilterActive(filters);
 
+  const commitFilters = (next: LibraryFilters) => {
+    onChange(next);
+    recordRecentFilterPreset(next);
+  };
+
   const setField = (fieldId: string, value: FieldFilterValue) => {
-    onChange({
+    commitFilters({
       ...filters,
       fields: { ...filters.fields, [fieldId]: value },
     });
@@ -84,13 +91,14 @@ export function FilterBar({
   return (
     <section className="filter-bar" aria-label="Filter">
       <FilterSummary visibleCount={visibleCount} totalCount={games.length} />
+      <RecentFilterPresets query={filters.query} onApply={commitFilters} />
       <MobileFilterOverview
         visibleCount={visibleCount}
         totalCount={games.length}
         fieldChipCount={fieldChips.length}
         onOpen={openMobileFilters}
       />
-      <FilterGroupMenu games={games} filters={filters} groups={groups} onChange={onChange} />
+      <FilterGroupMenu games={games} filters={filters} groups={groups} onChange={commitFilters} />
       <ActiveFilterChips
         active={active}
         chips={chips}
@@ -111,7 +119,7 @@ export function FilterBar({
         onDraftField={setDraftField}
         onReset={() => setDraftFilters(emptyMobileFilters(filters.query))}
         onApply={() => {
-          onChange(draftFilters);
+          commitFilters(draftFilters);
           setMobileOpen(false);
         }}
       />

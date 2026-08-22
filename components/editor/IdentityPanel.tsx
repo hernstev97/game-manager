@@ -34,12 +34,20 @@ export function IdentityPanel({
       <EditorFieldItem field={byId.get("name")} {...sharedProps} />
 
       <div className="editor-source-stack" aria-label="Externe Spieldaten">
-        <SourceCard title="Steam" subtitle="Store &amp; Preis">
+        <SourceCard
+          title="Steam"
+          subtitle="Store &amp; Preis"
+          connected={game.steamAppId != null}
+        >
           <EditorFieldItem field={byId.get("steamAppId")} {...sharedProps} />
           <EditorFieldItem field={byId.get("steamPrice")} {...sharedProps} />
         </SourceCard>
 
-        <SourceCard title="IGDB" subtitle="Katalog &amp; Metadaten">
+        <SourceCard
+          title="IGDB"
+          subtitle="Katalog &amp; Metadaten"
+          connected={game.igdbId != null}
+        >
           <EditorFieldItem field={byId.get("igdbId")} {...sharedProps} />
         </SourceCard>
       </div>
