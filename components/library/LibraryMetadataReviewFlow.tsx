@@ -2,6 +2,7 @@
 
 import { MetadataReviewDialog } from "@/components/metadata-review";
 import { toast } from "@/components/m3/snackbar";
+import { toastWithUndo } from "@/components/undo";
 import { applyMetadataReviews, type MetadataReview } from "@/lib/metadata";
 import { getLibrarySnapshotRepository, libraryUndoHistory } from "@/lib/runtime/library-runtime";
 import { libraryRepository } from "@/lib/storage";
@@ -71,7 +72,7 @@ export function LibraryMetadataReviewFlow() {
         changes,
       );
       closeReviews();
-      toast.success(
+      toastWithUndo(
         confirmedReviews.length === 1
           ? "Metadaten übernommen."
           : `Metadaten für ${confirmedReviews.length} Spiele übernommen.`,

@@ -5,12 +5,15 @@ import type { PlanningMode, QueueInsertion } from "@/components/planning";
 import { libraryUndoHistory } from "@/lib/runtime/library-runtime";
 import { libraryRepository } from "@/lib/storage";
 import { useLibrary } from "@/store/library";
+import { toastWithUndo } from "@/components/undo";
 
 function recordPlanningMutation(label: string, mutate: () => void): void {
   const before = libraryRepository.load();
   mutate();
   const after = libraryRepository.load();
-  if (before && after) libraryUndoHistory.record(label, before, after);
+  if (before && after && libraryUndoHistory.record(label, before, after)) {
+    toastWithUndo(`${label}.`);
+  }
 }
 
 export function useLibraryPlanning() {

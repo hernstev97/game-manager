@@ -9,6 +9,12 @@ import { LibraryMetadataReviewFlow } from "@/components/library/LibraryMetadataR
 import { SteamImportDialog } from "@/components/library/SteamImportDialog";
 import { createMetadataRefreshJobs } from "@/lib/runtime/library-job-factories";
 import { getLibraryJobScheduler } from "@/lib/runtime/library-runtime";
+import {
+  getLibrarySnapshotRepository,
+  libraryUndoHistory,
+} from "@/lib/runtime/library-runtime";
+import { libraryRepository } from "@/lib/storage";
+import { toastWithUndo } from "@/components/undo";
 import { SettingsDialog } from "@/components/settings-dialog";
 import { useLibrary } from "@/store/library";
 
@@ -50,6 +56,23 @@ export function LibraryDialogs({
   const [steamImportOpen, setSteamImportOpen] = useState(false);
   const selected = games.find((game) => game.id === selectedId) ?? null;
 
+  const deleteGameSafely = (id: string) => {
+    const before = libraryRepository.load() ?? libraryRepository.empty();
+    deleteGame(id);
+    const after = libraryRepository.load() ?? libraryRepository.empty();
+    libraryUndoHistory.record("Spiel löschen", before, after);
+    toastWithUndo("Spiel gelöscht.");
+  };
+
+  const clearLibrarySafely = async () => {
+    const before = libraryRepository.load() ?? libraryRepository.empty();
+    await getLibrarySnapshotRepository().create("before-clear", before);
+    clearLibrary();
+    const after = libraryRepository.load() ?? libraryRepository.empty();
+    libraryUndoHistory.record("Bibliothek leeren", before, after);
+    toastWithUndo("Bibliothek geleert. Sicherheitssnapshot wurde erstellt.");
+  };
+
   const queueMetadataJobs = async (
     source: "steam" | "igdb",
     targets: Array<{ gameId: string; externalId: number }>,
@@ -77,7 +100,7 @@ export function LibraryDialogs({
             if (fieldId === "favoriteRank") setFavoriteRank(id, position);
             else setGamePriority(id, position);
           }}
-          onDelete={deleteGame}
+          onDelete={deleteGameSafely}
           onManageMedia={() => setMediaOpen(true)}
         />
       ) : null}
@@ -116,14 +139,17 @@ export function LibraryDialogs({
           games={games}
           onSteamCredentials={setSteamCredentials}
           onIgdbCredentials={setIgdbCredentials}
-          onClearLibrary={clearLibrary}
+          onClearLibrary={() => void clearLibrarySafely()}
           onQueueSteamMetadata={(targets) => queueMetadataJobs("steam", targets)}
           onQueueIgdbMetadata={(targets) => queueMetadataJobs("igdb", targets)}
           onOpenSteamImport={() => {
             setSettingsOpen(false);
             setSteamImportOpen(true);
           }}
-          onImport={onImport}
+          onImport={(file) => {
+            setSettingsOpen(false);
+            onImport(file);
+          }}
           onExport={exportJson}
         />
       ) : null}

@@ -1,0 +1,35 @@
+.intro { color: var(--md-sys-color-on-surface-variant); }
+
+.list {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: minmax(86px, auto) 1fr;
+  gap: 14px;
+  align-items: center;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--md-sys-color-outline-variant);
+}
+
+.row dt { display: flex; gap: 4px; }
+.row dd { display: grid; gap: 2px; margin: 0; }
+.row dd span { color: var(--md-sys-color-on-surface-variant); font-size: 0.78rem; }
+
+.row kbd {
+  min-width: 28px;
+  padding: 3px 7px;
+  border: 1px solid var(--md-sys-color-outline);
+  border-radius: 6px;
+  color: var(--md-sys-color-on-surface);
+  text-align: center;
+  background: var(--md-sys-color-surface-container-high);
+  box-shadow: 0 1px 0 var(--md-sys-color-outline);
+}
+
+@media (max-width: 420px) {
+  .row { grid-template-columns: 72px 1fr; gap: 8px; }
+}

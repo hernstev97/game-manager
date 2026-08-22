@@ -16,6 +16,9 @@ import { LibraryBulkActions } from "@/components/bulk-actions/LibraryBulkActions
 import { LibraryDialogs } from "@/components/library/LibraryDialogs";
 import { BackupImportDialog } from "@/components/import-export/BackupImportDialog";
 import { useLibraryPlanning } from "@/components/library/useLibraryPlanning";
+import { OnboardingDialog } from "@/components/onboarding";
+import { ShortcutHelpDialog, SHORTCUT_HELP_EVENT } from "@/components/shortcuts";
+import { toastWithUndo } from "@/components/undo";
 
 export function LibraryApp() {
   const hydrated = useLibrary((state) => state.hydrated);
@@ -58,6 +61,7 @@ export function LibraryApp() {
   const [addDialogEpoch, setAddDialogEpoch] = useState(0);
   const [addInitialQuery, setAddInitialQuery] = useState("");
   const [importCandidate, setImportCandidate] = useState<{ raw: unknown; fileName: string } | null>(null);
+  const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const planning = useLibraryPlanning();
 
   useEffect(() => {
@@ -124,7 +128,16 @@ export function LibraryApp() {
     [openAddDialog, planning],
   );
 
-  useLibraryKeyboardShortcuts(openAddDialog);
+  const openShortcutHelp = useCallback(() => {
+    setSettingsOpen(false);
+    setShortcutsOpen(true);
+  }, [setSettingsOpen]);
+  useLibraryKeyboardShortcuts(openAddDialog, openShortcutHelp, planning.openQueue);
+
+  useEffect(() => {
+    window.addEventListener(SHORTCUT_HELP_EVENT, openShortcutHelp);
+    return () => window.removeEventListener(SHORTCUT_HELP_EVENT, openShortcutHelp);
+  }, [openShortcutHelp]);
 
   const importFile = async (file: File) => {
     try {
@@ -190,6 +203,7 @@ export function LibraryApp() {
         onImport={(file) => void importFile(file)}
         onExport={exportJson}
         onSettings={() => setSettingsOpen(true)}
+        onHelp={openShortcutHelp}
         onFilterChange={onFilterChange}
         onClearFilters={onClearFilters}
         onOpenAdd={() => openAddDialog()}
@@ -223,13 +237,19 @@ export function LibraryApp() {
           onClose={() => setImportCandidate(null)}
           onApplied={({ games: gameCount, views: viewCount, mode }) => {
             setImportCandidate(null);
-            toast.success(
+            toastWithUndo(
               `${mode === "replace" ? "Wiederhergestellt" : "Zusammengeführt"}: ${gameCount} Spiele, ${viewCount} Ansichten.`,
             );
           }}
         />
       ) : null}
       <PwaShell onShareTarget={onPwaShareTarget} onShortcut={onPwaShortcut} />
+      <OnboardingDialog
+        onImport={(file) => void importFile(file)}
+        onAddGame={() => openAddDialog()}
+        onConnectSteam={() => setSettingsOpen(true)}
+      />
+      <ShortcutHelpDialog open={shortcutsOpen} onClose={() => setShortcutsOpen(false)} />
       <SnackbarHost />
     </div>
   );

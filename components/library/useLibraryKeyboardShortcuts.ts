@@ -18,7 +18,11 @@ function isTypingTarget(target: EventTarget | null) {
   );
 }
 
-export function useLibraryKeyboardShortcuts(openAddDialog: () => void) {
+export function useLibraryKeyboardShortcuts(
+  openAddDialog: () => void,
+  onOpenHelp: () => void,
+  onOpenQueue: () => void,
+) {
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       if (event.defaultPrevented) return;
@@ -27,6 +31,15 @@ export function useLibraryKeyboardShortcuts(openAddDialog: () => void) {
         return;
       }
       const state = useLibrary.getState();
+      if (event.key === "?") {
+        const dialogOpen = [...document.querySelectorAll<HTMLElement & { open?: boolean }>(
+          "m3-dialog, dialog",
+        )].some((dialog) => dialog.open || dialog.hasAttribute("open"));
+        if (dialogOpen) return;
+        event.preventDefault();
+        onOpenHelp();
+        return;
+      }
       const list = applyFiltersAndSort(state.games, state.filters, state.sort);
       if (event.key === "F6") {
         event.preventDefault();
@@ -63,6 +76,11 @@ export function useLibraryKeyboardShortcuts(openAddDialog: () => void) {
         openAddDialog();
         return;
       }
+      if (event.key.toLowerCase() === "q" && !event.ctrlKey && !event.metaKey) {
+        event.preventDefault();
+        onOpenQueue();
+        return;
+      }
       if (list.length === 0) return;
       const currentId = state.selectedId;
       const index = Math.max(0, list.findIndex((game) => game.id === currentId));
@@ -83,5 +101,5 @@ export function useLibraryKeyboardShortcuts(openAddDialog: () => void) {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [openAddDialog]);
+  }, [onOpenHelp, onOpenQueue, openAddDialog]);
 }

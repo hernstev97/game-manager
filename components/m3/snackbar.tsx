@@ -8,6 +8,13 @@ type Toast = {
   message: string;
   lines: "1" | "2";
   live: "polite" | "assertive";
+  actionLabel?: string;
+  onAction?: () => void;
+};
+
+type ToastOptions = {
+  actionLabel?: string;
+  onAction?: () => void;
 };
 
 type Listener = (toast: Toast) => void;
@@ -15,22 +22,27 @@ type Listener = (toast: Toast) => void;
 let nextId = 1;
 const listeners = new Set<Listener>();
 
-function publish(message: string, live: "polite" | "assertive") {
+function publish(
+  message: string,
+  live: "polite" | "assertive",
+  options: ToastOptions = {},
+) {
   const toast: Toast = {
     id: nextId++,
     message,
     lines: message.length > 72 ? "2" : "1",
     live,
+    ...options,
   };
   listeners.forEach((listener) => listener(toast));
 }
 
 export const toast = {
-  success(message: string) {
-    publish(message, "polite");
+  success(message: string, options?: ToastOptions) {
+    publish(message, "polite", options);
   },
-  error(message: string) {
-    publish(message, "assertive");
+  error(message: string, options?: ToastOptions) {
+    publish(message, "assertive", options);
   },
 };
 
@@ -38,6 +50,10 @@ export function SnackbarHost() {
   const [current, setCurrent] = useState<Toast | null>(null);
   const ref = useRef<HTMLElement & { show?: () => void }>(null);
   useHostEvent(ref, "snackbar-dismiss", () => setCurrent(null));
+  useHostEvent(ref, "snackbar-action", () => {
+    current?.onAction?.();
+    setCurrent(null);
+  });
 
   useEffect(() => {
     const listener: Listener = (toastItem) => setCurrent(toastItem);
@@ -61,6 +77,12 @@ export function SnackbarHost() {
       lines={current.lines}
       live={current.live}
       duration={5000}
-    />
+    >
+      {current.actionLabel ? (
+        <button type="button" slot="action">
+          {current.actionLabel}
+        </button>
+      ) : null}
+    </m3-snackbar>
   );
 }

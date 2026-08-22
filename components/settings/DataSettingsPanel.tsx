@@ -3,6 +3,9 @@
 import { useRef, useState } from "react";
 import { toast } from "@/components/m3/snackbar";
 import { IconDownload, IconUpload } from "@/components/m3/icons";
+import { LibrarySnapshotManager } from "@/components/library/LibrarySnapshotManager";
+import { UndoButton } from "@/components/undo";
+import { requestShortcutHelp } from "@/components/shortcuts";
 
 export function DataSettingsPanel({
   hidden,
@@ -42,13 +45,20 @@ export function DataSettingsPanel({
         </m3-button>
       </div>
       <m3-divider />
+      <div className="settings-data-actions">
+        <UndoButton />
+        <m3-button variant="text" onClick={requestShortcutHelp}>Tastenkürzel anzeigen</m3-button>
+      </div>
+      <m3-divider />
+      <LibrarySnapshotManager />
+      <m3-divider />
       {confirmReset ? (
         <div className="confirm-row">
           <span>Alle Spiele in der Bibliothek löschen?</span>
           <m3-button
             className="danger-button"
             onClick={() => {
-              onClearLibrary();
+              void onClearLibrary();
               setConfirmReset(false);
               toast.success("Bibliothek geleert.");
             }}

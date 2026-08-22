@@ -13,16 +13,17 @@ import {
   type BulkListField,
 } from "@/lib/bulk/operations";
 import type { BulkMutationResult } from "@/lib/bulk/result";
-import { prepareMetadataJob, prepareSelectionDocument } from "@/lib/bulk/preparation";
-import { createQueuedJob } from "@/lib/jobs";
+import { prepareSelectionDocument } from "@/lib/bulk/preparation";
 import { downloadTextFile, serializeLibraryBackup } from "@/lib/import-export";
 import {
-  getLibraryJobRepository,
+  getLibraryJobScheduler,
   getLibrarySnapshotRepository,
   libraryUndoHistory,
 } from "@/lib/runtime/library-runtime";
+import { createMetadataRefreshJobs } from "@/lib/runtime/library-job-factories";
 import { libraryRepository } from "@/lib/storage";
 import { toast } from "@/components/m3/snackbar";
+import { toastWithUndo } from "@/components/undo";
 import { useLibrary } from "@/store/library";
 import { BulkActionBar } from "./BulkActionBar";
 import { BulkBooleanControl } from "./BulkBooleanControl";
@@ -30,10 +31,6 @@ import { BulkClassificationControl } from "./BulkClassificationControl";
 import { BulkConfirmDialog } from "./BulkConfirmDialog";
 import { BulkQuickActions } from "./BulkQuickActions";
 import styles from "./bulk-actions.module.css";
-
-function nextJobId(): string {
-  return globalThis.crypto?.randomUUID?.() ?? `metadata-${Date.now().toString(36)}`;
-}
 
 export function LibraryBulkActions({ visibleGames }: { visibleGames: readonly GameRecord[] }) {
   const games = useLibrary((state) => state.games);
@@ -61,21 +58,35 @@ export function LibraryBulkActions({ visibleGames }: { visibleGames: readonly Ga
     if (before && after) {
       libraryUndoHistory.record(result.undo.label, before, after, result.undo.changes);
     }
-    toast.success(`${result.undo.label}: ${result.affectedIds.length} geändert.`);
+    toastWithUndo(`${result.undo.label}: ${result.affectedIds.length} geändert.`);
     return true;
   };
 
   const prepareMetadata = async () => {
     try {
-      const prepared = prepareMetadataJob(games, selectedIds, visibleIds);
-      const total = (prepared.payload.gameIds as string[]).length;
-      await getLibraryJobRepository().save(createQueuedJob({
-        id: nextJobId(),
-        kind: prepared.kind,
-        payload: prepared.payload,
-        progress: { processed: 0, remaining: total, failed: 0, total },
-      }));
-      toast.success(`Metadaten-Aufgabe für ${total} Spiele vorbereitet.`);
+      const selected = new Set(selectedIds);
+      const ordered = [...visibleGames, ...games].filter(
+        (game, index, all) =>
+          selected.has(game.id) && all.findIndex((item) => item.id === game.id) === index,
+      );
+      const igdbTargets = ordered
+        .filter((game) => game.igdbId != null)
+        .map((game) => ({ gameId: game.id, externalId: game.igdbId! }));
+      const igdbIds = new Set(igdbTargets.map((target) => target.gameId));
+      const steamTargets = ordered
+        .filter((game) => !igdbIds.has(game.id) && game.steamAppId != null)
+        .map((game) => ({ gameId: game.id, externalId: game.steamAppId! }));
+      const jobs = [
+        ...createMetadataRefreshJobs("igdb", igdbTargets),
+        ...createMetadataRefreshJobs("steam", steamTargets),
+      ];
+      if (jobs.length === 0) {
+        toast.error("Die Auswahl enthält keine Steam- oder IGDB-IDs.");
+        return;
+      }
+      const scheduler = getLibraryJobScheduler();
+      await Promise.all(jobs.map((job) => scheduler.enqueue(job)));
+      toast.success(`Metadaten-Aufgabe für ${jobs.length} Spiele vorbereitet.`);
     } catch {
       toast.error("Metadaten-Aufgabe konnte nicht gespeichert werden.");
     }

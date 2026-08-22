@@ -4,6 +4,7 @@ import type { FranchisePresentation } from "../../lib/model/shared";
 import type { DisplayMode, GroupByMode, SavedView } from "../../lib/model/views";
 import type { ImportApplyResult } from "../../lib/model/import-contracts";
 import type { PreparedImportPlan } from "../../lib/import-export";
+import type { LibraryDocumentV2 } from "../../lib/model/library-document";
 import type { SelectionSlice } from "./selection";
 import type { MetadataReviewSlice } from "./metadata-review";
 
@@ -57,6 +58,7 @@ export type LibraryState = SelectionSlice & MetadataReviewSlice & {
   clearLibrary: () => void;
   importJson: (raw: unknown) => { added: number; updated: number; skipped: number; total: number };
   applyImportPlan: (plan: PreparedImportPlan) => Promise<ImportApplyResult>;
+  applyLibraryDocument: (document: LibraryDocumentV2) => void;
   exportJson: () => void;
   setSteamCredentials: (steamId: string, steamApiKey: string) => void;
   setIgdbCredentials: (clientId: string, clientSecret: string) => void;

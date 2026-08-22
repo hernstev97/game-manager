@@ -8,6 +8,8 @@ import {
 } from "@/lib/storage";
 import { readStoredMotionPreference } from "@/lib/motion";
 import { readStoredThemePreferences } from "@/lib/theme";
+import { librarySaveStatus } from "@/lib/save-status";
+import { scheduleDailySnapshot } from "@/lib/runtime/daily-snapshot";
 import { createGameSlice } from "./slices/games";
 import { createIntegrationSlice } from "./slices/integration";
 import { createImportBackupSlice } from "./slices/import-backup";
@@ -25,6 +27,7 @@ import type {
 export type { LibraryState } from "./slices/types";
 
 function persistNow(state: PersistedLibraryState): void {
+  const saveAttempt = librarySaveStatus.begin();
   const settings = settingsFromSort(state.sort, {
     steamId: state.steamId,
     steamApiKey: state.steamApiKey,
@@ -32,8 +35,7 @@ function persistNow(state: PersistedLibraryState): void {
     igdbClientSecret: state.igdbClientSecret,
   });
   const document = libraryRepository.build(state.games, settings);
-  libraryRepository.writeAtomic({
-    document: {
+  const canonicalDocument = {
       ...document,
       savedViews: state.savedViews,
       defaultView: state.defaultView,
@@ -42,12 +44,21 @@ function persistNow(state: PersistedLibraryState): void {
       motion: readStoredMotionPreference(),
       displayMode: state.displayMode,
       groupBy: state.groupBy,
-    },
-    credentials: {
-      steamApiKey: state.steamApiKey,
-      igdbClientSecret: state.igdbClientSecret,
-    },
-  });
+    };
+  try {
+    libraryRepository.writeAtomic({
+      document: canonicalDocument,
+      credentials: {
+        steamApiKey: state.steamApiKey,
+        igdbClientSecret: state.igdbClientSecret,
+      },
+    });
+    librarySaveStatus.succeed(saveAttempt);
+    scheduleDailySnapshot(canonicalDocument);
+  } catch (error) {
+    librarySaveStatus.fail(saveAttempt, error);
+    throw error;
+  }
 }
 
 export const useLibrary = create<LibraryState>((set, get) => {

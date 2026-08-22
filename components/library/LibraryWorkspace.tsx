@@ -17,6 +17,7 @@ import {
   type QueueInsertion,
 } from "@/components/planning";
 import { LibraryJobCenter } from "@/components/library/LibraryJobCenter";
+import { SaveStatusIndicator } from "@/components/save-status";
 
 export function LibraryWorkspace({
   games,
@@ -46,6 +47,7 @@ export function LibraryWorkspace({
   onImport,
   onExport,
   onSettings,
+  onHelp,
   onFilterChange,
   onClearFilters,
   onOpenAdd,
@@ -91,6 +93,7 @@ export function LibraryWorkspace({
   onImport: (file: File) => void;
   onExport: () => void;
   onSettings: () => void;
+  onHelp: () => void;
   onFilterChange: (next: LibraryFilters) => void;
   onClearFilters: () => void;
   onOpenAdd: () => void;
@@ -114,7 +117,9 @@ export function LibraryWorkspace({
       <m3-top-app-bar>
         gGrid
         <span slot="actions" className="top-app-actions">
+          <SaveStatusIndicator />
           <LibraryJobCenter />
+          <m3-icon-button aria-label="Tastenkürzel anzeigen" onClick={onHelp}>?</m3-icon-button>
           <m3-button className="desktop-add-action" onClick={onOpenAdd}>
             <IconAdd slot="icon" width={18} height={18} />
             Spiel hinzufügen
