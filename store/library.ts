@@ -12,6 +12,7 @@ import { createGameSlice } from "./slices/games";
 import { createIntegrationSlice } from "./slices/integration";
 import { createImportBackupSlice } from "./slices/import-backup";
 import { createLibraryViewsSlice } from "./slices/library-views";
+import { createMetadataReviewSlice } from "./slices/metadata-review";
 import { createSelectionSlice } from "./slices/selection";
 import { createViewDialogSlice } from "./slices/view-dialog";
 import type {
@@ -62,6 +63,7 @@ export const useLibrary = create<LibraryState>((set, get) => {
     ...createIntegrationSlice(context),
     ...createImportBackupSlice(context),
     ...createGameSlice(context),
+    ...createMetadataReviewSlice(context),
     ...createSelectionSlice<LibraryState>({ set: context.set, get }),
     sort: { by: "name", dir: "asc" },
 

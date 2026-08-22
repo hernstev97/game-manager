@@ -5,6 +5,10 @@ import type { GameRecord } from "@/lib/game-fields";
 import { AddGameDialog } from "@/components/add-game/AddGameDialog";
 import { GameEditor } from "@/components/game-editor";
 import { MediaManagerDialog } from "@/components/media-manager/MediaManagerDialog";
+import { LibraryMetadataReviewFlow } from "@/components/library/LibraryMetadataReviewFlow";
+import { SteamImportDialog } from "@/components/library/SteamImportDialog";
+import { createMetadataRefreshJobs } from "@/lib/runtime/library-job-factories";
+import { getLibraryJobScheduler } from "@/lib/runtime/library-runtime";
 import { SettingsDialog } from "@/components/settings-dialog";
 import { useLibrary } from "@/store/library";
 
@@ -42,13 +46,23 @@ export function LibraryDialogs({
   const exportJson = useLibrary((state) => state.exportJson);
   const setSteamCredentials = useLibrary((state) => state.setSteamCredentials);
   const setIgdbCredentials = useLibrary((state) => state.setIgdbCredentials);
-  const applySteamPlaytime = useLibrary((state) => state.applySteamPlaytime);
-  const refreshSteamIdentity = useLibrary((state) => state.refreshSteamIdentity);
   const [mediaOpen, setMediaOpen] = useState(false);
+  const [steamImportOpen, setSteamImportOpen] = useState(false);
   const selected = games.find((game) => game.id === selectedId) ?? null;
+
+  const queueMetadataJobs = async (
+    source: "steam" | "igdb",
+    targets: Array<{ gameId: string; externalId: number }>,
+  ) => {
+    const jobs = createMetadataRefreshJobs(source, targets);
+    const scheduler = getLibraryJobScheduler();
+    await Promise.all(jobs.map((job) => scheduler.enqueue(job)));
+    return jobs.length;
+  };
 
   return (
     <>
+      <LibraryMetadataReviewFlow />
       {editorOpen && selected ? (
         <GameEditor
           game={selected}
@@ -103,11 +117,18 @@ export function LibraryDialogs({
           onSteamCredentials={setSteamCredentials}
           onIgdbCredentials={setIgdbCredentials}
           onClearLibrary={clearLibrary}
-          onApplyPlaytime={applySteamPlaytime}
-          onRefreshIdentity={refreshSteamIdentity}
+          onQueueSteamMetadata={(targets) => queueMetadataJobs("steam", targets)}
+          onQueueIgdbMetadata={(targets) => queueMetadataJobs("igdb", targets)}
+          onOpenSteamImport={() => {
+            setSettingsOpen(false);
+            setSteamImportOpen(true);
+          }}
           onImport={onImport}
           onExport={exportJson}
         />
+      ) : null}
+      {steamImportOpen ? (
+        <SteamImportDialog onClose={() => setSteamImportOpen(false)} />
       ) : null}
     </>
   );

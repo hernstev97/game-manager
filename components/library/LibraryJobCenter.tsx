@@ -7,6 +7,7 @@ import { useOnlineStatus } from "@/components/pwa";
 import { TaskStatusIndicator } from "@/components/sync-status";
 import type { RuntimeJob } from "@/lib/jobs";
 import { getLibraryJobScheduler } from "@/lib/runtime/library-runtime";
+import { registerLibraryJobHandlers } from "@/components/library/library-job-handlers";
 
 const TASK_CENTER_ID = "library-task-center";
 
@@ -28,6 +29,7 @@ export function LibraryJobCenter() {
   useEffect(() => {
     let active = true;
     const scheduler = getLibraryJobScheduler();
+    registerLibraryJobHandlers(scheduler);
     const initialize = async () => {
       await scheduler.hydrate();
       await scheduler.setOnline(onlineRef.current);

@@ -12,7 +12,7 @@ export function SteamSettingsPanel({
   onKeyDraftChange,
   onSave,
   onRefreshCovers,
-  onPullPlaytime,
+  onOpenImport,
 }: {
   hidden: boolean;
   idDraft: string;
@@ -22,7 +22,7 @@ export function SteamSettingsPanel({
   onKeyDraftChange: (value: string) => void;
   onSave: () => void;
   onRefreshCovers: () => Promise<void>;
-  onPullPlaytime: () => Promise<void>;
+  onOpenImport: () => void;
 }) {
   const online = useOnlineStatus();
   return (
@@ -48,8 +48,8 @@ export function SteamSettingsPanel({
         <m3-button variant="text" disabled={busy || !online} onClick={() => void onRefreshCovers()}>
           Cover, Namen &amp; Preise aktualisieren
         </m3-button>
-        <m3-button variant="text" disabled={busy || !online} onClick={() => void onPullPlaytime()}>
-          Spielzeit holen
+        <m3-button variant="text" disabled={busy || !online} onClick={onOpenImport}>
+          Steam-Bibliothek importieren
         </m3-button>
       </div>
       <OfflineActionNotice>Steam-Aktualisierungen warten auf eine Internetverbindung.</OfflineActionNotice>

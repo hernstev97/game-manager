@@ -4,7 +4,9 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { GameRecord } from "@/lib/game-fields";
 import { M3TextField } from "@/components/m3/host";
 import { toast } from "@/components/m3/snackbar";
-import { fetchIgdbGame, hasIgdbCredentials, igdbSearchUrl, mergeCatalogFields } from "@/lib/igdb";
+import { hasIgdbCredentials, igdbSearchUrl } from "@/lib/igdb";
+import { createMetadataRefreshJobs } from "@/lib/runtime/library-job-factories";
+import { getLibraryJobScheduler } from "@/lib/runtime/library-runtime";
 import { useLibrary } from "@/store/library";
 
 const IGDB_ID_DEBOUNCE_MS = 400;
@@ -29,7 +31,6 @@ export function IgdbIdField({
   const [draft, setDraft] = useState(committed == null ? "" : String(committed));
   const [busy, setBusy] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  const requestSeq = useRef(0);
 
   useEffect(() => {
     return () => {
@@ -66,25 +67,17 @@ export function IgdbIdField({
       return;
     }
     apply(draft);
-    const seq = ++requestSeq.current;
-    const requestedId = id;
     setBusy(true);
     try {
-      const details = await fetchIgdbGame({ kind: "id", value: requestedId }, creds);
-      if (seq !== requestSeq.current) return;
-      if (!details) {
-        toast.error("IGDB hat kein Spiel zu dieser ID gefunden.");
-        return;
-      }
-      const latest = useLibrary.getState().games.find((item) => item.id === game.id);
-      if (!latest || latest.igdbId !== requestedId) return;
-      onChange(mergeCatalogFields(latest, details));
-      toast.success("IGDB-Metadaten übernommen.");
+      const [job] = createMetadataRefreshJobs("igdb", [
+        { gameId: game.id, externalId: id },
+      ]);
+      await getLibraryJobScheduler().enqueue(job);
+      toast.success("IGDB-Aktualisierung vorbereitet. Änderungen werden vor der Übernahme geprüft.");
     } catch (error) {
-      if (seq !== requestSeq.current) return;
-      toast.error(error instanceof Error ? error.message : "IGDB-Metadaten nicht geladen.");
+      toast.error(error instanceof Error ? error.message : "IGDB-Auftrag konnte nicht vorbereitet werden.");
     } finally {
-      if (seq === requestSeq.current) setBusy(false);
+      setBusy(false);
     }
   };
 

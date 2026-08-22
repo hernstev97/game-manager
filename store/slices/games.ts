@@ -24,12 +24,13 @@ import {
   reorderVisibleQueue,
   setFavoriteRank as assignFavoriteRank,
 } from "../../lib/priority";
-import { steamCover, type SteamOwnedGame } from "../../lib/steam";
+import { steamCover } from "../../lib/steam";
 import type {
   LibrarySliceContext,
   LibraryState,
   PersistedLibraryState,
 } from "./types";
+import type { FieldProvenance, FieldProvenanceMap } from "../../lib/model/shared";
 
 type GameSlice = Pick<
   LibraryState,
@@ -50,8 +51,6 @@ type GameSlice = Pick<
   | "clearLibrary"
   | "importJson"
   | "exportJson"
-  | "applySteamPlaytime"
-  | "refreshSteamIdentity"
 >;
 
 function integrationSettings(state: LibraryState) {
@@ -65,6 +64,24 @@ function integrationSettings(state: LibraryState) {
   };
 }
 
+function patchWithManualProvenance(
+  game: LibraryState["games"][number],
+  patch: Partial<LibraryState["games"][number]>,
+) {
+  const updatedAt = new Date().toISOString();
+  const explicit =
+    patch.provenance && typeof patch.provenance === "object"
+      ? (patch.provenance as FieldProvenanceMap)
+      : {};
+  const provenance: FieldProvenanceMap = { ...game.provenance };
+  for (const fieldId of Object.keys(patch)) {
+    if (["id", "priority", "provenance"].includes(fieldId)) continue;
+    provenance[fieldId] =
+      explicit[fieldId] ?? ({ source: "manual", updatedAt } satisfies FieldProvenance);
+  }
+  return { ...patch, provenance };
+}
+
 export function createGameSlice({ set, get, persist }: LibrarySliceContext): GameSlice {
   return {
     games: [],
@@ -72,7 +89,13 @@ export function createGameSlice({ set, get, persist }: LibrarySliceContext): Gam
     updateGame: (id, patch) => {
       set((state) => ({
         games: state.games.map((game) =>
-          game.id === id ? normalizeGame({ ...game, ...patch, id: game.id }) : game,
+          game.id === id
+            ? normalizeGame({
+                ...game,
+                ...patchWithManualProvenance(game, patch),
+                id: game.id,
+              })
+            : game,
         ),
       }));
       persist();
@@ -212,60 +235,6 @@ export function createGameSlice({ set, get, persist }: LibrarySliceContext): Gam
         libraryRepository.build(state.games, integrationSettings(state));
       const json = serializeLibraryBackup(createLibraryBackup(document));
       downloadTextFile("game-library.json", json);
-    },
-
-    applySteamPlaytime: (owned: SteamOwnedGame[]) => {
-      const byApp = new Map(owned.map((game) => [game.appId, game]));
-      const now = new Date().toISOString();
-      let updated = 0;
-      let markedOwned = 0;
-      set((state) => ({
-        games: state.games.map((game) => {
-          if (game.steamAppId == null) return game;
-          const match = byApp.get(game.steamAppId);
-          if (!match) return game;
-          updated += 1;
-          const nextOwned = game.owned || true;
-          if (!game.owned) markedOwned += 1;
-          return normalizeGame({
-            ...game,
-            owned: nextOwned,
-            playtimeMinutes: match.playtimeMinutes,
-            lastSynced: now,
-            name: game.name || match.name,
-          });
-        }),
-      }));
-      persist();
-      return { updated, markedOwned };
-    },
-
-    refreshSteamIdentity: (updates) => {
-      const byId = new Map(updates.map((item) => [item.id, item]));
-      let updated = 0;
-      set((state) => ({
-        games: state.games.map((game) => {
-          const patch = byId.get(game.id);
-          if (!patch) return game;
-          updated += 1;
-          return normalizeGame({
-            ...game,
-            name: patch.name || game.name,
-            coverUrl: patch.coverUrl || game.coverUrl,
-            released: patch.released ?? game.released,
-            steamPrice: patch.steamPrice !== undefined ? patch.steamPrice : game.steamPrice,
-            genres: patch.genres ?? game.genres,
-            franchise:
-              patch.franchise !== undefined ? patch.franchise || game.franchise : game.franchise,
-            platforms: patch.platforms ?? game.platforms,
-            igdbId: patch.igdbId !== undefined ? patch.igdbId : game.igdbId,
-            steamAppId: patch.steamAppId !== undefined ? patch.steamAppId : game.steamAppId,
-            lastSynced: new Date().toISOString(),
-          });
-        }),
-      }));
-      persist();
-      return updated;
     },
   };
 }

@@ -4,10 +4,10 @@ import type { FranchisePresentation } from "../../lib/model/shared";
 import type { DisplayMode, GroupByMode, SavedView } from "../../lib/model/views";
 import type { ImportApplyResult } from "../../lib/model/import-contracts";
 import type { PreparedImportPlan } from "../../lib/import-export";
-import type { SteamOwnedGame, SteamPriceSnapshot } from "../../lib/steam";
 import type { SelectionSlice } from "./selection";
+import type { MetadataReviewSlice } from "./metadata-review";
 
-export type LibraryState = SelectionSlice & {
+export type LibraryState = SelectionSlice & MetadataReviewSlice & {
   hydrated: boolean;
   games: GameRecord[];
   sort: SortState;
@@ -60,21 +60,6 @@ export type LibraryState = SelectionSlice & {
   exportJson: () => void;
   setSteamCredentials: (steamId: string, steamApiKey: string) => void;
   setIgdbCredentials: (clientId: string, clientSecret: string) => void;
-  applySteamPlaytime: (owned: SteamOwnedGame[]) => { updated: number; markedOwned: number };
-  refreshSteamIdentity: (
-    updates: Array<{
-      id: string;
-      name?: string;
-      coverUrl?: string;
-      released?: boolean;
-      steamPrice?: SteamPriceSnapshot | null;
-      genres?: string[];
-      franchise?: string;
-      platforms?: string[];
-      igdbId?: number | null;
-      steamAppId?: number | null;
-    }>,
-  ) => number;
 };
 
 export type PersistedLibraryState = Pick<
