@@ -11,7 +11,19 @@ import {
 } from "../../lib/import-export";
 import { libraryRepository } from "../../lib/storage";
 import { sortFromSettings } from "../../lib/storage";
-import { assignPriority, movePriorityToFront, reorderVisiblePriorities } from "../../lib/priority";
+import {
+  assignPriority,
+  deleteGamesAndNormalizePositions,
+  insertQueueFirst,
+  insertQueueLast,
+  movePriorityToFront,
+  removeFavoriteRank,
+  removeFromQueue,
+  reorderVisibleFavorites,
+  reorderVisiblePriorities,
+  reorderVisibleQueue,
+  setFavoriteRank as assignFavoriteRank,
+} from "../../lib/priority";
 import { steamCover, type SteamOwnedGame } from "../../lib/steam";
 import type {
   LibrarySliceContext,
@@ -27,6 +39,12 @@ type GameSlice = Pick<
   | "setGamePriority"
   | "moveGameToFront"
   | "reorderPriorities"
+  | "setFavoriteRank"
+  | "insertGameQueueFirst"
+  | "insertGameQueueLast"
+  | "removeGameFromQueue"
+  | "reorderQueue"
+  | "reorderFavoriteRanks"
   | "addGame"
   | "deleteGame"
   | "clearLibrary"
@@ -80,6 +98,40 @@ export function createGameSlice({ set, get, persist }: LibrarySliceContext): Gam
       persist();
     },
 
+    setFavoriteRank: (id, rank) => {
+      set((state) => ({
+        games: rank == null
+          ? removeFavoriteRank(state.games, id)
+          : assignFavoriteRank(state.games, id, rank),
+      }));
+      persist();
+    },
+
+    insertGameQueueFirst: (id) => {
+      set((state) => ({ games: insertQueueFirst(state.games, id) }));
+      persist();
+    },
+
+    insertGameQueueLast: (id) => {
+      set((state) => ({ games: insertQueueLast(state.games, id) }));
+      persist();
+    },
+
+    removeGameFromQueue: (id) => {
+      set((state) => ({ games: removeFromQueue(state.games, id) }));
+      persist();
+    },
+
+    reorderQueue: (visibleOrderedIds) => {
+      set((state) => ({ games: reorderVisibleQueue(state.games, visibleOrderedIds) }));
+      persist();
+    },
+
+    reorderFavoriteRanks: (visibleOrderedIds) => {
+      set((state) => ({ games: reorderVisibleFavorites(state.games, visibleOrderedIds) }));
+      persist();
+    },
+
     addGame: (partial) => {
       const game = normalizeGame({
         ...partial,
@@ -101,11 +153,7 @@ export function createGameSlice({ set, get, persist }: LibrarySliceContext): Gam
 
     deleteGame: (id) => {
       set((state) => ({
-        games: assignPriority(
-          state.games.filter((game) => game.id !== id),
-          id,
-          null,
-        ),
+        games: deleteGamesAndNormalizePositions(state.games, [id]),
         selectedId: state.selectedId === id ? null : state.selectedId,
         editorOpen: state.selectedId === id ? false : state.editorOpen,
       }));

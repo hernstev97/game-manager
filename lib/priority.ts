@@ -1,7 +1,7 @@
 import type { GameRecord } from "./game-fields";
 import type { PositionField } from "./model/shared";
 
-type PositionedGame = {
+export type PositionedGame = {
   id: string;
   queuePosition: number | null;
   favoriteRank: number | null;
@@ -13,52 +13,59 @@ function validPosition(value: unknown): number | null {
     : null;
 }
 
-/** Normalizes one position field without touching the other position or rating. */
-export function normalizePositionField<T extends PositionedGame>(
+function rankedDocumentOrders<T extends PositionedGame>(
   games: readonly T[],
   field: PositionField,
-): T[] {
-  const members = games
+): number[] {
+  return games
     .map((game, documentOrder) => ({
-      game,
-      documentOrder,
       candidate: validPosition(game[field]),
+      documentOrder,
+      id: game.id,
     }))
     .filter(
       (entry): entry is typeof entry & { candidate: number } =>
         entry.candidate !== null,
     )
     .sort(
-      (a, b) =>
-        a.candidate - b.candidate ||
-        a.documentOrder - b.documentOrder ||
-        a.game.id.localeCompare(b.game.id),
-    );
-  const positions = new Map(
-    members.map((entry, index) => [entry.game.id, index + 1]),
-  );
-  return games.map((game) => ({
-    ...game,
-    [field]: positions.get(game.id) ?? null,
-  }));
+      (left, right) =>
+        left.candidate - right.candidate ||
+        left.documentOrder - right.documentOrder ||
+        left.id.localeCompare(right.id),
+    )
+    .map((entry) => entry.documentOrder);
 }
 
-export function normalizeGamePositions<T extends PositionedGame>(
+function applyDocumentOrder<T extends PositionedGame>(
   games: readonly T[],
+  field: PositionField,
+  rankedOrders: readonly number[],
 ): T[] {
-  return normalizePositionField<T>(
-    normalizePositionField<T>(games, "queuePosition"),
-    "favoriteRank",
+  const positions = new Map(
+    rankedOrders.map((documentOrder, index) => [documentOrder, index + 1]),
+  );
+  return games.map(
+    (game, documentOrder) =>
+      ({ ...game, [field]: positions.get(documentOrder) ?? null }) as T,
   );
 }
 
-function ranked<T extends PositionedGame>(
+/** Normalizes one position field without touching the other position or rating. */
+export function normalizePositionField<T extends PositionedGame>(
   games: readonly T[],
   field: PositionField,
 ): T[] {
-  return normalizePositionField(games, field)
-    .filter((game) => game[field] !== null)
-    .sort((a, b) => (a[field] ?? 0) - (b[field] ?? 0));
+  return applyDocumentOrder(games, field, rankedDocumentOrders(games, field));
+}
+
+/** Normalizes both independent lists after whole-game mutations such as delete. */
+export function normalizeGamePositions<T extends PositionedGame>(
+  games: readonly T[],
+): T[] {
+  return normalizePositionField(
+    normalizePositionField(games, "queuePosition"),
+    "favoriteRank",
+  );
 }
 
 export function assignPosition<T extends PositionedGame>(
@@ -68,49 +75,129 @@ export function assignPosition<T extends PositionedGame>(
   position: number | null,
 ): T[] {
   const normalized = normalizePositionField(games, field);
+  const targetOrder = normalized.findIndex((game) => game.id === id);
+  if (targetOrder < 0) return normalized;
+
   if (position === null || !Number.isFinite(position) || position <= 0) {
     return normalizePositionField(
-      normalized.map((game) =>
-        game.id === id ? ({ ...game, [field]: null } as T) : game,
+      normalized.map((game, documentOrder) =>
+        documentOrder === targetOrder
+          ? ({ ...game, [field]: null } as T)
+          : game,
       ),
       field,
     );
   }
 
-  const target = normalized.find((game) => game.id === id);
-  if (!target) return normalized;
-  const others = ranked(normalized, field).filter((game) => game.id !== id);
-  const slot = Math.max(1, Math.min(Math.round(position), others.length + 1));
-  const next = [...others];
-  next.splice(slot - 1, 0, target);
-  const positions = new Map(next.map((game, index) => [game.id, index + 1]));
-  return normalized.map((game) => ({
-    ...game,
-    [field]: positions.get(game.id) ?? null,
-  }));
+  const rankedOrders = rankedDocumentOrders(normalized, field).filter(
+    (documentOrder) => documentOrder !== targetOrder,
+  );
+  const slot = Math.max(
+    1,
+    Math.min(Math.round(position), rankedOrders.length + 1),
+  );
+  rankedOrders.splice(slot - 1, 0, targetOrder);
+  return applyDocumentOrder(normalized, field, rankedOrders);
 }
 
+/** Reorders only the supplied visible members; hidden members keep their slots. */
 export function reorderVisiblePositions<T extends PositionedGame>(
   games: readonly T[],
   visibleOrderedIds: readonly string[],
   field: PositionField,
 ): T[] {
   const normalized = normalizePositionField(games, field);
-  const allRanked = ranked(normalized, field);
-  const existingIds = new Set(allRanked.map((game) => game.id));
-  const visible = [...new Set(visibleOrderedIds)].filter((id) =>
-    existingIds.has(id),
+  const rankedOrders = rankedDocumentOrders(normalized, field);
+  const firstOrderById = new Map<string, number>();
+  for (const documentOrder of rankedOrders) {
+    const id = normalized[documentOrder]?.id;
+    if (id !== undefined && !firstOrderById.has(id)) {
+      firstOrderById.set(id, documentOrder);
+    }
+  }
+
+  const visibleOrders: number[] = [];
+  const seen = new Set<number>();
+  for (const id of visibleOrderedIds) {
+    const documentOrder = firstOrderById.get(id);
+    if (documentOrder === undefined || seen.has(documentOrder)) continue;
+    seen.add(documentOrder);
+    visibleOrders.push(documentOrder);
+  }
+
+  const visibleSet = new Set(visibleOrders);
+  const replacements = [...visibleOrders];
+  const merged = rankedOrders.map((documentOrder) =>
+    visibleSet.has(documentOrder)
+      ? (replacements.shift() ?? documentOrder)
+      : documentOrder,
   );
-  const visibleSet = new Set(visible);
-  const queue = [...visible];
-  const merged = allRanked.map((game) =>
-    visibleSet.has(game.id) ? queue.shift() ?? game.id : game.id,
-  );
-  const positions = new Map(merged.map((id, index) => [id, index + 1]));
-  return normalized.map((game) => ({
-    ...game,
-    [field]: positions.get(game.id) ?? null,
-  }));
+  return applyDocumentOrder(normalized, field, merged);
+}
+
+export function deleteGamesAndNormalizePositions<T extends PositionedGame>(
+  games: readonly T[],
+  deletedIds: readonly string[],
+): T[] {
+  const deleted = new Set(deletedIds);
+  return normalizeGamePositions(games.filter((game) => !deleted.has(game.id)));
+}
+
+export function setFavoriteRank<T extends PositionedGame>(
+  games: readonly T[],
+  id: string,
+  rank: number,
+): T[] {
+  return assignPosition(games, id, "favoriteRank", rank);
+}
+
+export function removeFavoriteRank<T extends PositionedGame>(
+  games: readonly T[],
+  id: string,
+): T[] {
+  return assignPosition(games, id, "favoriteRank", null);
+}
+
+export function moveFavoriteToFirst<T extends PositionedGame>(
+  games: readonly T[],
+  id: string,
+): T[] {
+  return setFavoriteRank(games, id, 1);
+}
+
+export function reorderVisibleFavorites<T extends PositionedGame>(
+  games: readonly T[],
+  visibleOrderedIds: readonly string[],
+): T[] {
+  return reorderVisiblePositions(games, visibleOrderedIds, "favoriteRank");
+}
+
+export function insertQueueFirst<T extends PositionedGame>(
+  games: readonly T[],
+  id: string,
+): T[] {
+  return assignPosition(games, id, "queuePosition", 1);
+}
+
+export function insertQueueLast<T extends PositionedGame>(
+  games: readonly T[],
+  id: string,
+): T[] {
+  return assignPosition(games, id, "queuePosition", games.length + 1);
+}
+
+export function removeFromQueue<T extends PositionedGame>(
+  games: readonly T[],
+  id: string,
+): T[] {
+  return assignPosition(games, id, "queuePosition", null);
+}
+
+export function reorderVisibleQueue<T extends PositionedGame>(
+  games: readonly T[],
+  visibleOrderedIds: readonly string[],
+): T[] {
+  return reorderVisiblePositions(games, visibleOrderedIds, "queuePosition");
 }
 
 function mirrorLegacyPriority(games: readonly GameRecord[]): GameRecord[] {
@@ -133,20 +220,18 @@ export function assignPriority(
   );
 }
 
-/** @deprecated Use assignPosition with queuePosition. */
+/** @deprecated Use insertQueueFirst. */
 export function movePriorityToFront(
   games: readonly GameRecord[],
   id: string,
 ): GameRecord[] {
-  return assignPriority(games, id, 1);
+  return mirrorLegacyPriority(insertQueueFirst(games, id));
 }
 
-/** @deprecated Use reorderVisiblePositions with queuePosition. */
+/** @deprecated Use reorderVisibleQueue. */
 export function reorderVisiblePriorities(
   games: readonly GameRecord[],
   visibleOrderedIds: string[],
 ): GameRecord[] {
-  return mirrorLegacyPriority(
-    reorderVisiblePositions(games, visibleOrderedIds, "queuePosition"),
-  );
+  return mirrorLegacyPriority(reorderVisibleQueue(games, visibleOrderedIds));
 }

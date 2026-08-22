@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { DEFAULT_SETTINGS, LIBRARY_STORAGE_KEY, buildLibraryDocument } from "@/lib/storage";
 import { SYSTEM_SAVED_VIEW_IDS } from "@/lib/model/views";
+import { normalizeGame } from "@/lib/game-fields";
 import { useLibrary } from "@/store/library";
 
 function installMemoryWindow() {
@@ -81,5 +82,39 @@ describe("library store v2 integration", () => {
     const stored = JSON.parse(memory.values.get(LIBRARY_STORAGE_KEY)!);
     expect(stored.displayMode).toBe("grid");
     expect(stored.localUi.activeSort).toEqual({ by: "name", dir: "asc" });
+  });
+
+  it("mutates queue and favorite ranking independently and normalizes deletion", () => {
+    const memory = installMemoryWindow();
+    restore = memory.restore;
+    const games = [
+      normalizeGame({ id: "a", name: "A", queuePosition: 1, favoriteRank: 2, rating: 8 }),
+      normalizeGame({ id: "b", name: "B", queuePosition: 2, favoriteRank: 1, rating: 6 }),
+      normalizeGame({ id: "c", name: "C", queuePosition: null, favoriteRank: null, rating: 9 }),
+    ];
+    const base = buildLibraryDocument(games, DEFAULT_SETTINGS, "2026-08-22T00:00:00.000Z");
+    memory.values.set(LIBRARY_STORAGE_KEY, JSON.stringify(base));
+    useLibrary.getState().hydrate();
+
+    useLibrary.getState().setFavoriteRank("c", 1);
+    useLibrary.getState().insertGameQueueLast("c");
+    expect(
+      useLibrary.getState().games
+        .filter((game) => game.favoriteRank != null)
+        .sort((left, right) => left.favoriteRank! - right.favoriteRank!)
+        .map((game) => [game.id, game.favoriteRank]),
+    ).toEqual([["c", 1], ["b", 2], ["a", 3]]);
+    expect(useLibrary.getState().games.find((game) => game.id === "c")?.queuePosition).toBe(3);
+
+    useLibrary.getState().deleteGame("b");
+    expect(useLibrary.getState().games.map((game) => [
+      game.id,
+      game.queuePosition,
+      game.favoriteRank,
+      game.rating,
+    ])).toEqual([
+      ["a", 1, 2, 8],
+      ["c", 2, 1, 9],
+    ]);
   });
 });
