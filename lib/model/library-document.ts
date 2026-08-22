@@ -8,6 +8,7 @@ import type {
   Passthrough,
 } from "./shared";
 import type { DisplayMode, GroupByMode, SavedView } from "./views";
+import type { SortState } from "../filter-games";
 
 export const LIBRARY_DOCUMENT_FORMAT = "ggrid-library" as const;
 export const LIBRARY_DOCUMENT_VERSION = 2 as const;
@@ -30,7 +31,13 @@ export type IntegrationIdentitySettings = Passthrough<{
  * Only registered, stable cross-session UI preferences belong here. Dialogs,
  * selection, drafts and hydration flags are session-only store state.
  */
-export type LocalUiSettings = JsonObject;
+export const REGISTERED_LOCAL_UI_SETTING_IDS = ["activeSort"] as const;
+export type RegisteredLocalUiSettingId =
+  (typeof REGISTERED_LOCAL_UI_SETTING_IDS)[number];
+
+export type LocalUiSettings = Passthrough<{
+  activeSort?: SortState;
+}> & JsonObject;
 
 /** Portable canonical state. It deliberately contains no API credentials. */
 export type LibraryDocumentV2 = Passthrough<{

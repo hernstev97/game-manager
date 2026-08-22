@@ -27,11 +27,23 @@ export type PriorityFilterValue = {
   selected: Array<"has" | "top5" | "none">;
 };
 
+export type QueueFilterValue = {
+  kind: "queue";
+  selected: Array<"has" | "top5" | "none">;
+};
+
+export type FavoriteFilterValue = {
+  kind: "favorite";
+  selected: Array<"has" | "top5" | "none">;
+};
+
 export type FieldFilterValue =
   | MultiFilterValue
   | ToggleFilterValue
   | RatingFilterValue
-  | PriorityFilterValue;
+  | PriorityFilterValue
+  | QueueFilterValue
+  | FavoriteFilterValue;
 
 export type LibraryFilters = {
   query: string;
@@ -49,8 +61,24 @@ export const EMPTY_FILTERS: LibraryFilters = {
 };
 
 export function defaultSortFor(games: readonly GameRecord[]): SortState {
-  const hasPriority = games.some((game) => game.priority != null);
-  return hasPriority ? { by: "priority", dir: "asc" } : { by: "name", dir: "asc" };
+  const hasQueue = games.some((game) => game.queuePosition != null);
+  return hasQueue
+    ? { by: "queuePosition", dir: "asc" }
+    : { by: "name", dir: "asc" };
+}
+
+export function migrateLegacySort(sort: SortState): SortState {
+  return sort.by === "priority" ? { ...sort, by: "queuePosition" } : sort;
+}
+
+export function migrateLegacyFilters<T extends LibraryFilters>(filters: T): T {
+  const fields = { ...filters.fields };
+  const legacy = fields.priority;
+  if (legacy?.kind === "priority" && fields.queuePosition === undefined) {
+    fields.queuePosition = { kind: "queue", selected: [...legacy.selected] };
+  }
+  delete fields.priority;
+  return { ...filters, fields };
 }
 
 function normalizeSearch(value: string): string {
@@ -95,13 +123,22 @@ function matchesField(game: GameRecord, fieldId: string, filter: FieldFilterValu
       return rating != null && rating >= filter.gte;
     });
   }
-  if (filter.kind === "priority") {
+  if (filter.kind === "priority" || filter.kind === "queue") {
     if (filter.selected.length === 0) return true;
-    const priority = game.priority;
+    const priority = game.queuePosition;
     return filter.selected.some((mode) => {
       if (mode === "has") return priority != null;
       if (mode === "top5") return priority != null && priority <= 5;
       return priority == null;
+    });
+  }
+  if (filter.kind === "favorite") {
+    if (filter.selected.length === 0) return true;
+    const favorite = game.favoriteRank;
+    return filter.selected.some((mode) => {
+      if (mode === "has") return favorite != null;
+      if (mode === "top5") return favorite != null && favorite <= 5;
+      return favorite == null;
     });
   }
   if (!field) return true;
@@ -145,25 +182,31 @@ function statusRank(game: GameRecord): number {
 }
 
 function compareGames(a: GameRecord, b: GameRecord, sort: SortState): number {
+  const sortBy = sort.by === "priority" ? "queuePosition" : sort.by;
   const dir: 1 | -1 = sort.dir === "desc" ? -1 : 1;
-  const field = FIELD_BY_ID[sort.by];
+  const field = FIELD_BY_ID[sortBy];
 
   let result = 0;
-  if (sort.by === "status") {
+  if (sortBy === "status") {
     result = (statusRank(a) - statusRank(b)) * dir;
-  } else if (field?.type === "rating" || field?.type === "priority" || field?.type === "number") {
-    const aValue = typeof a[sort.by] === "number" ? (a[sort.by] as number) : null;
-    const bValue = typeof b[sort.by] === "number" ? (b[sort.by] as number) : null;
+  } else if (
+    field?.type === "rating" ||
+    field?.type === "priority" ||
+    field?.type === "position" ||
+    field?.type === "number"
+  ) {
+    const aValue = typeof a[sortBy] === "number" ? (a[sortBy] as number) : null;
+    const bValue = typeof b[sortBy] === "number" ? (b[sortBy] as number) : null;
     result = compareNullable(aValue, bValue, dir);
   } else if (field?.type === "steamPrice") {
     result = compareNullable(steamPriceSortValue(a.steamPrice), steamPriceSortValue(b.steamPrice), dir);
   } else if (field?.type === "date") {
-    const aValue = typeof a[sort.by] === "string" ? (a[sort.by] as string) : "";
-    const bValue = typeof b[sort.by] === "string" ? (b[sort.by] as string) : "";
+    const aValue = typeof a[sortBy] === "string" ? (a[sortBy] as string) : "";
+    const bValue = typeof b[sortBy] === "string" ? (b[sortBy] as string) : "";
     result = aValue.localeCompare(bValue) * dir;
   } else {
-    const aValue = String(a[sort.by] ?? "");
-    const bValue = String(b[sort.by] ?? "");
+    const aValue = String(a[sortBy] ?? "");
+    const bValue = String(b[sortBy] ?? "");
     result = aValue.localeCompare(bValue, "de", { sensitivity: "base" }) * dir;
   }
 
@@ -214,11 +257,22 @@ export function activeFilterChips(
       }
       continue;
     }
-    if (filter.kind === "priority") {
+    if (filter.kind === "priority" || filter.kind === "queue") {
       const labels: Record<(typeof filter.selected)[number], string> = {
         has: "Hat Priorität",
         top5: "Top 5",
         none: "Ohne Rang",
+      };
+      for (const mode of filter.selected) {
+        chips.push({ fieldId, token: mode, label: labels[mode] });
+      }
+      continue;
+    }
+    if (filter.kind === "favorite") {
+      const labels: Record<(typeof filter.selected)[number], string> = {
+        has: "Favorit",
+        top5: "Top 5",
+        none: "Kein Favorit",
       };
       for (const mode of filter.selected) {
         chips.push({ fieldId, token: mode, label: labels[mode] });
@@ -245,5 +299,10 @@ export function emptyFieldFilter(field: AnyGameField): FieldFilterValue {
   if (field.type === "text") return { kind: "toggle", on: false };
   if (field.type === "rating") return { kind: "rating", selected: [], gte: 7 };
   if (field.type === "priority") return { kind: "priority", selected: [] };
+  if (field.type === "position") {
+    return field.id === "favoriteRank"
+      ? { kind: "favorite", selected: [] }
+      : { kind: "queue", selected: [] };
+  }
   return { kind: "multi", selected: [] };
 }

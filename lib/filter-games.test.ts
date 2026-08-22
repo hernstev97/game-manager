@@ -103,6 +103,33 @@ describe("applyFiltersAndSort", () => {
     expect(applyFiltersAndSort(library, rated, { by: "name", dir: "asc" }).map((g) => g.id)).toEqual(["a"]);
   });
 
+  it("uses canonical queue and favorite filters independently", () => {
+    const favorites = library.map((item, index) => ({
+      ...item,
+      favoriteRank: index === 2 ? 1 : null,
+    }));
+    expect(
+      applyFiltersAndSort(
+        favorites,
+        {
+          query: "",
+          fields: { favoriteRank: { kind: "favorite", selected: ["has"] } },
+        },
+        { by: "favoriteRank", dir: "asc" },
+      ).map((game) => game.id),
+    ).toEqual(["c"]);
+    expect(
+      applyFiltersAndSort(
+        favorites,
+        {
+          query: "",
+          fields: { queuePosition: { kind: "queue", selected: ["has"] } },
+        },
+        { by: "queuePosition", dir: "asc" },
+      ).map((game) => game.id),
+    ).toEqual(["b", "a"]);
+  });
+
   it("filters games that have notes", () => {
     const filters: LibraryFilters = {
       query: "",

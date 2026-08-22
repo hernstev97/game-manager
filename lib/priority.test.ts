@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { assignPriority, movePriorityToFront, reorderVisiblePriorities } from "./priority";
+import {
+  assignPosition,
+  assignPriority,
+  movePriorityToFront,
+  normalizeGamePositions,
+  reorderVisiblePriorities,
+} from "./priority";
 import { normalizeGame, type GameRecord } from "./game-fields";
 
 function game(id: string, priority: number | null): GameRecord {
@@ -27,5 +33,21 @@ describe("priority", () => {
     expect(reordered.find((g) => g.id === "b")?.priority).toBe(2);
     expect(reordered.find((g) => g.id === "a")?.priority).toBe(3);
     expect(reordered.find((g) => g.id === "d")?.priority).toBeNull();
+  });
+
+  it("normalizes queue and favorites independently", () => {
+    const start = [
+      { ...game("a", 4), queuePosition: 4.5, favoriteRank: 8, rating: 7 },
+      { ...game("b", 2), queuePosition: 4.5, favoriteRank: 2, rating: 9 },
+      { ...game("c", null), queuePosition: -1, favoriteRank: null, rating: null },
+    ];
+    const normalized = normalizeGamePositions(start);
+    expect(normalized.map((item) => item.queuePosition)).toEqual([1, 2, null]);
+    expect(normalized.map((item) => item.favoriteRank)).toEqual([2, 1, null]);
+    expect(normalized.map((item) => item.rating)).toEqual([7, 9, null]);
+
+    const favorite = assignPosition(normalized, "c", "favoriteRank", 1);
+    expect(favorite.map((item) => item.queuePosition)).toEqual([1, 2, null]);
+    expect(favorite.find((item) => item.id === "c")?.favoriteRank).toBe(1);
   });
 });
