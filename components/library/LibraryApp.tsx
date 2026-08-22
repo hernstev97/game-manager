@@ -15,6 +15,7 @@ import { useLibraryKeyboardShortcuts } from "@/components/library/useLibraryKeyb
 import { LibraryBulkActions } from "@/components/bulk-actions/LibraryBulkActions";
 import { LibraryDialogs } from "@/components/library/LibraryDialogs";
 import { BackupImportDialog } from "@/components/import-export/BackupImportDialog";
+import { useLibraryPlanning } from "@/components/library/useLibraryPlanning";
 
 export function LibraryApp() {
   const hydrated = useLibrary((state) => state.hydrated);
@@ -57,6 +58,7 @@ export function LibraryApp() {
   const [addDialogEpoch, setAddDialogEpoch] = useState(0);
   const [addInitialQuery, setAddInitialQuery] = useState("");
   const [importCandidate, setImportCandidate] = useState<{ raw: unknown; fileName: string } | null>(null);
+  const planning = useLibraryPlanning();
 
   useEffect(() => {
     hydrate();
@@ -114,18 +116,12 @@ export function LibraryApp() {
         );
       } else {
         runMotionViewTransition(() => {
-          setFilters({
-            query: "",
-            fields: {
-              queuePosition: { kind: "queue", selected: ["has"] },
-            },
-          });
-          setSort({ by: "queuePosition", dir: "asc" });
+          planning.openQueue();
         });
       }
       return true;
     },
-    [openAddDialog, setFilters, setSort],
+    [openAddDialog, planning],
   );
 
   useLibraryKeyboardShortcuts(openAddDialog);
@@ -177,11 +173,17 @@ export function LibraryApp() {
         selectedIds={selectedIds}
         dndDisabled={dndDisabled}
         selectedId={selectedId}
+        planningMode={planning.planningMode}
+        queueReorderMode={planning.queueReorderMode}
+        favoriteReorderMode={planning.favoriteReorderMode}
         searchEpoch={searchEpoch}
         onQuery={onQuery}
         onSort={onAnimatedSort}
         onSavedViews={setSavedViews}
-        onSelectView={selectSavedView}
+        onSelectView={(id) => {
+          planning.changePlanningMode("library");
+          selectSavedView(id);
+        }}
         onDisplayMode={setDisplayMode}
         onGroupBy={setGroupBy}
         onSelectionMode={(enabled) => enabled ? startSelection(selectedId ?? undefined) : endSelection()}
@@ -196,6 +198,15 @@ export function LibraryApp() {
         onToggleSelection={toggleSelection}
         onReorder={reorderPriorities}
         onFranchisePresentation={setFranchisePresentation}
+        onPlanningMode={planning.changePlanningMode}
+        onQueueReorderMode={planning.setQueueReorderMode}
+        onFavoriteReorderMode={planning.setFavoriteReorderMode}
+        onQueueInsert={planning.insertQueue}
+        onQueueRemove={planning.removeQueue}
+        onQueueReorder={planning.reorderQueue}
+        onFavoriteRank={planning.setFavorite}
+        onFavoriteRemove={planning.removeFavorite}
+        onFavoriteReorder={planning.reorderFavorites}
       />
       <LibraryBulkActions visibleGames={visible} />
       <LibraryDialogs

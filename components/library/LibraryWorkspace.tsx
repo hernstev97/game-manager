@@ -9,6 +9,13 @@ import { LibraryToolbar } from "@/components/library/LibraryToolbar";
 import { FilterBar } from "@/components/filters/FilterBar";
 import { LibraryCollection } from "@/components/library/LibraryCollection";
 import { LibraryViewControls, LibraryViewsController } from "@/components/views";
+import {
+  FavoriteRankingView,
+  PlanningNavigation,
+  QueueView,
+  type PlanningMode,
+  type QueueInsertion,
+} from "@/components/planning";
 
 export function LibraryWorkspace({
   games,
@@ -24,6 +31,9 @@ export function LibraryWorkspace({
   selectedIds,
   dndDisabled,
   selectedId,
+  planningMode,
+  queueReorderMode,
+  favoriteReorderMode,
   searchEpoch,
   onQuery,
   onSort,
@@ -43,6 +53,15 @@ export function LibraryWorkspace({
   onToggleSelection,
   onReorder,
   onFranchisePresentation,
+  onPlanningMode,
+  onQueueReorderMode,
+  onFavoriteReorderMode,
+  onQueueInsert,
+  onQueueRemove,
+  onQueueReorder,
+  onFavoriteRank,
+  onFavoriteRemove,
+  onFavoriteReorder,
 }: {
   games: GameRecord[];
   visibleGames: GameRecord[];
@@ -57,6 +76,9 @@ export function LibraryWorkspace({
   selectedIds: readonly string[];
   dndDisabled: boolean;
   selectedId: string | null;
+  planningMode: PlanningMode;
+  queueReorderMode: boolean;
+  favoriteReorderMode: boolean;
   searchEpoch: number;
   onQuery: (query: string) => void;
   onSort: (sort: SortState) => void;
@@ -76,6 +98,15 @@ export function LibraryWorkspace({
   onToggleSelection: (id: string) => void;
   onReorder: (orderedIds: string[]) => void;
   onFranchisePresentation: (presentation: FranchisePresentation) => void;
+  onPlanningMode: (mode: PlanningMode) => void;
+  onQueueReorderMode: (active: boolean) => void;
+  onFavoriteReorderMode: (active: boolean) => void;
+  onQueueInsert: (gameId: string, placement: QueueInsertion) => void;
+  onQueueRemove: (gameId: string) => void;
+  onQueueReorder: (orderedIds: readonly string[]) => void;
+  onFavoriteRank: (gameId: string, rank: number) => void;
+  onFavoriteRemove: (gameId: string) => void;
+  onFavoriteReorder: (orderedIds: readonly string[]) => void;
 }) {
   return (
     <>
@@ -99,53 +130,82 @@ export function LibraryWorkspace({
             onChange={onSavedViews}
           />
           <main className="library-workspace">
-            <LibraryToolbar
-              key={searchEpoch}
-              query={filters.query}
-              sort={sort}
-              totalCount={games.length}
-              onQuery={onQuery}
-              onSort={onSort}
-              onImport={onImport}
-              onExport={onExport}
-              onSettings={onSettings}
+            <PlanningNavigation
+              value={planningMode}
+              onChange={onPlanningMode}
+              disabled={selectionMode}
             />
-            <FilterBar
-              games={games}
-              filters={filters}
-              visibleCount={visibleGames.length}
-              onChange={onFilterChange}
-              onClear={onClearFilters}
-            />
-            <LibraryViewControls
-              displayMode={displayMode}
-              groupBy={groupBy}
-              selectionMode={selectionMode}
-              onDisplayMode={onDisplayMode}
-              onGroupBy={onGroupBy}
-              onSelectionMode={onSelectionMode}
-            />
-            <m3-divider />
-            <LibraryCollection
-              games={visibleGames}
-              libraryEmpty={games.length === 0}
-              displayMode={displayMode}
-              groupBy={groupBy}
-              franchises={franchises}
-              selectedId={selectedId}
-              sortByQueue={sort.by === "priority" || sort.by === "queuePosition"}
-              selectionMode={selectionMode}
-              selectedIds={selectedIds}
-              dndDisabled={dndDisabled}
-              onOpen={onOpenGame}
-              onSelect={onSelectGame}
-              onToggleSelection={onToggleSelection}
-              onSelectionMode={onSelectionMode}
-              onReorder={onReorder}
-              onAdd={onOpenAdd}
-              onClearFilters={onClearFilters}
-              onFranchisePresentation={onFranchisePresentation}
-            />
+            {planningMode === "queue" ? (
+              <QueueView
+                games={games}
+                reorderMode={queueReorderMode}
+                onReorderModeChange={onQueueReorderMode}
+                onReorder={onQueueReorder}
+                onInsert={onQueueInsert}
+                onRemove={onQueueRemove}
+                onOpenGame={onOpenGame}
+              />
+            ) : planningMode === "favorites" ? (
+              <FavoriteRankingView
+                games={games}
+                reorderMode={favoriteReorderMode}
+                onReorderModeChange={onFavoriteReorderMode}
+                onReorder={onFavoriteReorder}
+                onChangeRank={onFavoriteRank}
+                onRemoveRank={onFavoriteRemove}
+                onOpenGame={onOpenGame}
+              />
+            ) : (
+              <>
+                <LibraryToolbar
+                  key={searchEpoch}
+                  query={filters.query}
+                  sort={sort}
+                  totalCount={games.length}
+                  onQuery={onQuery}
+                  onSort={onSort}
+                  onImport={onImport}
+                  onExport={onExport}
+                  onSettings={onSettings}
+                />
+                <FilterBar
+                  games={games}
+                  filters={filters}
+                  visibleCount={visibleGames.length}
+                  onChange={onFilterChange}
+                  onClear={onClearFilters}
+                />
+                <LibraryViewControls
+                  displayMode={displayMode}
+                  groupBy={groupBy}
+                  selectionMode={selectionMode}
+                  onDisplayMode={onDisplayMode}
+                  onGroupBy={onGroupBy}
+                  onSelectionMode={onSelectionMode}
+                />
+                <m3-divider />
+                <LibraryCollection
+                  games={visibleGames}
+                  libraryEmpty={games.length === 0}
+                  displayMode={displayMode}
+                  groupBy={groupBy}
+                  franchises={franchises}
+                  selectedId={selectedId}
+                  sortByQueue={sort.by === "priority" || sort.by === "queuePosition"}
+                  selectionMode={selectionMode}
+                  selectedIds={selectedIds}
+                  dndDisabled={dndDisabled}
+                  onOpen={onOpenGame}
+                  onSelect={onSelectGame}
+                  onToggleSelection={onToggleSelection}
+                  onSelectionMode={onSelectionMode}
+                  onReorder={onReorder}
+                  onAdd={onOpenAdd}
+                  onClearFilters={onClearFilters}
+                  onFranchisePresentation={onFranchisePresentation}
+                />
+              </>
+            )}
           </main>
         </div>
       </div>
