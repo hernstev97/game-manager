@@ -1,4 +1,4 @@
-const CACHE_VERSION = "v1";
+const CACHE_VERSION = "v2";
 const SHELL_CACHE = `ggrid-shell-${CACHE_VERSION}`;
 const STATIC_CACHE = `ggrid-static-${CACHE_VERSION}`;
 const IMAGE_CACHE = `ggrid-images-${CACHE_VERSION}`;
@@ -10,6 +10,7 @@ const APP_SHELL = [
   "/icons/ggrid-192.png",
   "/icons/ggrid-512.png",
 ];
+const APP_SHELL_PATHS = new Set(APP_SHELL);
 const IMAGE_HOSTS = new Set([
   "cdn.cloudflare.steamstatic.com",
   "shared.cloudflare.steamstatic.com",
@@ -41,6 +42,14 @@ function classifyRequest(rawUrl, destination = "", mode = "cors") {
   if (hasSensitiveData(url) || BLOCKED_HOSTS.has(url.hostname)) return "network-only";
   if (url.origin === self.location.origin && url.pathname.startsWith("/_next/static/")) {
     return "next-static";
+  }
+  if (
+    url.origin === self.location.origin
+    && mode !== "navigate"
+    && url.search === ""
+    && APP_SHELL_PATHS.has(url.pathname)
+  ) {
+    return "shell-static";
   }
   if (url.origin === self.location.origin && mode === "navigate") return "navigation";
   if (destination === "image" && IMAGE_HOSTS.has(url.hostname) && url.search === "") {
@@ -136,6 +145,8 @@ self.addEventListener("fetch", (event) => {
   const policy = classifyRequest(event.request.url, event.request.destination, event.request.mode);
   if (policy === "next-static") {
     event.respondWith(cacheFirst(event.request, STATIC_CACHE));
+  } else if (policy === "shell-static") {
+    event.respondWith(cacheFirst(event.request, SHELL_CACHE));
   } else if (policy === "navigation") {
     event.respondWith(navigationNetworkFirst(event.request));
   } else if (policy === "remote-image") {

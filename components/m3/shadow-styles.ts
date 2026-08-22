@@ -1,4 +1,8 @@
 export const ADAPTIVE_DIALOG_STYLE = `
+.dialog:not([open]) {
+  display: none !important;
+}
+
 .dialog[open] {
   transform-origin: center;
   animation: ggrid-dialog-enter var(--motion-duration-long, 420ms)

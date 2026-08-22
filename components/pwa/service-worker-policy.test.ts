@@ -28,8 +28,11 @@ function classify(url: string, destination = "", mode = "cors"): string {
 }
 
 describe("service worker cache policy", () => {
-  it("uses Cache First only for static Next assets", () => {
+  it("uses Cache First for static Next assets and preloaded shell files", () => {
     expect(classify("https://ggrid.test/_next/static/chunks/app.js", "script")).toBe("next-static");
+    expect(classify("https://ggrid.test/icons/ggrid-512.png", "image")).toBe("shell-static");
+    expect(classify("https://ggrid.test/manifest.webmanifest", "manifest")).toBe("shell-static");
+    expect(classify("https://ggrid.test/", "document", "navigate")).toBe("navigation");
     expect(classify("https://ggrid.test/_next/image?url=https%3A%2F%2Fexample.com", "image")).toBe(
       "network-only",
     );

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, type CSSProperties } from "react";
+import { useEffect, useRef, type CSSProperties } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import type { GameRecord } from "@/lib/game-fields";
@@ -17,6 +17,34 @@ function transitionNameForGame(id: string): string {
     hash = Math.imul(hash, 16777619);
   }
   return `game-row-${(hash >>> 0).toString(36)}`;
+}
+
+function SelectionToggle({
+  gameName,
+  selected,
+  onToggle,
+}: {
+  gameName: string;
+  selected: boolean;
+  onToggle: () => void;
+}) {
+  const ref = useRef<HTMLButtonElement>(null);
+  useHostEvent(ref, "click", (event) => {
+    event.stopPropagation();
+    onToggle();
+  });
+
+  return (
+    <button
+      ref={ref}
+      type="button"
+      className="selection-toggle"
+      aria-label={selected ? `${gameName} aus Auswahl entfernen` : `${gameName} auswählen`}
+      aria-pressed={selected}
+    >
+      {selected ? "✓" : ""}
+    </button>
+  );
 }
 
 export function GameRow({
@@ -46,7 +74,24 @@ export function GameRow({
     disabled: !canDrag,
   });
   const itemRef = useRef<HTMLElement>(null);
+  const interactiveClickRef = useRef(false);
+  useEffect(() => {
+    const node = itemRef.current;
+    if (!node) return;
+    const markInteractiveClick = (event: Event) => {
+      interactiveClickRef.current = event.composedPath().some(
+        (entry) => entry instanceof Element
+          && entry.matches("button, input, select, textarea, a"),
+      );
+      queueMicrotask(() => {
+        interactiveClickRef.current = false;
+      });
+    };
+    node.addEventListener("click", markInteractiveClick, { capture: true });
+    return () => node.removeEventListener("click", markInteractiveClick, { capture: true });
+  }, []);
   useHostEvent(itemRef, "item-click", () => {
+    if (interactiveClickRef.current) return;
     if (isDragging) return;
     if (selectionMode) onToggleSelection();
     else onOpen();
@@ -80,18 +125,11 @@ export function GameRow({
     >
       <div slot="leading" className="row-leading">
         {selectionMode ? (
-          <button
-            type="button"
-            className="selection-toggle"
-            aria-label={selected ? `${game.name} aus Auswahl entfernen` : `${game.name} auswählen`}
-            aria-pressed={selected}
-            onClick={(event) => {
-              event.stopPropagation();
-              onToggleSelection();
-            }}
-          >
-            {selected ? "✓" : ""}
-          </button>
+          <SelectionToggle
+            gameName={game.name}
+            selected={selected}
+            onToggle={onToggleSelection}
+          />
         ) : null}
         <button
           type="button"
