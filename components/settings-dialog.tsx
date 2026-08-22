@@ -18,6 +18,11 @@ import {
 } from "@/lib/theme";
 import { M3Chip, M3Dialog, M3Radio, M3Tabs, M3TextField } from "@/components/m3/host";
 import { useTheme } from "@/components/theme-provider";
+import { useMotion } from "@/components/motion-provider";
+import {
+  MOTION_PREFERENCE_DETAILS,
+  motionPreferences,
+} from "@/lib/motion";
 import {
   fetchOwnedSteamGames,
   fetchSteamAppDetails,
@@ -91,6 +96,8 @@ export function SettingsDialog({
   onExport: () => void;
 }) {
   const { prefs, setMode, setVariant, setSeed, applyWallpaper } = useTheme();
+  const { preference: motionPreference, effectiveMotion, systemReduced, setPreference } =
+    useMotion();
   const [idDraft, setIdDraft] = useState(steamId);
   const [keyDraft, setKeyDraft] = useState(steamApiKey);
   const [igdbIdDraft, setIgdbIdDraft] = useState(igdbClientId);
@@ -395,6 +402,39 @@ export function SettingsDialog({
         </section>
 
         <section id="settings-theme" className="settings settings-panel" hidden={tab !== 2}>
+          <span className="field-label">Animationen</span>
+          <div className="motion-options" role="radiogroup" aria-label="Animationsstufe">
+            {motionPreferences.map((preference) => {
+              const detail = MOTION_PREFERENCE_DETAILS[preference];
+              const selected = motionPreference === preference;
+              return (
+                <button
+                  key={preference}
+                  type="button"
+                  className={`motion-option motion-option-${preference}`}
+                  role="radio"
+                  aria-checked={selected}
+                  onClick={() => setPreference(preference)}
+                >
+                  <span className="motion-option-demo" aria-hidden="true">
+                    <i />
+                    <i />
+                    <i />
+                  </span>
+                  <span className="motion-option-copy">
+                    <strong>{detail.label}</strong>
+                    <small>{detail.description}</small>
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+          <p className="settings-copy motion-system-note" aria-live="polite">
+            {systemReduced
+              ? "Die Systemeinstellung „Bewegung reduzieren“ ist aktiv und hat Vorrang. Wirksam: Keine."
+              : `Wirksam: ${MOTION_PREFERENCE_DETAILS[effectiveMotion].label}. Die Systemeinstellung hat bei Reduced Motion Vorrang.`}
+          </p>
+          <m3-divider />
           <span className="field-label">Modus</span>
           <div className="chip-row">
             <M3Radio name="theme-mode" value="light" checked={prefs.mode === "light"} onChange={() => setMode("light")} label="Hell" />

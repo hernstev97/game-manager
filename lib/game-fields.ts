@@ -176,7 +176,7 @@ export const GAME_FIELDS = [
   },
   {
     id: "name",
-    label: "Spiel",
+    label: "Spielname",
     type: "string",
     filterable: false,
     sortable: true,
@@ -189,7 +189,7 @@ export const GAME_FIELDS = [
   },
   {
     id: "coverUrl",
-    label: "Cover",
+    label: "Cover-URL",
     type: "cover",
     filterable: false,
     sortable: false,

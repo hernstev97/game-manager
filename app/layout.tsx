@@ -1,7 +1,9 @@
 import type { Metadata, Viewport } from "next";
 import { Google_Sans_Flex } from "next/font/google";
 import Script from "next/script";
+import { MotionProvider } from "@/components/motion-provider";
 import { ThemeProvider } from "@/components/theme-provider";
+import { MOTION_BOOT_SCRIPT } from "@/lib/motion";
 import { THEME_BOOT_SCRIPT } from "@/lib/theme";
 import "./globals.css";
 
@@ -32,10 +34,15 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="de" className={`${sans.variable} ${sans.className} h-full`} suppressHydrationWarning>
       <body className="min-h-full">
+        <Script id="motion-boot" strategy="beforeInteractive">
+          {MOTION_BOOT_SCRIPT}
+        </Script>
         <Script id="theme-boot" strategy="beforeInteractive">
           {THEME_BOOT_SCRIPT}
         </Script>
-        <ThemeProvider>{children}</ThemeProvider>
+        <MotionProvider>
+          <ThemeProvider>{children}</ThemeProvider>
+        </MotionProvider>
       </body>
     </html>
   );

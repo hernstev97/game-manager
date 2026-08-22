@@ -597,12 +597,14 @@ export function EditorField({
   games,
   onChange,
   onPriority,
+  showCoverPreview = true,
 }: {
   field: AnyGameField;
   game: GameRecord;
   games: GameRecord[];
   onChange: (patch: Partial<GameRecord>) => void;
   onPriority: (priority: number | null) => void;
+  showCoverPreview?: boolean;
 }) {
   const value = game[field.id];
   const currentTokens = Array.isArray(value)
@@ -761,14 +763,16 @@ export function EditorField({
           onChange={(next) => onChange({ [field.id]: next })}
           placeholder="https://…"
         />
-        <div className="cover-preview">
-          <CoverImage
-            name={game.name}
-            franchise={game.franchise}
-            coverUrl={game.coverUrl}
-            steamAppId={game.steamAppId}
-          />
-        </div>
+        {showCoverPreview ? (
+          <div className="cover-preview">
+            <CoverImage
+              name={game.name}
+              franchise={game.franchise}
+              coverUrl={game.coverUrl}
+              steamAppId={game.steamAppId}
+            />
+          </div>
+        ) : null}
       </div>
     );
   }

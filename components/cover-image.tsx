@@ -37,6 +37,7 @@ export function CoverImage({
   steamAppId,
   className,
   eager = false,
+  sizes = "(max-width: 599px) 104px, (max-width: 839px) 144px, 175px",
 }: {
   name: string;
   franchise?: string;
@@ -44,6 +45,7 @@ export function CoverImage({
   steamAppId: number | null;
   className?: string;
   eager?: boolean;
+  sizes?: string;
 }) {
   const sources = useMemo(() => {
     const list: string[] = [];
@@ -73,7 +75,7 @@ export function CoverImage({
       alt=""
       width={350}
       height={164}
-      sizes="(max-width: 599px) 104px, (max-width: 839px) 144px, 175px"
+      sizes={sizes}
       loading={eager ? "eager" : "lazy"}
       decoding="async"
       className={className ? `cover-img ${className}` : "cover-img"}

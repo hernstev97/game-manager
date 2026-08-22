@@ -13,6 +13,7 @@ import { registerM3Components } from "@/components/m3/register";
 import { IconAdd } from "@/components/m3/icons";
 import { SnackbarHost, toast } from "@/components/m3/snackbar";
 import { MorphLoader } from "@/components/morph-loader";
+import { runMotionViewTransition } from "@/components/motion-provider";
 
 function isTypingTarget(target: EventTarget | null) {
   if (!(target instanceof HTMLElement)) return false;
@@ -86,6 +87,11 @@ export function LibraryApp() {
       setFilters((current) => filtersWithQuery(current, query));
     },
     [setFilters],
+  );
+
+  const onAnimatedSort = useCallback(
+    (next: typeof sort) => runMotionViewTransition(() => setSort(next)),
+    [setSort],
   );
 
   const importFile = async (file: File) => {
@@ -180,7 +186,7 @@ export function LibraryApp() {
           sort={sort}
           totalCount={games.length}
           onQuery={onQuery}
-          onSort={setSort}
+          onSort={onAnimatedSort}
           onImport={(file) => void importFile(file)}
           onExport={exportJson}
           onSettings={() => setSettingsOpen(true)}
@@ -191,11 +197,13 @@ export function LibraryApp() {
           visibleCount={visible.length}
           onChange={(next) => {
             if (!next.query && filters.query) setSearchEpoch((value) => value + 1);
-            setFilters(next);
+            runMotionViewTransition(() => setFilters(next));
           }}
           onClear={() => {
-            clearFilters();
-            setSearchEpoch((value) => value + 1);
+            runMotionViewTransition(() => {
+              clearFilters();
+              setSearchEpoch((value) => value + 1);
+            });
           }}
         />
         <m3-divider />
@@ -209,8 +217,10 @@ export function LibraryApp() {
           onReorder={reorderPriorities}
           onAdd={() => setAddOpen(true)}
           onClearFilters={() => {
-            clearFilters();
-            setSearchEpoch((value) => value + 1);
+            runMotionViewTransition(() => {
+              clearFilters();
+              setSearchEpoch((value) => value + 1);
+            });
           }}
         />
       </div>

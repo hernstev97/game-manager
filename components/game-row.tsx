@@ -10,6 +10,16 @@ import { PriorityBadge, RatingStars } from "@/components/field-widgets";
 import { IconGrip } from "@/components/m3/icons";
 import { useHostEvent } from "@/components/m3/events";
 import { useRef } from "react";
+import type { CSSProperties } from "react";
+
+function transitionNameForGame(id: string): string {
+  let hash = 2166136261;
+  for (let index = 0; index < id.length; index++) {
+    hash ^= id.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+  return `game-row-${(hash >>> 0).toString(36)}`;
+}
 
 export function GameRow({
   game,
@@ -41,10 +51,12 @@ export function GameRow({
     setNodeRef(node);
   };
 
-  const style = {
+  const style: CSSProperties & { "--row-index": number } = {
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.7 : undefined,
+    "--row-index": Math.min(index, 10),
+    viewTransitionName: index < 14 ? transitionNameForGame(game.id) : "none",
   };
 
   const statusFields = fieldsForRowSlot("chips").filter((field) => field.type === "boolean");

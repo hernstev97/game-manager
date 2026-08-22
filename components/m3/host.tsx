@@ -25,6 +25,17 @@ type MenuEl = HTMLElement & {
 type DialogPresentation = "default" | "fullscreen" | "sheet" | "editor";
 
 const ADAPTIVE_DIALOG_STYLE = `
+.dialog[open] {
+  transform-origin: center;
+  animation: ggrid-dialog-enter var(--motion-duration-long, 420ms)
+    var(--motion-easing-decelerate, cubic-bezier(.05, .7, .1, 1)) both;
+}
+
+.dialog[open]::backdrop {
+  animation: ggrid-backdrop-enter var(--motion-duration-medium, 300ms)
+    var(--motion-easing-standard, cubic-bezier(.2, 0, 0, 1)) both;
+}
+
 :host(.adaptive-fullscreen) .icon-slot,
 :host(.adaptive-editor) .icon-slot {
   display: none;
@@ -71,6 +82,8 @@ const ADAPTIVE_DIALOG_STYLE = `
     grid-template-columns: 56px minmax(0, 1fr);
     grid-template-rows: calc(56px + env(safe-area-inset-top)) minmax(0, 1fr) auto;
     background-color: var(--md-sys-color-surface-container-high, #ece6ee);
+    transform-origin: right center;
+    animation-name: ggrid-fullscreen-enter;
   }
 
   :host(.adaptive-fullscreen) .dialog[open] {
@@ -137,6 +150,8 @@ const ADAPTIVE_DIALOG_STYLE = `
     max-height: min(88dvh, 760px);
     margin: auto 0 0;
     border-radius: 28px 28px 0 0;
+    transform-origin: center bottom;
+    animation-name: ggrid-sheet-enter;
   }
 
   :host(.adaptive-sheet) .dialog[open] .headline {
@@ -155,6 +170,62 @@ const ADAPTIVE_DIALOG_STYLE = `
     flex-wrap: wrap;
     border-top: 1px solid var(--md-sys-color-outline-variant, #cac4cf);
   }
+}
+
+@keyframes ggrid-dialog-enter {
+  from {
+    opacity: 0;
+    filter: blur(var(--motion-enter-blur, 0px));
+    transform: translateY(var(--motion-enter-distance, 12px))
+      scale(var(--motion-enter-scale, .96));
+  }
+}
+
+@keyframes ggrid-fullscreen-enter {
+  from {
+    opacity: .72;
+    filter: blur(var(--motion-enter-blur, 0px));
+    transform: translateX(var(--motion-fullscreen-distance, 24px));
+  }
+}
+
+@keyframes ggrid-sheet-enter {
+  from {
+    opacity: .8;
+    transform: translateY(var(--motion-sheet-distance, 48px))
+      scale(var(--motion-enter-scale, .97));
+  }
+}
+
+@keyframes ggrid-backdrop-enter {
+  from { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dialog[open],
+  .dialog[open]::backdrop {
+    animation: none;
+  }
+}
+`;
+
+const MENU_MOTION_STYLE = `
+:host([open]) .surface {
+  animation: ggrid-menu-enter var(--motion-duration-medium, 280ms)
+    var(--motion-easing-decelerate, cubic-bezier(.05, .7, .1, 1)) both;
+}
+
+@keyframes ggrid-menu-enter {
+  from {
+    opacity: 0;
+    filter: blur(var(--motion-enter-blur, 0px));
+    transform: translateY(calc(var(--motion-enter-distance, 8px) * -.45))
+      scale(var(--motion-enter-scale, .96));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :host([open]) .surface { animation: none; }
 }
 `;
 
@@ -277,6 +348,16 @@ export function M3Menu({
     const detail = (event as CustomEvent<{ open?: boolean }>).detail;
     onOpenChange(Boolean(detail?.open));
   });
+
+  useEffect(() => {
+    const menu = ref.current;
+    if (!menu) return;
+    const apply = () => installShadowStyle(menu, "menu", MENU_MOTION_STYLE);
+    apply();
+    queueMicrotask(apply);
+    menu.addEventListener("menu-open-change", apply);
+    return () => menu.removeEventListener("menu-open-change", apply);
+  }, []);
 
   useEffect(() => {
     const menu = ref.current;

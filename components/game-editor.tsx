@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import {
   editorFieldsByGroup,
   FIELD_GROUP_LABELS,
+  type GameFieldDef,
   type GameRecord,
 } from "@/lib/game-fields";
 import { adjacentGameId } from "@/lib/filter-games";
@@ -11,6 +12,15 @@ import { EditorField } from "@/components/field-widgets";
 import { M3Dialog, M3Tabs } from "@/components/m3/host";
 import { IconChevronLeft, IconChevronRight, IconClose } from "@/components/m3/icons";
 import { useHostEvent } from "@/components/m3/events";
+import { CoverImage } from "@/components/cover-image";
+
+const IDENTITY_PRIMARY_FIELDS = new Set([
+  "name",
+  "steamAppId",
+  "steamPrice",
+  "igdbId",
+  "coverUrl",
+]);
 
 function shouldIgnoreEditorNav(target: EventTarget | null) {
   if (!(target instanceof HTMLElement)) return false;
@@ -97,6 +107,88 @@ function EditorPager({
   );
 }
 
+function EditorFieldItem({
+  field,
+  game,
+  games,
+  onChange,
+  onPriority,
+  showCoverPreview,
+}: {
+  field: GameFieldDef | undefined;
+  game: GameRecord;
+  games: GameRecord[];
+  onChange: (patch: Partial<GameRecord>) => void;
+  onPriority: (priority: number | null) => void;
+  showCoverPreview?: boolean;
+}) {
+  if (!field) return null;
+  return (
+    <EditorField
+      field={field}
+      game={game}
+      games={games}
+      onChange={onChange}
+      onPriority={onPriority}
+      showCoverPreview={showCoverPreview}
+    />
+  );
+}
+
+function IdentityEditorFields({
+  fields,
+  game,
+  games,
+  onChange,
+  onPriority,
+}: {
+  fields: GameFieldDef[];
+  game: GameRecord;
+  games: GameRecord[];
+  onChange: (patch: Partial<GameRecord>) => void;
+  onPriority: (priority: number | null) => void;
+}) {
+  const byId = new Map(fields.map((field) => [field.id, field]));
+  const sharedProps = { game, games, onChange, onPriority };
+
+  return (
+    <>
+      <EditorFieldItem field={byId.get("name")} {...sharedProps} />
+
+      <div className="editor-source-stack" aria-label="Externe Spieldaten">
+        <section className="editor-source-card">
+          <header className="editor-source-header">
+            <h3>Steam</h3>
+            <span>Store &amp; Preis</span>
+          </header>
+          <EditorFieldItem field={byId.get("steamAppId")} {...sharedProps} />
+          <EditorFieldItem field={byId.get("steamPrice")} {...sharedProps} />
+        </section>
+
+        <section className="editor-source-card">
+          <header className="editor-source-header">
+            <h3>IGDB</h3>
+            <span>Katalog &amp; Metadaten</span>
+          </header>
+          <EditorFieldItem field={byId.get("igdbId")} {...sharedProps} />
+        </section>
+      </div>
+
+      <EditorFieldItem
+        field={byId.get("coverUrl")}
+        showCoverPreview={false}
+        {...sharedProps}
+      />
+
+      {fields
+        .filter((field) => !IDENTITY_PRIMARY_FIELDS.has(field.id))
+        .map((field) => (
+          <EditorFieldItem key={field.id} field={field} {...sharedProps} />
+        ))}
+    </>
+  );
+}
+
 export function GameEditor({
   game,
   games,
@@ -178,24 +270,47 @@ export function GameEditor({
               </m3-tab>
             ))}
           </M3Tabs>
+          {activeGroup === "identity" ? (
+            <div className="editor-cover-hero" key={`cover-${game.id}`}>
+              <CoverImage
+                name={game.name}
+                franchise={game.franchise}
+                coverUrl={game.coverUrl}
+                steamAppId={game.steamAppId}
+                className="editor-cover-hero-image"
+                sizes="(max-width: 599px) 100vw, 560px"
+                eager
+              />
+            </div>
+          ) : null}
           <span className="editor-save-state">Änderungen werden automatisch gespeichert.</span>
           {groups.map((group) => (
             <section
-              key={group.group}
+              key={`${game.id}-${group.group}`}
               id={`editor-${group.group}`}
               hidden={group.group !== activeGroup}
-              className="editor-fields"
+              className={group.group === "identity" ? "editor-fields editor-identity-fields" : "editor-fields"}
             >
-              {group.fields.map((field) => (
-                <EditorField
-                  key={`${game.id}-${field.id}`}
-                  field={field}
+              {group.group === "identity" ? (
+                <IdentityEditorFields
+                  fields={group.fields}
                   game={game}
                   games={games}
                   onChange={(patch) => onChange(game.id, patch)}
                   onPriority={(priority) => onPriority(game.id, priority)}
                 />
-              ))}
+              ) : (
+                group.fields.map((field) => (
+                  <EditorField
+                    key={`${game.id}-${field.id}`}
+                    field={field}
+                    game={game}
+                    games={games}
+                    onChange={(patch) => onChange(game.id, patch)}
+                    onPriority={(priority) => onPriority(game.id, priority)}
+                  />
+                ))
+              )}
             </section>
           ))}
           {canPage ? (
