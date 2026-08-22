@@ -61,9 +61,9 @@ export function menuChoices(
   }
   if (field.type === "priority") {
     return [
-      { token: "has", label: "Hat Priorität" },
+      { token: "has", label: "In Warteschlange" },
       { token: "top5", label: "Top 5" },
-      { token: "none", label: "Ohne Rang" },
+      { token: "none", label: "Nicht eingeplant" },
     ];
   }
   if (field.type === "boolean") {

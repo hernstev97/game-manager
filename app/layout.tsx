@@ -17,6 +17,21 @@ const sans = Google_Sans_Flex({
 export const metadata: Metadata = {
   title: "gGrid",
   description: "gGrid — Game. Manage. Learn.",
+  applicationName: "gGrid",
+  icons: {
+    apple: [
+      {
+        url: "/icons/ggrid-192.png",
+        sizes: "192x192",
+        type: "image/png",
+      },
+    ],
+  },
+  appleWebApp: {
+    capable: true,
+    title: "gGrid",
+    statusBarStyle: "default",
+  },
 };
 
 export const viewport: Viewport = {

@@ -23,6 +23,26 @@ export function useServiceWorker(): ServiceWorkerState {
       return () => window.clearTimeout(unsupported);
     }
 
+    if (process.env.NODE_ENV !== "production") {
+      void navigator.serviceWorker
+        .getRegistrations()
+        .then((registrations) =>
+          Promise.all(
+            registrations
+              .filter((registration) => registration.scope === `${window.location.origin}/`)
+              .map((registration) => registration.unregister()),
+          ),
+        );
+      if ("caches" in window) {
+        void caches.keys().then((names) =>
+          Promise.all(
+            names.filter((name) => name.startsWith("ggrid-")).map((name) => caches.delete(name)),
+          ),
+        );
+      }
+      return;
+    }
+
     const findWaitingWorker = (registration: ServiceWorkerRegistration) => {
       if (registration.waiting && navigator.serviceWorker.controller) {
         setWaiting(registration.waiting);

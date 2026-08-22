@@ -6,6 +6,8 @@ import {
   settingsFromSort,
   sortFromSettings,
 } from "@/lib/storage";
+import { readStoredMotionPreference } from "@/lib/motion";
+import { readStoredThemePreferences } from "@/lib/theme";
 import { createGameSlice } from "./slices/games";
 import { createIntegrationSlice } from "./slices/integration";
 import { createViewDialogSlice } from "./slices/view-dialog";
@@ -25,7 +27,18 @@ function persistNow(state: PersistedLibraryState): void {
     igdbClientId: state.igdbClientId,
     igdbClientSecret: state.igdbClientSecret,
   });
-  libraryRepository.save(libraryRepository.build(state.games, settings));
+  const document = libraryRepository.build(state.games, settings);
+  libraryRepository.writeAtomic({
+    document: {
+      ...document,
+      theme: readStoredThemePreferences(),
+      motion: readStoredMotionPreference(),
+    },
+    credentials: {
+      steamApiKey: state.steamApiKey,
+      igdbClientSecret: state.igdbClientSecret,
+    },
+  });
 }
 
 export const useLibrary = create<LibraryState>((set, get) => {
@@ -46,9 +59,7 @@ export const useLibrary = create<LibraryState>((set, get) => {
       try {
         const stored = libraryRepository.load();
         const document = stored ?? libraryRepository.empty();
-        if (!stored) {
-          libraryRepository.save(document);
-        }
+        libraryRepository.save(document);
         set({
           hydrated: true,
           games: document.games,

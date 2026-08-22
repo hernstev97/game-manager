@@ -4,3 +4,7 @@ export * from "./repository";
 export * from "./import";
 export * from "./export";
 export * from "./views";
+export * from "./snapshots";
+export * from "./snapshots-errors";
+export * from "./snapshots-indexeddb";
+export * from "./snapshots-memory";

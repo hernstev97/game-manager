@@ -18,6 +18,10 @@ body {
   overflow-x: clip;
 }
 
+html {
+  overflow-x: clip;
+}
+
 button,
 input,
 select,

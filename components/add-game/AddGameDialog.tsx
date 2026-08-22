@@ -13,12 +13,14 @@ import { useAddGameSearch } from "@/components/add-game/useAddGameSearch";
 import { CatalogSearchResults } from "@/components/add-game/CatalogSearchResults";
 import { ExistingGameResults } from "@/components/add-game/ExistingGameResults";
 import { IconClose } from "@/components/m3/icons";
+import { OfflineActionNotice, useOnlineStatus } from "@/components/pwa";
 
 export function AddGameDialog({
   open,
   games,
   igdbClientId,
   igdbClientSecret,
+  initialQuery = "",
   onClose,
   onCreate,
   onOpenExisting,
@@ -27,12 +29,14 @@ export function AddGameDialog({
   games: GameRecord[];
   igdbClientId: string;
   igdbClientSecret: string;
+  initialQuery?: string;
   onClose: () => void;
   onCreate: (partial: Partial<GameRecord>) => void;
   onOpenExisting: (id: string) => void;
 }) {
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(initialQuery);
   const [busy, setBusy] = useState(false);
+  const online = useOnlineStatus();
   const {
     steamId,
     igdbRef,
@@ -44,9 +48,25 @@ export function AddGameDialog({
     igdbHits,
     visibleSteam,
     visibleIgdb,
-  } = useAddGameSearch({ open, games, query, igdbClientId, igdbClientSecret });
+  } = useAddGameSearch({
+    open,
+    games,
+    query,
+    igdbClientId,
+    igdbClientSecret,
+    online,
+  });
 
   const createFromSteam = async (appId: number) => {
+    if (!online) {
+      onCreate({
+        steamAppId: appId,
+        name: query.trim() || `Steam ${appId}`,
+        coverUrl: steamCover(appId),
+      });
+      toast.success("Offline lokal angelegt; Steam-Details können später ergänzt werden.");
+      return;
+    }
     setBusy(true);
     try {
       const details = await fetchSteamAppDetails(appId);
@@ -71,6 +91,10 @@ export function AddGameDialog({
 
   const createFromIgdb = async () => {
     if (!igdbRef) return;
+    if (!online) {
+      toast.error("IGDB ist offline nicht verfügbar.");
+      return;
+    }
     if (!igdbReady) {
       toast.error("IGDB in den Einstellungen verbinden (Twitch-Client-ID und Secret).");
       return;
@@ -93,6 +117,10 @@ export function AddGameDialog({
   };
 
   const createFromIgdbHit = async (id: number) => {
+    if (!online) {
+      toast.error("IGDB ist offline nicht verfügbar.");
+      return;
+    }
     if (!igdbReady) {
       toast.error("IGDB in den Einstellungen verbinden (Twitch-Client-ID und Secret).");
       return;
@@ -172,6 +200,10 @@ export function AddGameDialog({
           placeholder="Name, Steam-URL, App-ID oder IGDB-Link"
           autoFocus
         />
+        <OfflineActionNotice>
+          Katalogsuche und Metadaten sind offline nicht verfügbar. Spiele können weiterhin manuell
+          oder über eine Steam-App-ID angelegt werden.
+        </OfflineActionNotice>
         <ExistingGameResults games={existing} onOpenExisting={onOpenExisting} />
         <CatalogSearchResults
           catalogQuery={catalogQuery}

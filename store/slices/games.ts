@@ -4,10 +4,12 @@ import {
 } from "../../lib/game-fields";
 import { EMPTY_FILTERS } from "../../lib/filter-games";
 import {
+  createLibraryBackup,
   downloadTextFile,
-  exportLibraryJson,
   importLibraryPayload,
+  serializeLibraryBackup,
 } from "../../lib/import-export";
+import { libraryRepository } from "../../lib/storage";
 import { sortFromSettings } from "../../lib/storage";
 import { assignPriority, movePriorityToFront, reorderVisiblePriorities } from "../../lib/priority";
 import { steamCover, type SteamOwnedGame } from "../../lib/steam";
@@ -138,7 +140,10 @@ export function createGameSlice({ set, get, persist }: LibrarySliceContext): Gam
 
     exportJson: () => {
       const state = get();
-      const json = exportLibraryJson(state.games, integrationSettings(state));
+      persist();
+      const document = libraryRepository.load() ??
+        libraryRepository.build(state.games, integrationSettings(state));
+      const json = serializeLibraryBackup(createLibraryBackup(document));
       downloadTextFile("game-library.json", json);
     },
 

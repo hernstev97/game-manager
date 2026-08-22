@@ -1,6 +1,7 @@
 "use client";
 
 import { M3TextField } from "@/components/m3/host";
+import { OfflineActionNotice, useOnlineStatus } from "@/components/pwa";
 
 export function IgdbSettingsPanel({
   hidden,
@@ -21,6 +22,7 @@ export function IgdbSettingsPanel({
   onSave: () => void;
   onRefresh: () => Promise<void>;
 }) {
+  const online = useOnlineStatus();
   return (
     <section id="settings-igdb" className="settings settings-panel" hidden={hidden}>
       <p className="settings-copy">
@@ -50,10 +52,11 @@ export function IgdbSettingsPanel({
       />
       <div className="settings-actions">
         <m3-button onClick={onSave}>Speichern</m3-button>
-        <m3-button variant="text" disabled={busy} onClick={() => void onRefresh()}>
+        <m3-button variant="text" disabled={busy || !online} onClick={() => void onRefresh()}>
           Metadaten aktualisieren
         </m3-button>
       </div>
+      <OfflineActionNotice>IGDB-Aktualisierungen warten auf eine Internetverbindung.</OfflineActionNotice>
     </section>
   );
 }

@@ -259,9 +259,9 @@ export function activeFilterChips(
     }
     if (filter.kind === "priority" || filter.kind === "queue") {
       const labels: Record<(typeof filter.selected)[number], string> = {
-        has: "Hat Priorität",
+        has: "In Warteschlange",
         top5: "Top 5",
-        none: "Ohne Rang",
+        none: "Nicht eingeplant",
       };
       for (const mode of filter.selected) {
         chips.push({ fieldId, token: mode, label: labels[mode] });

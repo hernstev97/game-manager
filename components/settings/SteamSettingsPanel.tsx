@@ -1,6 +1,7 @@
 "use client";
 
 import { M3TextField } from "@/components/m3/host";
+import { OfflineActionNotice, useOnlineStatus } from "@/components/pwa";
 
 export function SteamSettingsPanel({
   hidden,
@@ -23,6 +24,7 @@ export function SteamSettingsPanel({
   onRefreshCovers: () => Promise<void>;
   onPullPlaytime: () => Promise<void>;
 }) {
+  const online = useOnlineStatus();
   return (
     <section id="settings-steam" className="settings settings-panel" hidden={hidden}>
       <p className="settings-copy">
@@ -43,13 +45,14 @@ export function SteamSettingsPanel({
       />
       <div className="settings-actions">
         <m3-button onClick={onSave}>Speichern</m3-button>
-        <m3-button variant="text" disabled={busy} onClick={() => void onRefreshCovers()}>
+        <m3-button variant="text" disabled={busy || !online} onClick={() => void onRefreshCovers()}>
           Cover, Namen &amp; Preise aktualisieren
         </m3-button>
-        <m3-button variant="text" disabled={busy} onClick={() => void onPullPlaytime()}>
+        <m3-button variant="text" disabled={busy || !online} onClick={() => void onPullPlaytime()}>
           Spielzeit holen
         </m3-button>
       </div>
+      <OfflineActionNotice>Steam-Aktualisierungen warten auf eine Internetverbindung.</OfflineActionNotice>
     </section>
   );
 }

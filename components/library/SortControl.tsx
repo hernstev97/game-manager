@@ -8,6 +8,8 @@ import { M3SplitButton } from "@/components/m3/host";
 export const SORT_LABEL_OVERRIDES: Record<string, string> = {
   name: "Alphabetisch",
   priority: "Als nächstes",
+  queuePosition: "Spielwarteschlange",
+  favoriteRank: "Persönlicher Rang",
   rating: "Bewertung",
   difficultyTo100: "Schwierigkeit",
   franchise: "Franchise",

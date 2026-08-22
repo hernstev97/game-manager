@@ -21,12 +21,14 @@ export function useAddGameSearch({
   query,
   igdbClientId,
   igdbClientSecret,
+  online,
 }: {
   open: boolean;
   games: GameRecord[];
   query: string;
   igdbClientId: string;
   igdbClientSecret: string;
+  online: boolean;
 }) {
   const [steamHits, setSteamHits] = useState<SteamSearchHit[]>([]);
   const [igdbHits, setIgdbHits] = useState<IgdbSearchHit[]>([]);
@@ -53,7 +55,7 @@ export function useAddGameSearch({
   }, [games, query, steamId, igdbRef]);
 
   useEffect(() => {
-    if (!open || steamId || igdbKey || !catalogQuery) return;
+    if (!open || !online || steamId || igdbKey || !catalogQuery) return;
     let cancelled = false;
     const handle = window.setTimeout(async () => {
       try {
@@ -77,7 +79,17 @@ export function useAddGameSearch({
       cancelled = true;
       window.clearTimeout(handle);
     };
-  }, [open, query, steamId, igdbKey, catalogQuery, igdbReady, igdbClientId, igdbClientSecret]);
+  }, [
+    open,
+    online,
+    query,
+    steamId,
+    igdbKey,
+    catalogQuery,
+    igdbReady,
+    igdbClientId,
+    igdbClientSecret,
+  ]);
 
   return {
     steamId,
@@ -86,7 +98,7 @@ export function useAddGameSearch({
     creds,
     catalogQuery,
     existing,
-    searching: Boolean(open && catalogQuery && resolvedQuery !== query),
+    searching: Boolean(open && online && catalogQuery && resolvedQuery !== query),
     igdbHits,
     visibleSteam: catalogQuery ? steamHits : [],
     visibleIgdb: catalogQuery ? igdbHits : [],

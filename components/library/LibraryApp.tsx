@@ -11,21 +11,10 @@ import { SettingsDialog } from "@/components/settings-dialog";
 import { registerM3Components } from "@/components/m3/register";
 import { SnackbarHost, toast } from "@/components/m3/snackbar";
 import { MorphLoader } from "@/components/morph-loader";
-import { runMotionViewTransition } from "@/components/motion-provider";
-
-function isTypingTarget(target: EventTarget | null) {
-  if (!(target instanceof HTMLElement)) return false;
-  const tag = target.tagName;
-  return (
-    target.isContentEditable ||
-    tag === "INPUT" ||
-    tag === "TEXTAREA" ||
-    tag === "SELECT" ||
-    tag === "M3-TEXT-FIELD" ||
-    tag === "M3-SEARCH-BAR" ||
-    tag === "M3-SLIDER"
-  );
-}
+import { runMotionViewTransition, useMotion } from "@/components/motion-provider";
+import { PwaShell, type PwaSharePayload, type PwaShortcutAction } from "@/components/pwa";
+import { useTheme } from "@/components/theme-provider";
+import { useLibraryKeyboardShortcuts } from "@/components/library/useLibraryKeyboardShortcuts";
 
 export function LibraryApp() {
   const hydrated = useLibrary((state) => state.hydrated);
@@ -62,13 +51,21 @@ export function LibraryApp() {
   const setIgdbCredentials = useLibrary((state) => state.setIgdbCredentials);
   const applySteamPlaytime = useLibrary((state) => state.applySteamPlaytime);
   const refreshSteamIdentity = useLibrary((state) => state.refreshSteamIdentity);
+  const themePreferences = useTheme().prefs;
+  const motionPreference = useMotion().preference;
 
   const [m3Ready, setM3Ready] = useState(false);
   const [searchEpoch, setSearchEpoch] = useState(0);
+  const [addDialogEpoch, setAddDialogEpoch] = useState(0);
+  const [addInitialQuery, setAddInitialQuery] = useState("");
 
   useEffect(() => {
     hydrate();
   }, [hydrate]);
+
+  useEffect(() => {
+    if (hydrated) useLibrary.getState().persist();
+  }, [hydrated, motionPreference, themePreferences]);
 
   useEffect(() => {
     void registerM3Components().then(() => setM3Ready(true));
@@ -92,6 +89,49 @@ export function LibraryApp() {
     [setSort],
   );
 
+  const openAddDialog = useCallback(
+    (initialQuery = "") => {
+      setAddInitialQuery(initialQuery);
+      setAddDialogEpoch((value) => value + 1);
+      setAddOpen(true);
+    },
+    [setAddOpen],
+  );
+
+  const onPwaShareTarget = useCallback(
+    (payload: PwaSharePayload) => {
+      openAddDialog(payload.kind === "url" ? payload.name ?? payload.query : payload.query);
+      return true;
+    },
+    [openAddDialog],
+  );
+
+  const onPwaShortcut = useCallback(
+    (action: PwaShortcutAction) => {
+      if (action === "add-game") {
+        openAddDialog();
+      } else if (action === "search") {
+        window.requestAnimationFrame(() =>
+          document.querySelector<HTMLElement>("m3-search-bar")?.focus(),
+        );
+      } else {
+        runMotionViewTransition(() => {
+          setFilters({
+            query: "",
+            fields: {
+              queuePosition: { kind: "queue", selected: ["has"] },
+            },
+          });
+          setSort({ by: "queuePosition", dir: "asc" });
+        });
+      }
+      return true;
+    },
+    [openAddDialog, setFilters, setSort],
+  );
+
+  useLibraryKeyboardShortcuts(openAddDialog);
+
   const importFile = async (file: File) => {
     try {
       const text = await file.text();
@@ -104,60 +144,6 @@ export function LibraryApp() {
       toast.error("JSON konnte nicht importiert werden.");
     }
   };
-
-  useEffect(() => {
-    const onKey = (event: KeyboardEvent) => {
-      if (isTypingTarget(event.target)) {
-        if (event.key === "Escape") (event.target as HTMLElement).blur();
-        return;
-      }
-      const state = useLibrary.getState();
-      const list = applyFiltersAndSort(state.games, state.filters, state.sort);
-      if (event.key === "Escape") {
-        if (useLibrary.getState().addOpen) {
-          useLibrary.getState().setAddOpen(false);
-          return;
-        }
-        if (useLibrary.getState().settingsOpen) {
-          useLibrary.getState().setSettingsOpen(false);
-          return;
-        }
-        if (useLibrary.getState().editorOpen) {
-          useLibrary.getState().closeEditor();
-          return;
-        }
-        useLibrary.getState().selectGame(null);
-        return;
-      }
-      if (event.key === "/" && !event.ctrlKey && !event.metaKey) {
-        event.preventDefault();
-        document.querySelector<HTMLElement>("m3-search-bar")?.focus();
-        return;
-      }
-      if (event.key === "n" && !event.ctrlKey && !event.metaKey) {
-        useLibrary.getState().setAddOpen(true);
-        return;
-      }
-      if (list.length === 0) return;
-      const currentId = useLibrary.getState().selectedId;
-      const index = Math.max(0, list.findIndex((game) => game.id === currentId));
-      if (event.key === "j" || event.key === "ArrowDown") {
-        event.preventDefault();
-        const next = list[Math.min(list.length - 1, (currentId ? index : -1) + 1)];
-        if (next) useLibrary.getState().selectGame(next.id);
-      }
-      if (event.key === "k" || event.key === "ArrowUp") {
-        event.preventDefault();
-        const next = list[Math.max(0, (currentId ? index : 0) - 1)];
-        if (next) useLibrary.getState().selectGame(next.id);
-      }
-      if (event.key === "Enter" && currentId) {
-        useLibrary.getState().openEditor(currentId);
-      }
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, []);
 
   if (!hydrated || !m3Ready) {
     return (
@@ -196,7 +182,7 @@ export function LibraryApp() {
         onSettings={() => setSettingsOpen(true)}
         onFilterChange={onFilterChange}
         onClearFilters={onClearFilters}
-        onOpenAdd={() => setAddOpen(true)}
+        onOpenAdd={() => openAddDialog()}
         onOpenGame={openEditor}
         onSelectGame={selectGame}
         onReorder={reorderPriorities}
@@ -216,10 +202,12 @@ export function LibraryApp() {
       ) : null}
       {addOpen ? (
         <AddGameDialog
+          key={addDialogEpoch}
           open
           games={games}
           igdbClientId={igdbClientId}
           igdbClientSecret={igdbClientSecret}
+          initialQuery={addInitialQuery}
           onClose={() => setAddOpen(false)}
           onCreate={addGame}
           onOpenExisting={(id) => {
@@ -246,6 +234,7 @@ export function LibraryApp() {
           onExport={exportJson}
         />
       ) : null}
+      <PwaShell onShareTarget={onPwaShareTarget} onShortcut={onPwaShortcut} />
       <SnackbarHost />
     </div>
   );

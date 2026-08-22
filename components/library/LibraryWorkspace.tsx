@@ -77,7 +77,7 @@ export function LibraryWorkspace({
           games={visibleGames}
           libraryEmpty={games.length === 0}
           selectedId={selectedId}
-          sortByPriority={sort.by === "priority"}
+          sortByPriority={sort.by === "priority" || sort.by === "queuePosition"}
           onOpen={onOpenGame}
           onSelect={onSelectGame}
           onReorder={onReorder}
