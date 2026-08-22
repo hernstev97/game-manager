@@ -1,0 +1,140 @@
+.indicator {
+  position: relative;
+  display: inline-grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  min-width: 0;
+  min-height: 48px;
+  gap: 10px;
+  overflow: hidden;
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: 18px;
+  padding: 7px 12px 9px;
+  color: var(--md-sys-color-on-surface);
+  background: var(--md-sys-color-surface-container-high);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.indicator:focus-visible {
+  outline: 3px solid var(--md-sys-color-tertiary);
+  outline-offset: 2px;
+}
+
+.icon {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--md-sys-color-on-primary-container);
+  background: var(--md-sys-color-primary-container);
+}
+
+.icon span {
+  width: 10px;
+  height: 10px;
+  border: 2px solid currentColor;
+  border-radius: 3px;
+}
+
+.status-running .icon span {
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.status-offline .icon,
+.status-rate-limit .icon,
+.status-interrupted .icon {
+  color: var(--md-sys-color-on-tertiary-container);
+  background: var(--md-sys-color-tertiary-container);
+}
+
+.status-failed .icon {
+  color: var(--md-sys-color-on-error-container);
+  background: var(--md-sys-color-error-container);
+}
+
+.copy {
+  display: grid;
+  min-width: 0;
+  line-height: 1.15;
+}
+
+.copy strong {
+  font-size: 0.78rem;
+}
+
+.copy > span {
+  overflow: hidden;
+  color: var(--md-sys-color-on-surface-variant);
+  font-size: 0.7rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.progress {
+  width: 32px;
+  height: 4px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--md-sys-color-surface-container-highest);
+}
+
+.progress span {
+  display: block;
+  width: var(--compact-progress, 0%);
+  height: 100%;
+  border-radius: inherit;
+  background: var(--md-sys-color-primary);
+  transition: width 180ms ease-out;
+}
+
+.badge {
+  display: grid;
+  min-width: 22px;
+  min-height: 22px;
+  place-items: center;
+  border-radius: 11px;
+  padding-inline: 4px;
+  color: var(--md-sys-color-on-error);
+  background: var(--md-sys-color-error);
+  font-size: 0.7rem;
+  font-weight: 750;
+}
+
+@media (max-width: 359px) {
+  .indicator {
+    width: 48px;
+    grid-template-columns: 1fr;
+    justify-items: center;
+    padding-inline: 8px;
+  }
+
+  .copy,
+  .progress {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+
+  .badge {
+    position: absolute;
+    top: 1px;
+    right: 1px;
+    min-width: 17px;
+    min-height: 17px;
+    font-size: 0.58rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .indicator,
+  .indicator * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
