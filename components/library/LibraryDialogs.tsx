@@ -35,6 +35,7 @@ export function LibraryDialogs({
   const setSettingsOpen = useLibrary((state) => state.setSettingsOpen);
   const updateGame = useLibrary((state) => state.updateGame);
   const setGamePriority = useLibrary((state) => state.setGamePriority);
+  const setFavoriteRank = useLibrary((state) => state.setFavoriteRank);
   const addGame = useLibrary((state) => state.addGame);
   const deleteGame = useLibrary((state) => state.deleteGame);
   const clearLibrary = useLibrary((state) => state.clearLibrary);
@@ -58,6 +59,10 @@ export function LibraryDialogs({
           onSelect={selectGame}
           onChange={updateGame}
           onPriority={setGamePriority}
+          onPosition={(id, fieldId, position) => {
+            if (fieldId === "favoriteRank") setFavoriteRank(id, position);
+            else setGamePriority(id, position);
+          }}
           onDelete={deleteGame}
           onManageMedia={() => setMediaOpen(true)}
         />

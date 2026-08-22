@@ -167,7 +167,7 @@ export const LIBRARY_GAME_FIELDS = [
     filterWidget: "chips",
     sortable: true,
     showInRow: false,
-    showInEditor: false,
+    showInEditor: true,
     defaultValue: null,
     group: "personal",
   },

@@ -10,6 +10,7 @@ export function EditorFieldItem({
   games,
   onChange,
   onPriority,
+  onPosition,
   showCoverPreview,
 }: {
   field: GameFieldDef | undefined;
@@ -17,6 +18,7 @@ export function EditorFieldItem({
   games: GameRecord[];
   onChange: (patch: Partial<GameRecord>) => void;
   onPriority: (priority: number | null) => void;
+  onPosition: (fieldId: "queuePosition" | "favoriteRank", position: number | null) => void;
   showCoverPreview?: boolean;
 }) {
   if (!field) return null;
@@ -27,6 +29,7 @@ export function EditorFieldItem({
       games={games}
       onChange={onChange}
       onPriority={onPriority}
+      onPosition={onPosition}
       showCoverPreview={showCoverPreview}
     />
   );

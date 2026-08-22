@@ -17,15 +17,17 @@ export function IdentityPanel({
   games,
   onChange,
   onPriority,
+  onPosition,
 }: {
   fields: GameFieldDef[];
   game: GameRecord;
   games: GameRecord[];
   onChange: (patch: Partial<GameRecord>) => void;
   onPriority: (priority: number | null) => void;
+  onPosition: (fieldId: "queuePosition" | "favoriteRank", position: number | null) => void;
 }) {
   const byId = new Map(fields.map((field) => [field.id, field]));
-  const sharedProps = { game, games, onChange, onPriority };
+  const sharedProps = { game, games, onChange, onPriority, onPosition };
 
   return (
     <>

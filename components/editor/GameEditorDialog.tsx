@@ -27,6 +27,11 @@ export type GameEditorProps = {
   onSelect: (id: string) => void;
   onChange: (id: string, patch: Partial<GameRecord>) => void;
   onPriority: (id: string, priority: number | null) => void;
+  onPosition: (
+    id: string,
+    fieldId: "queuePosition" | "favoriteRank",
+    position: number | null,
+  ) => void;
   onDelete: (id: string) => void;
   onManageMedia?: () => void;
 };
@@ -40,6 +45,7 @@ export function GameEditor({
   onSelect,
   onChange,
   onPriority,
+  onPosition,
   onDelete,
   onManageMedia,
 }: GameEditorProps) {
@@ -99,6 +105,7 @@ export function GameEditor({
                   games={games}
                   onChange={(patch) => onChange(game.id, patch)}
                   onPriority={(priority) => onPriority(game.id, priority)}
+                  onPosition={(fieldId, position) => onPosition(game.id, fieldId, position)}
                 />
               ) : (
                 group.fields.map((field) => (
@@ -109,6 +116,7 @@ export function GameEditor({
                     games={games}
                     onChange={(patch) => onChange(game.id, patch)}
                     onPriority={(priority) => onPriority(game.id, priority)}
+                    onPosition={(fieldId, position) => onPosition(game.id, fieldId, position)}
                   />
                 ))
               )}

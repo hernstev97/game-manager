@@ -20,6 +20,7 @@ import {
 } from "@/components/editor/fields/ChoiceFields";
 import { RatingField } from "@/components/editor/fields/RatingField";
 import { PriorityField } from "@/components/editor/fields/PriorityField";
+import { PositionField } from "@/components/editor/fields/PositionField";
 import { SteamAppIdField } from "@/components/editor/fields/SteamFields";
 import { IgdbIdField } from "@/components/editor/fields/IgdbFields";
 import { SteamPriceField } from "@/components/editor/fields/SteamPriceField";
@@ -31,6 +32,7 @@ export function EditorField({
   games,
   onChange,
   onPriority,
+  onPosition,
   showCoverPreview = true,
 }: {
   field: AnyGameField;
@@ -38,6 +40,7 @@ export function EditorField({
   games: GameRecord[];
   onChange: (patch: Partial<GameRecord>) => void;
   onPriority: (priority: number | null) => void;
+  onPosition: (fieldId: "queuePosition" | "favoriteRank", position: number | null) => void;
   showCoverPreview?: boolean;
 }) {
   const value = game[field.id];
@@ -111,6 +114,17 @@ export function EditorField({
 
   if (field.type === "priority") {
     return <PriorityField field={field} value={value} onPriority={onPriority} />;
+  }
+
+  if (field.type === "position") {
+    const fieldId = field.id === "favoriteRank" ? "favoriteRank" : "queuePosition";
+    return (
+      <PositionField
+        label={field.label}
+        value={value}
+        onPosition={(position) => onPosition(fieldId, position)}
+      />
+    );
   }
 
   if (field.type === "cover") {
