@@ -16,6 +16,7 @@ import {
   type PlanningMode,
   type QueueInsertion,
 } from "@/components/planning";
+import { LibraryJobCenter } from "@/components/library/LibraryJobCenter";
 
 export function LibraryWorkspace({
   games,
@@ -112,10 +113,13 @@ export function LibraryWorkspace({
     <>
       <m3-top-app-bar>
         gGrid
-        <m3-button className="desktop-add-action" slot="actions" onClick={onOpenAdd}>
-          <IconAdd slot="icon" width={18} height={18} />
-          Spiel hinzufügen
-        </m3-button>
+        <span slot="actions" className="top-app-actions">
+          <LibraryJobCenter />
+          <m3-button className="desktop-add-action" onClick={onOpenAdd}>
+            <IconAdd slot="icon" width={18} height={18} />
+            Spiel hinzufügen
+          </m3-button>
+        </span>
       </m3-top-app-bar>
       <div className="library-shell">
         <div className="library-layout">
