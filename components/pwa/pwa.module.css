@@ -1,0 +1,116 @@
+.offlineBanner {
+  position: fixed;
+  inset: env(safe-area-inset-top) 0 auto;
+  z-index: 1200;
+  padding: 8px 16px;
+  color: var(--color-on-primary-container, #4d3d75);
+  background: var(--color-primary-container, #e9ddff);
+  text-align: center;
+  font-size: 0.875rem;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 18%);
+}
+
+.promptStack {
+  position: fixed;
+  right: max(16px, env(safe-area-inset-right));
+  bottom: max(16px, env(safe-area-inset-bottom));
+  z-index: 1100;
+  display: grid;
+  width: min(380px, calc(100vw - 32px));
+  gap: 10px;
+  pointer-events: none;
+}
+
+.card,
+.workerError {
+  pointer-events: auto;
+  border: 1px solid var(--color-outline-variant, #cac4cf);
+  border-radius: 20px;
+  padding: 14px 16px;
+  color: var(--color-on-surface, #1d1b20);
+  background: var(--color-container-high, #ece6ee);
+  box-shadow: 0 6px 20px rgb(0 0 0 / 18%);
+}
+
+.card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.card p,
+.workerError,
+.actionNotice {
+  margin: 4px 0 0;
+  font-size: 0.875rem;
+  line-height: 1.35;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.primaryButton,
+.textButton {
+  min-height: 40px;
+  border: 0;
+  border-radius: 999px;
+  padding: 0 16px;
+  font: inherit;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.primaryButton {
+  color: var(--color-on-primary, #fff);
+  background: var(--color-primary, #65558f);
+}
+
+.textButton {
+  color: var(--color-primary, #65558f);
+  background: transparent;
+}
+
+.primaryButton:focus-visible,
+.textButton:focus-visible {
+  outline: 3px solid var(--color-tertiary, #984061);
+  outline-offset: 2px;
+}
+
+.workerError {
+  color: var(--color-on-error-container, #93000a);
+  background: var(--color-error-container, #ffdad6);
+}
+
+.actionNotice {
+  color: var(--color-on-error-container, #93000a);
+}
+
+@media (max-width: 599px) {
+  .promptStack {
+    right: 12px;
+    bottom: max(12px, env(safe-area-inset-bottom));
+    width: calc(100vw - 24px);
+  }
+
+  .card {
+    align-items: flex-start;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .card,
+  .offlineBanner {
+    animation: pwa-enter 180ms ease-out;
+  }
+}
+
+@keyframes pwa-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
