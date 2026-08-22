@@ -3,7 +3,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   // The collaborative preview may address the local dev server through
   // 127.0.0.1 while Next starts on localhost.
-  allowedDevOrigins: ["127.0.0.1", "localhost"],
+  allowedDevOrigins: ["127.0.0.1", "localhost", 'terminal001.tailed04b8.ts.net'],
   transpilePackages: [
     "@banegasn/m3-button",
     "@banegasn/m3-card",

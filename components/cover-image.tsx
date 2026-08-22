@@ -1,9 +1,11 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Image, { type ImageLoaderProps } from "next/image";
 import { steamCover } from "@/lib/steam";
 
 const failedUrls = new Set<string>();
+const coverLoader = ({ src }: ImageLoaderProps) => src;
 
 function initialsFromName(name: string): string {
   const parts = name
@@ -34,12 +36,14 @@ export function CoverImage({
   coverUrl,
   steamAppId,
   className,
+  eager = false,
 }: {
   name: string;
   franchise?: string;
   coverUrl: string;
   steamAppId: number | null;
   className?: string;
+  eager?: boolean;
 }) {
   const sources = useMemo(() => {
     const list: string[] = [];
@@ -61,11 +65,17 @@ export function CoverImage({
   }
 
   return (
-    // Steam CDN covers; next/image is unnecessary and would 404-spam on missing art.
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
+    <Image
+      key={src}
+      loader={coverLoader}
+      unoptimized
       src={src}
       alt=""
+      width={350}
+      height={164}
+      sizes="(max-width: 599px) 104px, (max-width: 839px) 144px, 175px"
+      loading={eager ? "eager" : "lazy"}
+      decoding="async"
       className={className ? `cover-img ${className}` : "cover-img"}
       draggable={false}
       onError={() => {

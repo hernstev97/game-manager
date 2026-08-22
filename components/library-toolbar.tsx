@@ -3,8 +3,18 @@
 import { useEffect, useRef, useState } from "react";
 import { sortableFieldOptions } from "@/lib/game-fields";
 import type { LibraryFilters, SortState } from "@/lib/filter-games";
-import { IconArrowDown, IconArrowUp, IconCheck, IconClose, IconDownload, IconSearch, IconSettings, IconUpload } from "@/components/m3/icons";
-import { M3SearchBar, M3SplitButton } from "@/components/m3/host";
+import {
+  IconArrowDown,
+  IconArrowUp,
+  IconCheck,
+  IconClose,
+  IconDownload,
+  IconMore,
+  IconSearch,
+  IconSettings,
+  IconUpload,
+} from "@/components/m3/icons";
+import { M3Menu, M3SearchBar, M3SplitButton } from "@/components/m3/host";
 
 const SORT_LABEL_OVERRIDES: Record<string, string> = {
   name: "Alphabetisch",
@@ -37,6 +47,7 @@ export function LibraryToolbar({
   onSettings: () => void;
 }) {
   const [draft, setDraft] = useState(query);
+  const [actionsOpen, setActionsOpen] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const options = sortableFieldOptions();
   const label = SORT_LABEL_OVERRIDES[sort.by] ?? options.find((item) => item.id === sort.by)?.label ?? sort.by;
@@ -70,24 +81,6 @@ export function LibraryToolbar({
         ) : null}
       </M3SearchBar>
 
-      <M3SplitButton
-        variant="tonal"
-        menuLabel="Sortierkriterium wählen"
-        onMainClick={() => onSort({ ...sort, dir: sort.dir === "asc" ? "desc" : "asc" })}
-        onSelect={(by) => onSort({ by, dir: sort.dir })}
-      >
-        {sort.dir === "asc" ? <IconArrowUp width={18} height={18} /> : <IconArrowDown width={18} height={18} />}
-        {label}
-        <m3-menu slot="menu" placement="bottom-end">
-          {options.map((option) => (
-            <m3-menu-item key={option.id} value={option.id}>
-              {SORT_LABEL_OVERRIDES[option.id] ?? option.label}
-              {sort.by === option.id ? <IconCheck slot="trailing-icon" /> : null}
-            </m3-menu-item>
-          ))}
-        </m3-menu>
-      </M3SplitButton>
-
       <input
         ref={fileRef}
         type="file"
@@ -99,21 +92,93 @@ export function LibraryToolbar({
           event.target.value = "";
         }}
       />
-      <m3-tooltip text="Importieren">
-        <m3-icon-button aria-label="Importieren" onClick={() => fileRef.current?.click()}>
-          <IconUpload />
-        </m3-icon-button>
-      </m3-tooltip>
-      <m3-tooltip text="Exportieren">
-        <m3-icon-button aria-label="Exportieren" onClick={onExport}>
-          <IconDownload />
-        </m3-icon-button>
-      </m3-tooltip>
-      <m3-tooltip text="Einstellungen">
-        <m3-icon-button aria-label="Einstellungen" onClick={onSettings}>
-          <IconSettings />
-        </m3-icon-button>
-      </m3-tooltip>
+
+      <div className="desktop-library-actions">
+        <M3SplitButton
+          variant="tonal"
+          menuLabel="Sortierkriterium wählen"
+          onMainClick={() => onSort({ ...sort, dir: sort.dir === "asc" ? "desc" : "asc" })}
+          onSelect={(by) => onSort({ by, dir: sort.dir })}
+        >
+          {sort.dir === "asc" ? <IconArrowUp width={18} height={18} /> : <IconArrowDown width={18} height={18} />}
+          {label}
+          <m3-menu slot="menu" placement="bottom-end">
+            {options.map((option) => (
+              <m3-menu-item key={option.id} value={option.id}>
+                {SORT_LABEL_OVERRIDES[option.id] ?? option.label}
+                {sort.by === option.id ? <IconCheck slot="trailing-icon" /> : null}
+              </m3-menu-item>
+            ))}
+          </m3-menu>
+        </M3SplitButton>
+        <m3-tooltip text="Importieren">
+          <m3-icon-button aria-label="Importieren" onClick={() => fileRef.current?.click()}>
+            <IconUpload />
+          </m3-icon-button>
+        </m3-tooltip>
+        <m3-tooltip text="Exportieren">
+          <m3-icon-button aria-label="Exportieren" onClick={onExport}>
+            <IconDownload />
+          </m3-icon-button>
+        </m3-tooltip>
+        <m3-tooltip text="Einstellungen">
+          <m3-icon-button aria-label="Einstellungen" onClick={onSettings}>
+            <IconSettings />
+          </m3-icon-button>
+        </m3-tooltip>
+      </div>
+
+      <div className="mobile-library-actions">
+        <M3SplitButton
+          variant="tonal"
+          menuLabel="Sortierkriterium wählen"
+          onMainClick={() => onSort({ ...sort, dir: sort.dir === "asc" ? "desc" : "asc" })}
+          onSelect={(by) => onSort({ by, dir: sort.dir })}
+        >
+          {sort.dir === "asc" ? <IconArrowUp width={18} height={18} /> : <IconArrowDown width={18} height={18} />}
+          {label}
+          <m3-menu slot="menu" placement="bottom-start">
+            {options.map((option) => (
+              <m3-menu-item key={option.id} value={option.id}>
+                {SORT_LABEL_OVERRIDES[option.id] ?? option.label}
+                {sort.by === option.id ? <IconCheck slot="trailing-icon" /> : null}
+              </m3-menu-item>
+            ))}
+          </m3-menu>
+        </M3SplitButton>
+        <div className="anchor mobile-overflow-anchor">
+          <m3-icon-button
+            aria-label="Weitere Aktionen"
+            onClick={() => setActionsOpen((current) => !current)}
+          >
+            <IconMore />
+          </m3-icon-button>
+          <M3Menu
+            open={actionsOpen}
+            placement="bottom-end"
+            onOpenChange={setActionsOpen}
+            onSelect={(action) => {
+              setActionsOpen(false);
+              if (action === "import") fileRef.current?.click();
+              if (action === "export") onExport();
+              if (action === "settings") onSettings();
+            }}
+          >
+            <m3-menu-item value="import">
+              <IconUpload slot="leading-icon" />
+              Sicherung importieren
+            </m3-menu-item>
+            <m3-menu-item value="export">
+              <IconDownload slot="leading-icon" />
+              Sicherung exportieren
+            </m3-menu-item>
+            <m3-menu-item value="settings">
+              <IconSettings slot="leading-icon" />
+              Einstellungen
+            </m3-menu-item>
+          </M3Menu>
+        </div>
+      </div>
     </div>
   );
 }

@@ -10,13 +10,15 @@ import {
 } from "@/lib/game-fields";
 import {
   activeFilterChips,
+  applyFiltersAndSort,
+  EMPTY_FILTERS,
   emptyFieldFilter,
   isFilterActive,
   type FieldFilterValue,
   type LibraryFilters,
 } from "@/lib/filter-games";
-import { IconCheck } from "@/components/m3/icons";
-import { M3Chip, M3Menu, M3Slider } from "@/components/m3/host";
+import { IconCheck, IconTune } from "@/components/m3/icons";
+import { M3Chip, M3Dialog, M3Menu, M3Slider } from "@/components/m3/host";
 
 type FilterGroup = {
   key: string;
@@ -114,6 +116,8 @@ export function FilterBar({
   onClear: () => void;
 }) {
   const [openKey, setOpenKey] = useState<string | null>(null);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [draftFilters, setDraftFilters] = useState(filters);
   const groups = useMemo(
     () =>
       groupFilterFields(filterableFields()).filter((group) =>
@@ -122,14 +126,33 @@ export function FilterBar({
     [games],
   );
   const chips = activeFilterChips(filters);
+  const fieldChips = chips.filter((chip) => chip.fieldId !== "query");
   const active = isFilterActive(filters);
   const rating = filters.fields.rating?.kind === "rating" ? filters.fields.rating : null;
+  const draftRating =
+    draftFilters.fields.rating?.kind === "rating" ? draftFilters.fields.rating : null;
+  const draftVisibleCount = useMemo(
+    () => applyFiltersAndSort(games, draftFilters, { by: "name", dir: "asc" }).length,
+    [games, draftFilters],
+  );
 
   const setField = (fieldId: string, value: FieldFilterValue) => {
     onChange({
       ...filters,
       fields: { ...filters.fields, [fieldId]: value },
     });
+  };
+
+  const setDraftField = (fieldId: string, value: FieldFilterValue) => {
+    setDraftFilters((current) => ({
+      ...current,
+      fields: { ...current.fields, [fieldId]: value },
+    }));
+  };
+
+  const openMobileFilters = () => {
+    setDraftFilters(filters);
+    setMobileOpen(true);
   };
 
   const dismissChip = (fieldId: string, token: string) => {
@@ -152,10 +175,20 @@ export function FilterBar({
 
   return (
     <section className="filter-bar" aria-label="Filter">
-      <div className="filter-count" aria-live="polite">
+      <div className="filter-count desktop-filter-count" aria-live="polite">
         {visibleCount} von {games.length} sichtbar
       </div>
-      <div className="chip-row">
+      <div className="mobile-filter-overview">
+        <span className="filter-count" aria-live="polite">
+          {visibleCount === games.length ? `${games.length} Spiele` : `${visibleCount} von ${games.length}`}
+        </span>
+        <m3-button variant={fieldChips.length > 0 ? "tonal" : "outlined"} onClick={openMobileFilters}>
+          <IconTune slot="icon" width={18} height={18} />
+          Filter{fieldChips.length > 0 ? ` (${fieldChips.length})` : ""}
+        </m3-button>
+      </div>
+
+      <div className="chip-row desktop-filter-groups">
         {groups.map((group) => {
           const activeCount = groupActiveCount(group, filters);
           const isOpen = openKey === group.key;
@@ -198,7 +231,7 @@ export function FilterBar({
       </div>
 
       {rating?.selected.includes("gte") ? (
-        <label className="range-row">
+        <label className="range-row desktop-rating-range">
           <span>Mindestens</span>
           <M3Slider
             label="Mindestbewertung"
@@ -213,7 +246,7 @@ export function FilterBar({
       ) : null}
 
       {active ? (
-        <div className="active-filters">
+        <div className="active-filters desktop-active-filters">
           {chips.map((chip) => (
             <M3Chip
               key={`${chip.fieldId}-${chip.token}`}
@@ -229,6 +262,101 @@ export function FilterBar({
           </m3-button>
         </div>
       ) : null}
+
+      {fieldChips.length > 0 ? (
+        <div className="mobile-active-filters" aria-label="Aktive Filter">
+          <div className="mobile-active-filter-scroll">
+            {fieldChips.map((chip) => (
+              <M3Chip
+                key={`${chip.fieldId}-${chip.token}`}
+                variant="input"
+                removable
+                onRemove={() => dismissChip(chip.fieldId, chip.token)}
+              >
+                {chip.label}
+              </M3Chip>
+            ))}
+          </div>
+          <m3-button
+            variant="text"
+            onClick={() => onChange({ ...EMPTY_FILTERS, query: filters.query })}
+          >
+            Löschen
+          </m3-button>
+        </div>
+      ) : null}
+
+      {mobileOpen ? <M3Dialog
+        open={mobileOpen}
+        onClose={() => setMobileOpen(false)}
+        headline="Filter"
+        presentation="sheet"
+        actions={
+          <>
+            <m3-button
+              slot="actions"
+              variant="text"
+              onClick={() => setDraftFilters({ ...EMPTY_FILTERS, query: filters.query })}
+            >
+              Zurücksetzen
+            </m3-button>
+            <m3-button
+              slot="actions"
+              onClick={() => {
+                onChange(draftFilters);
+                setMobileOpen(false);
+              }}
+            >
+              {draftVisibleCount} {draftVisibleCount === 1 ? "Spiel" : "Spiele"} anzeigen
+            </m3-button>
+          </>
+        }
+      >
+        <div className="mobile-filter-sheet">
+          {groups.map((group) => (
+            <fieldset key={group.key} className="mobile-filter-group">
+              <legend>{group.label}</legend>
+              <div className="chip-row">
+                {group.fields.flatMap((field) =>
+                  menuChoices(field, games).map((choice) => {
+                    const selected = isTokenSelected(draftFilters.fields[field.id], choice.token);
+                    return (
+                      <M3Chip
+                        key={`${field.id}-${choice.token}`}
+                        variant="filter"
+                        selected={selected}
+                        onClick={() =>
+                          setDraftField(
+                            field.id,
+                            toggleToken(field, draftFilters.fields[field.id], choice.token),
+                          )
+                        }
+                      >
+                        {choice.label}
+                      </M3Chip>
+                    );
+                  }),
+                )}
+              </div>
+              {group.fields.some((field) => field.id === "rating") &&
+              draftRating?.selected.includes("gte") ? (
+                <label className="range-row mobile-rating-range">
+                  <span>Mindestens</span>
+                  <M3Slider
+                    label="Mindestbewertung"
+                    min={1}
+                    max={10}
+                    step={0.5}
+                    value={draftRating.gte}
+                    onChange={(gte) => setDraftField("rating", { ...draftRating, gte })}
+                  />
+                  <strong>{draftRating.gte}</strong>
+                </label>
+              ) : null}
+            </fieldset>
+          ))}
+        </div>
+      </M3Dialog> : null}
     </section>
   );
 }

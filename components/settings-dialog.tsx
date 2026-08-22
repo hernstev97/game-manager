@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { toast } from "@/components/m3/snackbar";
 import {
   DEFAULT_THEME_SEED,
@@ -32,6 +32,13 @@ import {
 } from "@/lib/igdb";
 import type { GameRecord } from "@/lib/game-fields";
 import { MorphLoader } from "@/components/morph-loader";
+import {
+  IconChevronLeft,
+  IconChevronRight,
+  IconClose,
+  IconDownload,
+  IconUpload,
+} from "@/components/m3/icons";
 
 function delay(ms: number) {
   return new Promise((resolve) => window.setTimeout(resolve, ms));
@@ -50,6 +57,8 @@ export function SettingsDialog({
   onClearLibrary,
   onApplyPlaytime,
   onRefreshIdentity,
+  onImport,
+  onExport,
 }: {
   open: boolean;
   onClose: () => void;
@@ -78,6 +87,8 @@ export function SettingsDialog({
       steamAppId?: number | null;
     }>,
   ) => number;
+  onImport: (file: File) => void;
+  onExport: () => void;
 }) {
   const { prefs, setMode, setVariant, setSeed, applyWallpaper } = useTheme();
   const [idDraft, setIdDraft] = useState(steamId);
@@ -89,6 +100,8 @@ export function SettingsDialog({
   const [confirmReset, setConfirmReset] = useState(false);
   const [wallpaper, setWallpaper] = useState<WallpaperTheme[]>([]);
   const [tab, setTab] = useState(0);
+  const [mobileSectionOpen, setMobileSectionOpen] = useState(false);
+  const importRef = useRef<HTMLInputElement>(null);
 
   const saveSteam = () => {
     onSteamCredentials(idDraft.trim(), keyDraft.trim());
@@ -264,25 +277,62 @@ export function SettingsDialog({
   };
 
   return (
-    <M3Dialog open={open} onClose={onClose} headline="Einstellungen">
-      <div className="settings">
+    <M3Dialog
+      open={open}
+      onClose={onClose}
+      headline="Einstellungen"
+      presentation="fullscreen"
+      leadingAction={
+        <m3-icon-button aria-label="Einstellungen schließen" onClick={onClose}>
+          <IconClose />
+        </m3-icon-button>
+      }
+    >
+      <div className={`settings settings-dialog-content ${mobileSectionOpen ? "mobile-settings-detail" : "mobile-settings-root"}`}>
         {busy ? <MorphLoader size={36} label="Katalog wird abgefragt" /> : null}
-        <M3Tabs activeTab={tab} onChange={(index) => setTab(index)}>
-          <m3-tab panel="settings-steam" value="steam">
-            Steam
-          </m3-tab>
-          <m3-tab panel="settings-igdb" value="igdb">
-            IGDB
-          </m3-tab>
-          <m3-tab panel="settings-theme" value="theme">
-            Erscheinungsbild
-          </m3-tab>
-          <m3-tab panel="settings-data" value="data">
-            Daten
-          </m3-tab>
-        </M3Tabs>
+        <nav className="settings-mobile-nav" aria-label="Einstellungsbereiche">
+          {["Steam", "IGDB", "Erscheinungsbild", "Daten"].map((label, index) => (
+            <button
+              key={label}
+              type="button"
+              className="settings-mobile-nav-item"
+              onClick={() => {
+                setTab(index);
+                setMobileSectionOpen(true);
+              }}
+            >
+              <span>{label}</span>
+              <IconChevronRight />
+            </button>
+          ))}
+        </nav>
 
-        <section id="settings-steam" className="settings" hidden={tab !== 0}>
+        <div className="settings-mobile-back">
+          <m3-button variant="text" onClick={() => setMobileSectionOpen(false)}>
+            <IconChevronLeft slot="icon" />
+            Bereiche
+          </m3-button>
+          <strong>{["Steam", "IGDB", "Erscheinungsbild", "Daten"][tab]}</strong>
+        </div>
+
+        <div className="settings-tabs-desktop">
+          <M3Tabs activeTab={tab} onChange={(index) => setTab(index)}>
+            <m3-tab panel="settings-steam" value="steam">
+              Steam
+            </m3-tab>
+            <m3-tab panel="settings-igdb" value="igdb">
+              IGDB
+            </m3-tab>
+            <m3-tab panel="settings-theme" value="theme">
+              Erscheinungsbild
+            </m3-tab>
+            <m3-tab panel="settings-data" value="data">
+              Daten
+            </m3-tab>
+          </M3Tabs>
+        </div>
+
+        <section id="settings-steam" className="settings settings-panel" hidden={tab !== 0}>
           <p className="settings-copy">
             Nur lokal gespeichert. Wird ausschließlich an Steam geschickt, nie geloggt.
             Custom-URL und Profil-Link werden automatisch in eine 64-bit-ID aufgelöst.
@@ -310,7 +360,7 @@ export function SettingsDialog({
           </div>
         </section>
 
-        <section id="settings-igdb" className="settings" hidden={tab !== 1}>
+        <section id="settings-igdb" className="settings settings-panel" hidden={tab !== 1}>
           <p className="settings-copy">
             Allgemeiner Spielekatalog (Cover, Genre, Franchise, Plattformen) für Steam, Switch, Retro
             und den Rest. Kostenlos über eine Twitch-App:{" "}
@@ -344,7 +394,7 @@ export function SettingsDialog({
           </div>
         </section>
 
-        <section id="settings-theme" className="settings" hidden={tab !== 2}>
+        <section id="settings-theme" className="settings settings-panel" hidden={tab !== 2}>
           <span className="field-label">Modus</span>
           <div className="chip-row">
             <M3Radio name="theme-mode" value="light" checked={prefs.mode === "light"} onChange={() => setMode("light")} label="Hell" />
@@ -432,7 +482,29 @@ export function SettingsDialog({
           ) : null}
         </section>
 
-        <section id="settings-data" className="settings" hidden={tab !== 3}>
+        <section id="settings-data" className="settings settings-panel" hidden={tab !== 3}>
+          <input
+            ref={importRef}
+            type="file"
+            accept="application/json,.json"
+            hidden
+            onChange={(event) => {
+              const file = event.target.files?.[0];
+              if (file) onImport(file);
+              event.target.value = "";
+            }}
+          />
+          <div className="settings-data-actions">
+            <m3-button variant="outlined" onClick={() => importRef.current?.click()}>
+              <IconUpload slot="icon" />
+              Sicherung importieren
+            </m3-button>
+            <m3-button variant="outlined" onClick={onExport}>
+              <IconDownload slot="icon" />
+              Sicherung exportieren
+            </m3-button>
+          </div>
+          <m3-divider />
           {confirmReset ? (
             <div className="confirm-row">
               <span>Alle Spiele in der Bibliothek löschen?</span>

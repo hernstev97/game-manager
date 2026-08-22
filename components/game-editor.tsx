@@ -9,37 +9,8 @@ import {
 import { adjacentGameId } from "@/lib/filter-games";
 import { EditorField } from "@/components/field-widgets";
 import { M3Dialog, M3Tabs } from "@/components/m3/host";
-import { IconChevronLeft, IconChevronRight } from "@/components/m3/icons";
+import { IconChevronLeft, IconChevronRight, IconClose } from "@/components/m3/icons";
 import { useHostEvent } from "@/components/m3/events";
-
-const EDITOR_DIALOG_STYLE = `
-:host(.is-paged) .dialog[open] {
-  display: grid;
-  grid-template-columns: 52px minmax(0, 1fr) 52px;
-  grid-template-rows: auto minmax(0, 1fr) auto;
-  max-width: min(664px, calc(100vw - 24px));
-  width: min(664px, calc(100vw - 24px));
-  background-color: var(--md-sys-color-surface-container, #f2ecf4);
-  overflow: hidden;
-}
-:host(.is-paged) .dialog[open] .icon-slot {
-  display: none !important;
-}
-:host(.is-paged) .dialog[open] .headline {
-  grid-column: 2;
-  grid-row: 1;
-  background-color: var(--md-sys-color-surface-container-high, #ece6ee);
-}
-:host(.is-paged) .dialog[open] .content,
-:host(.is-paged) .dialog[open] .content > slot {
-  display: contents;
-}
-:host(.is-paged) .dialog[open] .actions {
-  grid-column: 2;
-  grid-row: 3;
-  background-color: var(--md-sys-color-surface-container-high, #ece6ee);
-}
-`;
 
 function shouldIgnoreEditorNav(target: EventTarget | null) {
   if (!(target instanceof HTMLElement)) return false;
@@ -58,18 +29,6 @@ function shouldIgnoreEditorNav(target: EventTarget | null) {
     return true;
   }
   return Boolean(target.closest("m3-tabs, m3-text-field, m3-slider, m3-search-bar"));
-}
-
-function applyEditorDialogChrome(host: Element | null) {
-  const root = host?.shadowRoot;
-  if (!root) return;
-  let style = root.querySelector<HTMLStyleElement>("style[data-editor-pager]");
-  if (!style) {
-    style = document.createElement("style");
-    style.dataset.editorPager = "";
-    root.appendChild(style);
-  }
-  style.textContent = EDITOR_DIALOG_STYLE;
 }
 
 function DeleteFooter({ onDelete }: { onDelete: () => void }) {
@@ -168,16 +127,6 @@ export function GameEditor({
   const canPage = visibleGames.length > 1 && index >= 0;
 
   useEffect(() => {
-    if (!open) return;
-    const host = document.querySelector("m3-dialog.game-editor-dialog");
-    if (!host) return;
-    const apply = () => applyEditorDialogChrome(host);
-    apply();
-    host.addEventListener("dialog-open", apply);
-    return () => host.removeEventListener("dialog-open", apply);
-  }, [open, canPage]);
-
-  useEffect(() => {
     if (!open || !game) return;
     const onKey = (event: KeyboardEvent) => {
       if (event.altKey || event.ctrlKey || event.metaKey) return;
@@ -197,6 +146,12 @@ export function GameEditor({
       onClose={onClose}
       headline={game?.name || "Spiel bearbeiten"}
       className={canPage ? "game-editor-dialog is-paged" : "game-editor-dialog"}
+      presentation={canPage ? "editor" : "fullscreen"}
+      leadingAction={
+        <m3-icon-button aria-label="Editor schließen" onClick={onClose}>
+          <IconClose />
+        </m3-icon-button>
+      }
       actions={game ? <DeleteFooter key={game.id} onDelete={() => onDelete(game.id)} /> : null}
     >
       {canPage ? (
@@ -215,6 +170,7 @@ export function GameEditor({
           <M3Tabs
             activeTab={tab}
             onChange={(index) => setTab(index)}
+            scrollableOnMobile
           >
             {groups.map((group) => (
               <m3-tab key={group.group} panel={`editor-${group.group}`} value={group.group}>
@@ -222,6 +178,7 @@ export function GameEditor({
               </m3-tab>
             ))}
           </M3Tabs>
+          <span className="editor-save-state">Änderungen werden automatisch gespeichert.</span>
           {groups.map((group) => (
             <section
               key={group.group}
@@ -241,6 +198,25 @@ export function GameEditor({
               ))}
             </section>
           ))}
+          {canPage ? (
+            <nav className="editor-mobile-nav" aria-label="Zwischen Spielen wechseln">
+              <m3-icon-button
+                aria-label={prevGame ? `Vorheriges Spiel: ${prevGame.name}` : "Kein vorheriges Spiel"}
+                disabled={!prevGame}
+                onClick={() => prevGame && onSelect(prevGame.id)}
+              >
+                <IconChevronLeft />
+              </m3-icon-button>
+              <span>{index + 1} von {visibleGames.length}</span>
+              <m3-icon-button
+                aria-label={nextGame ? `Nächstes Spiel: ${nextGame.name}` : "Kein nächstes Spiel"}
+                disabled={!nextGame}
+                onClick={() => nextGame && onSelect(nextGame.id)}
+              >
+                <IconChevronRight />
+              </m3-icon-button>
+            </nav>
+          ) : null}
         </div>
       ) : null}
     </M3Dialog>

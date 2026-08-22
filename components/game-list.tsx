@@ -1,17 +1,25 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import {
   DndContext,
-  PointerSensor,
+  KeyboardSensor,
+  MouseSensor,
+  TouchSensor,
   closestCenter,
   useSensor,
   useSensors,
   type DragEndEvent,
 } from "@dnd-kit/core";
-import { SortableContext, verticalListSortingStrategy, arrayMove } from "@dnd-kit/sortable";
+import {
+  SortableContext,
+  arrayMove,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
 import { GameRow } from "@/components/game-row";
 import type { GameRecord } from "@/lib/game-fields";
+import { IconGrip } from "@/components/m3/icons";
 
 export function GameList({
   games,
@@ -34,8 +42,11 @@ export function GameList({
   onAdd: () => void;
   onClearFilters: () => void;
 }) {
+  const [reorderMode, setReorderMode] = useState(false);
   const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+    useSensor(MouseSensor, { activationConstraint: { distance: 6 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 180, tolerance: 8 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   );
   const rankedVisibleIds = useMemo(
     () => games.filter((game) => game.priority != null).map((game) => game.id),
@@ -75,22 +86,38 @@ export function GameList({
   }
 
   return (
-    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
-      <SortableContext items={games.map((game) => game.id)} strategy={verticalListSortingStrategy}>
-        <m3-list className="game-list" aria-label="Spiele">
-          {games.map((game, index) => (
-            <GameRow
-              key={game.id}
-              game={game}
-              index={index}
-              selected={game.id === selectedId}
-              draggingEnabled={sortByPriority}
-              onOpen={() => onOpen(game.id)}
-              onSelect={() => onSelect(game.id)}
-            />
-          ))}
-        </m3-list>
-      </SortableContext>
-    </DndContext>
+    <>
+      {sortByPriority && rankedVisibleIds.length > 1 ? (
+        <div className="reorder-toolbar">
+          <span className="settings-copy">
+            {reorderMode ? "Ziehe am Griff oder nutze die Pfeiltasten." : "Prioritäten direkt anordnen."}
+          </span>
+          <m3-button
+            variant={reorderMode ? "tonal" : "outlined"}
+            onClick={() => setReorderMode((current) => !current)}
+          >
+            <IconGrip slot="icon" width={18} height={18} />
+            {reorderMode ? "Fertig" : "Reihenfolge ändern"}
+          </m3-button>
+        </div>
+      ) : null}
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+        <SortableContext items={games.map((game) => game.id)} strategy={verticalListSortingStrategy}>
+          <m3-list className="game-list" aria-label="Spiele">
+            {games.map((game, index) => (
+              <GameRow
+                key={game.id}
+                game={game}
+                index={index}
+                selected={game.id === selectedId}
+                draggingEnabled={sortByPriority && reorderMode}
+                onOpen={() => onOpen(game.id)}
+                onSelect={() => onSelect(game.id)}
+              />
+            ))}
+          </m3-list>
+        </SortableContext>
+      </DndContext>
+    </>
   );
 }

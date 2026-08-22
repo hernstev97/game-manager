@@ -168,7 +168,7 @@ export function LibraryApp() {
     <div className="library-app">
       <m3-top-app-bar >
         gGrid
-        <m3-button slot="actions" onClick={() => setAddOpen(true)}>
+        <m3-button className="desktop-add-action" slot="actions" onClick={() => setAddOpen(true)}>
           <IconAdd slot="icon" width={18} height={18} />
           Spiel hinzufügen
         </m3-button>
@@ -214,6 +214,10 @@ export function LibraryApp() {
           }}
         />
       </div>
+      <m3-button className="mobile-add-fab" aria-label="Spiel hinzufügen" onClick={() => setAddOpen(true)}>
+        <IconAdd slot="icon" width={20} height={20} />
+        Spiel
+      </m3-button>
       {editorOpen && selected ? (
         <GameEditor
           game={selected}
@@ -255,6 +259,8 @@ export function LibraryApp() {
           onClearLibrary={clearLibrary}
           onApplyPlaytime={applySteamPlaytime}
           onRefreshIdentity={refreshSteamIdentity}
+          onImport={(file) => void importFile(file)}
+          onExport={exportJson}
         />
       ) : null}
       <SnackbarHost />

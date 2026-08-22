@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Google_Sans_Flex } from "next/font/google";
 import Script from "next/script";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -15,6 +15,17 @@ const sans = Google_Sans_Flex({
 export const metadata: Metadata = {
   title: "gGrid",
   description: "gGrid — Game. Manage. Learn.",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  interactiveWidget: "resizes-content",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#fdf7ff" },
+    { media: "(prefers-color-scheme: dark)", color: "#151217" },
+  ],
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

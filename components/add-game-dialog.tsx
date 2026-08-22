@@ -23,6 +23,7 @@ import {
 } from "@/lib/igdb";
 import { useHostEvent } from "@/components/m3/events";
 import { MorphLoader } from "@/components/morph-loader";
+import { IconClose } from "@/components/m3/icons";
 
 function ResultItem({
   id,
@@ -254,9 +255,15 @@ export function AddGameDialog({
       open={open}
       onClose={onClose}
       headline="Spiel hinzufügen"
+      presentation="fullscreen"
+      leadingAction={
+        <m3-icon-button aria-label="Schließen" onClick={onClose}>
+          <IconClose />
+        </m3-icon-button>
+      }
       actions={
         <>
-          <m3-button slot="actions" variant="text" onClick={onClose}>
+          <m3-button className="desktop-dialog-cancel" slot="actions" variant="text" onClick={onClose}>
             Abbrechen
           </m3-button>
           <m3-button slot="actions" loading={busy} onClick={createManual}>
@@ -267,10 +274,10 @@ export function AddGameDialog({
     >
       <div className="add-dialog">
         <M3TextField
-          label="Name, Steam-URL, App-ID oder IGDB-Link"
+          label="Spiel suchen oder Link einfügen"
           value={query}
           onChange={setQuery}
-          placeholder="Wind Waker … oder igdb.com/games/…"
+          placeholder="Name, Steam-URL, App-ID oder IGDB-Link"
           autoFocus
         />
 

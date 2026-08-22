@@ -13,6 +13,7 @@ import { useRef } from "react";
 
 export function GameRow({
   game,
+  index,
   selected,
   draggingEnabled,
   onOpen,
@@ -67,10 +68,17 @@ export function GameRow({
     ...chipEnums.flatMap((field) => (Array.isArray(game[field.id]) ? (game[field.id] as string[]) : [])),
   ];
   const notes = game.notes.split(/\r?\n/, 1)[0]?.trim() ?? "";
+  const platforms = Array.isArray(game.platforms) ? game.platforms.slice(0, 2) : [];
+  const mobileMetaParts = [game.franchise, platforms.join(", ")].filter(Boolean);
+  const mobileTertiaryParts = [
+    ...tertiaryParts.slice(0, 2),
+    game.rating == null ? "" : `★ ${game.rating.toFixed(1)}`,
+  ].filter(Boolean);
 
   return (
     <m3-list-item
       ref={setRefs}
+      className="game-row"
       style={style}
       lines="3"
       selected={selected}
@@ -96,13 +104,22 @@ export function GameRow({
           franchise={game.franchise}
           coverUrl={game.coverUrl}
           steamAppId={game.steamAppId}
+          eager={index < 3}
         />
       </div>
-      {game.name || "Unbenanntes Spiel"}
-      <span slot="supporting-text">{metaParts.join(" · ") || "Ohne Zusatzangaben"}</span>
-      <span slot="tertiary-text">{tertiaryParts.join(" · ") || notes || " "}</span>
+      <span className="game-row-name">{game.name || "Unbenanntes Spiel"}</span>
+      <span slot="supporting-text">
+        <span className="desktop-row-copy">{metaParts.join(" · ") || "Ohne Zusatzangaben"}</span>
+        <span className="mobile-row-copy">{mobileMetaParts.join(" · ") || "Ohne Zusatzangaben"}</span>
+      </span>
+      <span slot="tertiary-text">
+        <span className="desktop-row-copy">{tertiaryParts.join(" · ") || notes || " "}</span>
+        <span className="mobile-row-copy">{mobileTertiaryParts.join(" · ") || notes || " "}</span>
+      </span>
       <div slot="trailing" className="row-trailing">
-        <RatingStars value={game.rating} compact />
+        <span className="row-rating">
+          <RatingStars value={game.rating} compact />
+        </span>
         <PriorityBadge value={game.priority} />
       </div>
     </m3-list-item>
