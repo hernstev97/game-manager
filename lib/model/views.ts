@@ -22,7 +22,7 @@ export type QueueFilterValue = Passthrough<{
 
 export type FavoriteFilterValue = Passthrough<{
   kind: "favorite";
-  selected: Array<"has" | "top5" | "none">;
+  selected: Array<"has" | "top5" | "top10" | "none">;
 }>;
 
 export type SavedViewFilterValue =

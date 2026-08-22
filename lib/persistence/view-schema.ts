@@ -7,6 +7,7 @@ import {
 } from "../model/views";
 
 const selectionSchema = z.array(z.enum(["has", "top5", "none"]));
+const favoriteSelectionSchema = z.array(z.enum(["has", "top5", "top10", "none"]));
 const multiFilterSchema = z
   .object({ kind: z.literal("multi"), selected: z.array(z.string()) })
   .passthrough();
@@ -24,7 +25,7 @@ const queueFilterSchema = z
   .object({ kind: z.literal("queue"), selected: selectionSchema })
   .passthrough();
 const favoriteFilterSchema = z
-  .object({ kind: z.literal("favorite"), selected: selectionSchema })
+  .object({ kind: z.literal("favorite"), selected: favoriteSelectionSchema })
   .passthrough();
 const priorityFilterSchema = z
   .object({ kind: z.literal("priority"), selected: selectionSchema })

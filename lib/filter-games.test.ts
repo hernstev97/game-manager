@@ -130,6 +130,24 @@ describe("applyFiltersAndSort", () => {
     ).toEqual(["b", "a"]);
   });
 
+  it("distinguishes Top 5, Top 10, ranked, and unranked favorites", () => {
+    const ranked = library.map((item, index) => ({
+      ...item,
+      favoriteRank: index === 0 ? 5 : index === 1 ? 10 : null,
+    }));
+    const matching = (selected: Array<"has" | "top5" | "top10" | "none">) =>
+      applyFiltersAndSort(
+        ranked,
+        { query: "", fields: { favoriteRank: { kind: "favorite", selected } } },
+        { by: "favoriteRank", dir: "asc" },
+      ).map((game) => game.id);
+
+    expect(matching(["top5"])).toEqual(["a"]);
+    expect(matching(["top10"])).toEqual(["a", "b"]);
+    expect(matching(["has"])).toEqual(["a", "b"]);
+    expect(matching(["none"])).toEqual(["c"]);
+  });
+
   it("filters games that have notes", () => {
     const filters: LibraryFilters = {
       query: "",

@@ -34,7 +34,7 @@ export type QueueFilterValue = {
 
 export type FavoriteFilterValue = {
   kind: "favorite";
-  selected: Array<"has" | "top5" | "none">;
+  selected: Array<"has" | "top5" | "top10" | "none">;
 };
 
 export type FieldFilterValue =
@@ -138,6 +138,7 @@ function matchesField(game: GameRecord, fieldId: string, filter: FieldFilterValu
     return filter.selected.some((mode) => {
       if (mode === "has") return favorite != null;
       if (mode === "top5") return favorite != null && favorite <= 5;
+      if (mode === "top10") return favorite != null && favorite <= 10;
       return favorite == null;
     });
   }
@@ -270,9 +271,10 @@ export function activeFilterChips(
     }
     if (filter.kind === "favorite") {
       const labels: Record<(typeof filter.selected)[number], string> = {
-        has: "Favorit",
+        has: "Gerankt",
         top5: "Top 5",
-        none: "Kein Favorit",
+        top10: "Top 10",
+        none: "Ungerankt",
       };
       for (const mode of filter.selected) {
         chips.push({ fieldId, token: mode, label: labels[mode] });

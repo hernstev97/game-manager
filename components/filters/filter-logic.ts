@@ -40,7 +40,13 @@ export function groupActiveCount(group: FilterGroup, filters: LibraryFilters): n
     if (value.kind === "toggle" && value.on) count++;
     if (value.kind === "multi") count += value.selected.length;
     if (value.kind === "rating") count += value.selected.length;
-    if (value.kind === "priority") count += value.selected.length;
+    if (
+      value.kind === "priority" ||
+      value.kind === "queue" ||
+      value.kind === "favorite"
+    ) {
+      count += value.selected.length;
+    }
   }
   return count;
 }
@@ -60,6 +66,21 @@ export function menuChoices(
     ];
   }
   if (field.type === "priority") {
+    return [
+      { token: "has", label: "In Warteschlange" },
+      { token: "top5", label: "Top 5" },
+      { token: "none", label: "Nicht eingeplant" },
+    ];
+  }
+  if (field.type === "position" && field.id === "favoriteRank") {
+    return [
+      { token: "has", label: "Gerankt" },
+      { token: "top5", label: "Top 5" },
+      { token: "top10", label: "Top 10" },
+      { token: "none", label: "Ungerankt" },
+    ];
+  }
+  if (field.type === "position") {
     return [
       { token: "has", label: "In Warteschlange" },
       { token: "top5", label: "Top 5" },

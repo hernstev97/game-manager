@@ -161,7 +161,7 @@ export const LIBRARY_GAME_FIELDS = [
   },
   {
     id: "favoriteRank",
-    label: "Favoriten",
+    label: "Persönlicher Rang",
     type: "position",
     filterable: true,
     filterWidget: "chips",
