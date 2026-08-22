@@ -134,7 +134,7 @@ export function M3Radio({
         name={name}
         value={value}
         checked={checked}
-        aria-labelledby={`${id}-label`}
+        aria-label={label}
       />
       <span>{label}</span>
     </label>

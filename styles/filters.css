@@ -43,6 +43,10 @@
   min-width: 0;
 }
 
+.mobile-sheet-recent-filters {
+  display: none;
+}
+
 .recent-filters-label {
   flex: 0 0 auto;
   color: var(--md-sys-color-on-surface-variant);
@@ -145,6 +149,24 @@
     display: flex;
   }
 
+  .desktop-recent-filters {
+    display: none;
+  }
+
+  .mobile-sheet-recent-filters {
+    display: block;
+    min-width: 0;
+  }
+
+  .mobile-sheet-recent-filters .recent-filters {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .mobile-sheet-recent-filters .recent-filter-scroll {
+    width: 100%;
+  }
+
   .filter-bar {
     gap: 8px;
   }
@@ -165,6 +187,10 @@
     align-items: center;
     min-width: 0;
     gap: 4px;
+  }
+
+  .mobile-active-filters > m3-button {
+    flex: 0 0 auto;
   }
 
   .mobile-active-filter-scroll {

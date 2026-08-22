@@ -33,7 +33,7 @@ export function LibraryToolbar({
   }, [draft, onQuery]);
 
   return (
-    <div className="library-tools">
+    <div className="library-tools desktop-library-toolbar">
       <M3SearchBar
         value={draft}
         onChange={setDraft}

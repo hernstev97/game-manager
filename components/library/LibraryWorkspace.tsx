@@ -127,7 +127,7 @@ export function LibraryWorkspace({
         </span>
       </m3-top-app-bar>
       <div className="library-shell">
-        <div className="library-layout">
+        <div className={`library-layout${selectionMode ? " is-selection-mode" : ""}`}>
           <LibraryViewsController
             views={savedViews}
             activeViewId={activeViewId}
@@ -135,6 +135,7 @@ export function LibraryWorkspace({
             sort={sort}
             displayMode={displayMode}
             groupBy={groupBy}
+            disabled={selectionMode}
             onSelect={onSelectView}
             onChange={onSavedViews}
           />
@@ -181,6 +182,23 @@ export function LibraryWorkspace({
                   games={games}
                   filters={filters}
                   visibleCount={visibleGames.length}
+                  mobileControlsKey={`${activeViewId}:${searchEpoch}`}
+                  mobileControls={{
+                    query: filters.query,
+                    sort,
+                    displayMode,
+                    groupBy,
+                    selectionMode,
+                    onQuery,
+                    onSort,
+                    onDisplayMode,
+                    onGroupBy,
+                    onSelectionMode,
+                    onImport,
+                    onExport,
+                    onSettings,
+                    onHelp,
+                  }}
                   onChange={onFilterChange}
                   onClear={onClearFilters}
                 />
@@ -192,7 +210,7 @@ export function LibraryWorkspace({
                   onGroupBy={onGroupBy}
                   onSelectionMode={onSelectionMode}
                 />
-                <m3-divider />
+                <m3-divider className="library-collection-divider" />
                 <LibraryCollection
                   games={visibleGames}
                   libraryEmpty={games.length === 0}
@@ -218,10 +236,9 @@ export function LibraryWorkspace({
           </main>
         </div>
       </div>
-      {!selectionMode ? (
+      {!selectionMode && games.length > 0 ? (
         <m3-button className="mobile-add-fab" aria-label="Spiel hinzufügen" onClick={onOpenAdd}>
           <IconAdd slot="icon" width={20} height={20} />
-          Spiel
         </m3-button>
       ) : null}
     </>

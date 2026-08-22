@@ -21,21 +21,33 @@ import { RecentFilterPresets } from "@/components/filters/RecentFilterPresets";
 import {
   emptyMobileFilters,
   MobileActiveFilters,
-  MobileFilterOverview,
   MobileFilterSheet,
 } from "@/components/filters/MobileFilterSheet";
+import {
+  MobileLibraryCommandBar,
+  type MobileLibraryCommandBarProps,
+} from "@/components/library/MobileLibraryCommandBar";
 import { recordRecentFilterPreset } from "@/lib/recent-filters";
+
+type MobileControls = Omit<
+  MobileLibraryCommandBarProps,
+  "visibleCount" | "totalCount" | "fieldFilterCount" | "onOpenFilters"
+>;
 
 export function FilterBar({
   games,
   filters,
   visibleCount,
+  mobileControlsKey,
+  mobileControls,
   onChange,
   onClear,
 }: {
   games: GameRecord[];
   filters: LibraryFilters;
   visibleCount: number;
+  mobileControlsKey: string;
+  mobileControls: MobileControls;
   onChange: (next: LibraryFilters) => void;
   onClear: () => void;
 }) {
@@ -90,14 +102,18 @@ export function FilterBar({
 
   return (
     <section className="filter-bar" aria-label="Filter">
-      <FilterSummary visibleCount={visibleCount} totalCount={games.length} />
-      <RecentFilterPresets query={filters.query} onApply={commitFilters} />
-      <MobileFilterOverview
+      <MobileLibraryCommandBar
+        key={mobileControlsKey}
+        {...mobileControls}
         visibleCount={visibleCount}
         totalCount={games.length}
-        fieldChipCount={fieldChips.length}
-        onOpen={openMobileFilters}
+        fieldFilterCount={fieldChips.length}
+        onOpenFilters={openMobileFilters}
       />
+      <FilterSummary visibleCount={visibleCount} totalCount={games.length} />
+      <div className="desktop-recent-filters">
+        <RecentFilterPresets query={filters.query} onApply={commitFilters} />
+      </div>
       <FilterGroupMenu games={games} filters={filters} groups={groups} onChange={commitFilters} />
       <ActiveFilterChips
         active={active}
@@ -122,6 +138,15 @@ export function FilterBar({
           commitFilters(draftFilters);
           setMobileOpen(false);
         }}
+        recentFilters={(
+          <RecentFilterPresets
+            query={filters.query}
+            onApply={(next) => {
+              commitFilters(next);
+              setMobileOpen(false);
+            }}
+          />
+        )}
       />
     </section>
   );

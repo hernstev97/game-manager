@@ -1,5 +1,7 @@
 "use client";
 
+import type { ReactNode } from "react";
+
 import type { GameRecord } from "@/lib/game-fields";
 import { EMPTY_FILTERS, applyFiltersAndSort, emptyFieldFilter, type FieldFilterValue, type LibraryFilters } from "@/lib/filter-games";
 import { M3Chip, M3Dialog, M3Slider } from "@/components/m3/host";
@@ -64,7 +66,7 @@ export function MobileActiveFilters({
         ))}
       </div>
       <m3-button variant="text" onClick={onClear}>
-        Löschen
+        Alle löschen
       </m3-button>
     </div>
   );
@@ -79,6 +81,7 @@ export function MobileFilterSheet({
   onDraftField,
   onReset,
   onApply,
+  recentFilters,
 }: {
   open: boolean;
   games: GameRecord[];
@@ -88,6 +91,7 @@ export function MobileFilterSheet({
   onDraftField: (fieldId: string, value: FieldFilterValue) => void;
   onReset: () => void;
   onApply: () => void;
+  recentFilters?: ReactNode;
 }) {
   if (!open) return null;
 
@@ -113,6 +117,9 @@ export function MobileFilterSheet({
       }
     >
       <div className="mobile-filter-sheet">
+        {recentFilters ? (
+          <div className="mobile-sheet-recent-filters">{recentFilters}</div>
+        ) : null}
         {groups.map((group) => (
           <fieldset key={group.key} className="mobile-filter-group">
             <legend>

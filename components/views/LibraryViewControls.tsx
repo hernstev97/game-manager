@@ -20,7 +20,7 @@ export function LibraryViewControls({
   onSelectionMode: (enabled: boolean) => void;
 }) {
   return (
-    <div className={styles.viewControls}>
+    <div className={`${styles.viewControls} desktop-view-controls`}>
       <DisplayModeControl value={displayMode} onChange={onDisplayMode} />
       <label className={styles.groupControl}>
         <span>Gruppierung</span>

@@ -1,0 +1,63 @@
+.sheet {
+  display: none;
+}
+
+.content {
+  display: grid;
+  gap: 20px;
+}
+
+.group {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.group legend {
+  width: 100%;
+  margin: 0 0 6px;
+  padding: 0;
+  color: var(--md-sys-color-on-surface-variant);
+  font-size: 0.875rem;
+  font-weight: 650;
+  line-height: 1.25rem;
+}
+
+.group label {
+  box-sizing: border-box;
+  min-height: 48px;
+  margin: 0;
+  padding: 4px 8px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background-color var(--motion-duration-short)
+    var(--motion-easing-standard);
+}
+
+.group label:hover {
+  background: var(--md-sys-color-surface-container-high);
+}
+
+.group label:focus-within {
+  outline: 2px solid var(--md-sys-color-primary);
+  outline-offset: 1px;
+}
+
+@media (max-width: 599px) {
+  .sheet {
+    display: block;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .group label {
+    transition: none;
+  }
+}
+
+:global(:root[data-motion="none"]) .group label {
+  transition: none;
+}

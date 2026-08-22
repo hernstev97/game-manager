@@ -82,6 +82,8 @@
 @media (max-width: 599px) {
   .desktop-add-action,
   .desktop-library-actions,
+  .desktop-library-toolbar,
+  .desktop-view-controls,
   .desktop-row-copy,
   .desktop-dialog-cancel {
     display: none;
@@ -96,51 +98,59 @@
 
   .library-shell {
     width: 100%;
-    padding: 8px var(--mobile-page-gutter) 24px;
-    gap: 10px;
+    padding: 6px var(--mobile-page-gutter) calc(88px + env(safe-area-inset-bottom));
+    gap: 8px;
   }
 
   .library-layout {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 8px;
   }
 
   .library-workspace {
     width: 100%;
-    gap: 10px;
-  }
-
-  .library-tools {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    width: 100%;
     gap: 8px;
   }
 
-  .library-tools m3-search-bar {
-    width: 100%;
-    min-width: 0;
-    --md-comp-search-bar-height: 30px;
-    --md-comp-search-bar-padding-horizontal: 14px;
-  }
-
   .mobile-library-actions {
-    justify-content: space-between;
-    width: 100%;
-    min-width: 0;
-  }
-
-  .mobile-library-actions m3-split-button {
-    min-width: 0;
-    max-width: calc(100vw - 76px);
+    flex: 0 0 44px;
+    width: 44px;
   }
 
   .mobile-overflow-anchor,
   .mobile-overflow-anchor m3-icon-button {
-    flex: 0 0 48px;
-    width: 48px;
-    height: 48px;
+    flex: 0 0 44px;
+    width: 44px;
+    height: 44px;
+  }
+
+  .mobile-menu-group-label {
+    display: block;
+    padding: 8px 16px 4px;
+    color: var(--md-sys-color-on-surface-variant);
+    font-size: 0.72rem;
+    font-weight: 750;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .library-collection-divider {
+    margin-top: -2px;
+  }
+
+  .is-selection-mode .filter-bar {
+    opacity: 0.82;
+  }
+
+  .top-app-actions {
+    gap: 4px;
+  }
+}
+
+@media (max-width: 359px) {
+  .top-app-actions > m3-icon-button[aria-label="Tastenkürzel anzeigen"] {
+    display: none;
   }
 }
 
