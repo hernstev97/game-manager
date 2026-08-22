@@ -23,6 +23,7 @@ type GameSlice = Pick<
   LibraryState,
   | "games"
   | "updateGame"
+  | "replaceGames"
   | "setGamePriority"
   | "moveGameToFront"
   | "reorderPriorities"
@@ -56,6 +57,11 @@ export function createGameSlice({ set, get, persist }: LibrarySliceContext): Gam
           game.id === id ? normalizeGame({ ...game, ...patch, id: game.id }) : game,
         ),
       }));
+      persist();
+    },
+
+    replaceGames: (games) => {
+      set({ games: games.map((game) => normalizeGame(game)) });
       persist();
     },
 
@@ -123,13 +129,26 @@ export function createGameSlice({ set, get, persist }: LibrarySliceContext): Gam
       const next: PersistedLibraryState = {
         games: result.document.games,
         sort: sortFromSettings(result.document.settings, result.document.games),
+        savedViews: result.document.savedViews,
+        defaultView: result.document.defaultView,
+        displayMode: result.document.displayMode,
+        groupBy: result.document.groupBy,
+        franchises: result.document.franchises,
         steamId: result.document.settings.steamId,
         steamApiKey: result.document.settings.steamApiKey,
         igdbClientId: result.document.settings.igdbClientId,
         igdbClientSecret: result.document.settings.igdbClientSecret,
       };
       persist(next);
-      set(next);
+      const defaultView = next.savedViews.find((view) => view.id === next.defaultView);
+      set({
+        ...next,
+        activeViewId: defaultView?.id ?? next.defaultView,
+        filters: defaultView?.filters ?? EMPTY_FILTERS,
+        sort: next.sort,
+        displayMode: next.displayMode,
+        groupBy: next.groupBy,
+      });
       return {
         added: result.added,
         updated: result.updated,

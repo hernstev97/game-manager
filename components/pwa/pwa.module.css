@@ -3,8 +3,8 @@
   inset: env(safe-area-inset-top) 0 auto;
   z-index: 1200;
   padding: 8px 16px;
-  color: var(--color-on-primary-container, #4d3d75);
-  background: var(--color-primary-container, #e9ddff);
+  color: var(--md-sys-color-on-primary-container);
+  background: var(--md-sys-color-primary-container);
   text-align: center;
   font-size: 0.875rem;
   box-shadow: 0 1px 3px rgb(0 0 0 / 18%);
@@ -24,11 +24,11 @@
 .card,
 .workerError {
   pointer-events: auto;
-  border: 1px solid var(--color-outline-variant, #cac4cf);
+  border: 1px solid var(--md-sys-color-outline-variant);
   border-radius: 20px;
   padding: 14px 16px;
-  color: var(--color-on-surface, #1d1b20);
-  background: var(--color-container-high, #ece6ee);
+  color: var(--md-sys-color-on-surface);
+  background: var(--md-sys-color-surface-container-high);
   box-shadow: 0 6px 20px rgb(0 0 0 / 18%);
 }
 
@@ -65,28 +65,28 @@
 }
 
 .primaryButton {
-  color: var(--color-on-primary, #fff);
-  background: var(--color-primary, #65558f);
+  color: var(--md-sys-color-on-primary);
+  background: var(--md-sys-color-primary);
 }
 
 .textButton {
-  color: var(--color-primary, #65558f);
+  color: var(--md-sys-color-primary);
   background: transparent;
 }
 
 .primaryButton:focus-visible,
 .textButton:focus-visible {
-  outline: 3px solid var(--color-tertiary, #984061);
+  outline: 3px solid var(--md-sys-color-tertiary);
   outline-offset: 2px;
 }
 
 .workerError {
-  color: var(--color-on-error-container, #93000a);
-  background: var(--color-error-container, #ffdad6);
+  color: var(--md-sys-color-on-error-container);
+  background: var(--md-sys-color-error-container);
 }
 
 .actionNotice {
-  color: var(--color-on-error-container, #93000a);
+  color: var(--md-sys-color-on-error-container);
 }
 
 @media (max-width: 599px) {

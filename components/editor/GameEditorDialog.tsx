@@ -28,6 +28,7 @@ export type GameEditorProps = {
   onChange: (id: string, patch: Partial<GameRecord>) => void;
   onPriority: (id: string, priority: number | null) => void;
   onDelete: (id: string) => void;
+  onManageMedia?: () => void;
 };
 
 export function GameEditor({
@@ -40,6 +41,7 @@ export function GameEditor({
   onChange,
   onPriority,
   onDelete,
+  onManageMedia,
 }: GameEditorProps) {
   const groups = editorFieldsByGroup();
   const [tab, setTab] = useState(0);
@@ -79,7 +81,9 @@ export function GameEditor({
               : game.name}
           </p>
           <EditorTabs groups={groups} activeTab={tab} onChange={setTab} />
-          {activeGroup === "identity" ? <EditorHero game={game} /> : null}
+          {activeGroup === "identity" ? (
+            <EditorHero game={game} onManageMedia={onManageMedia} />
+          ) : null}
           <span className="editor-save-state">Änderungen werden automatisch gespeichert.</span>
           {groups.map((group) => (
             <section

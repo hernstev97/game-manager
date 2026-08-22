@@ -29,5 +29,9 @@ The layering values are unchanged. The effective z-index hierarchy is:
 - `.library-tools`: `10`
 - `.mobile-add-fab`: `45`
 - `m3-snackbar`: `80`
+- Saved-view action menus: `3`
+- Franchise presentation editor: `5`
+- Bulk action bar: `1000`
+- Expanded bulk field panel: `1001`
 - editor sticky tabs and mobile navigation: `3`
 - settings mobile back navigation: `2`

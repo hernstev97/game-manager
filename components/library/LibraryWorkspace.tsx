@@ -2,20 +2,36 @@
 
 import type { GameRecord } from "@/lib/game-fields";
 import type { LibraryFilters, SortState } from "@/lib/filter-games";
+import type { FranchisePresentation } from "@/lib/model/shared";
+import type { DisplayMode, GroupByMode, SavedView } from "@/lib/model/views";
 import { IconAdd } from "@/components/m3/icons";
 import { LibraryToolbar } from "@/components/library/LibraryToolbar";
 import { FilterBar } from "@/components/filters/FilterBar";
-import { GameList } from "@/components/library/GameList";
+import { LibraryCollection } from "@/components/library/LibraryCollection";
+import { LibraryViewControls, LibraryViewsController } from "@/components/views";
 
 export function LibraryWorkspace({
   games,
   visibleGames,
   filters,
   sort,
+  savedViews,
+  activeViewId,
+  displayMode,
+  groupBy,
+  franchises,
+  selectionMode,
+  selectedIds,
+  dndDisabled,
   selectedId,
   searchEpoch,
   onQuery,
   onSort,
+  onSavedViews,
+  onSelectView,
+  onDisplayMode,
+  onGroupBy,
+  onSelectionMode,
   onImport,
   onExport,
   onSettings,
@@ -24,16 +40,31 @@ export function LibraryWorkspace({
   onOpenAdd,
   onOpenGame,
   onSelectGame,
+  onToggleSelection,
   onReorder,
+  onFranchisePresentation,
 }: {
   games: GameRecord[];
   visibleGames: GameRecord[];
   filters: LibraryFilters;
   sort: SortState;
+  savedViews: SavedView[];
+  activeViewId: string;
+  displayMode: DisplayMode;
+  groupBy: GroupByMode;
+  franchises: FranchisePresentation[];
+  selectionMode: boolean;
+  selectedIds: readonly string[];
+  dndDisabled: boolean;
   selectedId: string | null;
   searchEpoch: number;
   onQuery: (query: string) => void;
   onSort: (sort: SortState) => void;
+  onSavedViews: (views: readonly SavedView[], defaultView?: string) => void;
+  onSelectView: (id: string) => void;
+  onDisplayMode: (mode: DisplayMode) => void;
+  onGroupBy: (groupBy: GroupByMode) => void;
+  onSelectionMode: (enabled: boolean) => void;
   onImport: (file: File) => void;
   onExport: () => void;
   onSettings: () => void;
@@ -42,7 +73,9 @@ export function LibraryWorkspace({
   onOpenAdd: () => void;
   onOpenGame: (id: string) => void;
   onSelectGame: (id: string) => void;
+  onToggleSelection: (id: string) => void;
   onReorder: (orderedIds: string[]) => void;
+  onFranchisePresentation: (presentation: FranchisePresentation) => void;
 }) {
   return (
     <>
@@ -54,41 +87,74 @@ export function LibraryWorkspace({
         </m3-button>
       </m3-top-app-bar>
       <div className="library-shell">
-        <LibraryToolbar
-          key={searchEpoch}
-          query={filters.query}
-          sort={sort}
-          totalCount={games.length}
-          onQuery={onQuery}
-          onSort={onSort}
-          onImport={onImport}
-          onExport={onExport}
-          onSettings={onSettings}
-        />
-        <FilterBar
-          games={games}
-          filters={filters}
-          visibleCount={visibleGames.length}
-          onChange={onFilterChange}
-          onClear={onClearFilters}
-        />
-        <m3-divider />
-        <GameList
-          games={visibleGames}
-          libraryEmpty={games.length === 0}
-          selectedId={selectedId}
-          sortByPriority={sort.by === "priority" || sort.by === "queuePosition"}
-          onOpen={onOpenGame}
-          onSelect={onSelectGame}
-          onReorder={onReorder}
-          onAdd={onOpenAdd}
-          onClearFilters={onClearFilters}
-        />
+        <div className="library-layout">
+          <LibraryViewsController
+            views={savedViews}
+            activeViewId={activeViewId}
+            filters={filters}
+            sort={sort}
+            displayMode={displayMode}
+            groupBy={groupBy}
+            onSelect={onSelectView}
+            onChange={onSavedViews}
+          />
+          <main className="library-workspace">
+            <LibraryToolbar
+              key={searchEpoch}
+              query={filters.query}
+              sort={sort}
+              totalCount={games.length}
+              onQuery={onQuery}
+              onSort={onSort}
+              onImport={onImport}
+              onExport={onExport}
+              onSettings={onSettings}
+            />
+            <FilterBar
+              games={games}
+              filters={filters}
+              visibleCount={visibleGames.length}
+              onChange={onFilterChange}
+              onClear={onClearFilters}
+            />
+            <LibraryViewControls
+              displayMode={displayMode}
+              groupBy={groupBy}
+              selectionMode={selectionMode}
+              onDisplayMode={onDisplayMode}
+              onGroupBy={onGroupBy}
+              onSelectionMode={onSelectionMode}
+            />
+            <m3-divider />
+            <LibraryCollection
+              games={visibleGames}
+              libraryEmpty={games.length === 0}
+              displayMode={displayMode}
+              groupBy={groupBy}
+              franchises={franchises}
+              selectedId={selectedId}
+              sortByQueue={sort.by === "priority" || sort.by === "queuePosition"}
+              selectionMode={selectionMode}
+              selectedIds={selectedIds}
+              dndDisabled={dndDisabled}
+              onOpen={onOpenGame}
+              onSelect={onSelectGame}
+              onToggleSelection={onToggleSelection}
+              onSelectionMode={onSelectionMode}
+              onReorder={onReorder}
+              onAdd={onOpenAdd}
+              onClearFilters={onClearFilters}
+              onFranchisePresentation={onFranchisePresentation}
+            />
+          </main>
+        </div>
       </div>
-      <m3-button className="mobile-add-fab" aria-label="Spiel hinzufügen" onClick={onOpenAdd}>
-        <IconAdd slot="icon" width={20} height={20} />
-        Spiel
-      </m3-button>
+      {!selectionMode ? (
+        <m3-button className="mobile-add-fab" aria-label="Spiel hinzufügen" onClick={onOpenAdd}>
+          <IconAdd slot="icon" width={20} height={20} />
+          Spiel
+        </m3-button>
+      ) : null}
     </>
   );
 }

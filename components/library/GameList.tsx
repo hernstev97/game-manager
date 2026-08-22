@@ -27,8 +27,13 @@ export function GameList({
   libraryEmpty,
   selectedId,
   sortByPriority,
+  compact = false,
+  selectionMode = false,
+  selectedIds = [],
+  dndDisabled = false,
   onOpen,
   onSelect,
+  onToggleSelection,
   onReorder,
   onAdd,
   onClearFilters,
@@ -37,8 +42,13 @@ export function GameList({
   libraryEmpty: boolean;
   selectedId: string | null;
   sortByPriority: boolean;
+  compact?: boolean;
+  selectionMode?: boolean;
+  selectedIds?: readonly string[];
+  dndDisabled?: boolean;
   onOpen: (id: string) => void;
   onSelect: (id: string) => void;
+  onToggleSelection?: (id: string) => void;
   onReorder: (orderedIds: string[]) => void;
   onAdd: () => void;
   onClearFilters: () => void;
@@ -75,7 +85,7 @@ export function GameList({
 
   return (
     <>
-      {sortByPriority && rankedVisibleIds.length > 1 ? (
+      {sortByPriority && !dndDisabled && rankedVisibleIds.length > 1 ? (
         <ReorderToolbar
           reorderMode={reorderMode}
           onToggle={() => setReorderMode((current) => !current)}
@@ -83,16 +93,23 @@ export function GameList({
       ) : null}
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
         <SortableContext items={games.map((game) => game.id)} strategy={verticalListSortingStrategy}>
-          <m3-list className="game-list" aria-label="Spiele">
+          <m3-list
+            className={`game-list${compact ? " is-compact" : ""}`}
+            aria-label="Spiele"
+            aria-multiselectable={selectionMode || undefined}
+          >
             {games.map((game, index) => (
               <GameRow
                 key={game.id}
                 game={game}
                 index={index}
-                selected={game.id === selectedId}
-                draggingEnabled={sortByPriority && reorderMode}
+                selected={selectionMode ? selectedIds.includes(game.id) : game.id === selectedId}
+                compact={compact}
+                selectionMode={selectionMode}
+                draggingEnabled={sortByPriority && reorderMode && !dndDisabled}
                 onOpen={() => onOpen(game.id)}
                 onSelect={() => onSelect(game.id)}
+                onToggleSelection={() => onToggleSelection?.(game.id)}
               />
             ))}
           </m3-list>

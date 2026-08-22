@@ -7,6 +7,20 @@
   gap: 16px;
 }
 
+.library-layout {
+  display: grid;
+  grid-template-columns: minmax(190px, 230px) minmax(0, 1fr);
+  align-items: start;
+  gap: clamp(16px, 2.4vw, 32px);
+}
+
+.library-workspace {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 16px;
+}
+
 .library-tools {
   position: relative;
   z-index: 10;
@@ -51,6 +65,11 @@
   .library-shell {
     width: min(94vw, 760px);
   }
+
+  .library-layout {
+    grid-template-columns: minmax(150px, 190px) minmax(0, 1fr);
+    gap: 14px;
+  }
 }
 
 @media (max-width: 599px) {
@@ -71,6 +90,17 @@
   .library-shell {
     width: 100%;
     padding: 8px var(--mobile-page-gutter) 24px;
+    gap: 10px;
+  }
+
+  .library-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .library-workspace {
+    width: 100%;
     gap: 10px;
   }
 

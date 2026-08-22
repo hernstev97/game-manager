@@ -94,3 +94,54 @@
   color: var(--md-sys-color-on-surface);
   font: inherit;
 }
+.controller {
+  display: grid;
+  min-width: 0;
+  align-content: start;
+  gap: 12px;
+}
+
+.viewControls {
+  display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.groupControl {
+  display: inline-grid;
+  gap: 2px;
+  color: var(--md-sys-color-on-surface-variant);
+  font-size: 0.75rem;
+  font-weight: 650;
+}
+
+.groupControl select,
+.selectionButton {
+  min-height: 42px;
+  box-sizing: border-box;
+  border: 1px solid var(--md-sys-color-outline);
+  border-radius: 999px;
+  padding: 0 14px;
+  color: var(--md-sys-color-on-surface);
+  background: var(--md-sys-color-surface-container-low);
+  font: inherit;
+}
+
+.selectionButton {
+  align-self: end;
+  cursor: pointer;
+}
+
+.selectionButton[aria-pressed="true"] {
+  border-color: var(--md-sys-color-primary);
+  color: var(--md-sys-color-on-secondary-container);
+  background: var(--md-sys-color-secondary-container);
+}
+
+.groupControl select:focus-visible,
+.selectionButton:focus-visible {
+  outline: 3px solid var(--md-sys-color-tertiary);
+  outline-offset: 2px;
+}

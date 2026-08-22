@@ -10,11 +10,11 @@
   gap: 12px;
   max-width: 1100px;
   margin-inline: auto;
-  border: 1px solid var(--color-outline-variant, #cac4d0);
+  border: 1px solid var(--md-sys-color-outline-variant);
   border-radius: 24px;
   padding: 12px 14px;
-  color: var(--color-on-surface, #1d1b20);
-  background: var(--color-container-high, #ece6f0);
+  color: var(--md-sys-color-on-surface);
+  background: var(--md-sys-color-surface-container-high);
   box-shadow: 0 8px 28px rgb(0 0 0 / 22%);
 }
 
@@ -38,8 +38,8 @@
   min-height: 32px;
   place-items: center;
   border-radius: 16px;
-  color: var(--color-on-primary, #fff);
-  background: var(--color-primary, #65558f);
+  color: var(--md-sys-color-on-primary);
+  background: var(--md-sys-color-primary);
 }
 
 .bulkActions {
@@ -51,6 +51,46 @@
   flex-wrap: wrap;
 }
 
+.moreActions {
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.moreActions summary {
+  min-height: 40px;
+  box-sizing: border-box;
+  border: 1px solid var(--md-sys-color-outline);
+  border-radius: 999px;
+  padding: 10px 14px;
+  background: var(--md-sys-color-surface-container-low);
+  cursor: pointer;
+  list-style: none;
+}
+
+.moreActions summary::-webkit-details-marker {
+  display: none;
+}
+
+.moreActionsPanel {
+  position: fixed;
+  z-index: 1001;
+  right: max(20px, env(safe-area-inset-right));
+  bottom: 104px;
+  left: max(20px, env(safe-area-inset-left));
+  display: grid;
+  max-width: 980px;
+  max-height: min(70vh, 620px);
+  gap: 12px;
+  margin-inline: auto;
+  overflow: auto;
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: 22px;
+  padding: 16px;
+  color: var(--md-sys-color-on-surface);
+  background: var(--md-sys-color-surface-container-highest);
+  box-shadow: 0 10px 32px color-mix(in srgb, var(--md-sys-color-scrim) 28%, transparent);
+}
+
 .bar button,
 .fieldControl button,
 .quickActions button,
@@ -58,7 +98,7 @@
 .fieldControl select,
 .fieldControl input {
   min-height: 40px;
-  border: 1px solid var(--color-outline, #79747e);
+  border: 1px solid var(--md-sys-color-outline);
   border-radius: 999px;
   padding: 0 14px;
   color: inherit;
@@ -73,7 +113,7 @@
 .dialog button:focus-visible,
 .fieldControl select:focus-visible,
 .fieldControl input:focus-visible {
-  outline: 3px solid var(--color-tertiary, #7d5260);
+  outline: 3px solid var(--md-sys-color-tertiary);
   outline-offset: 2px;
 }
 
@@ -96,22 +136,22 @@
 }
 
 .primaryButton {
-  border-color: var(--color-primary, #65558f) !important;
-  color: var(--color-on-primary, #fff) !important;
-  background: var(--color-primary, #65558f) !important;
+  border-color: var(--md-sys-color-primary) !important;
+  color: var(--md-sys-color-on-primary) !important;
+  background: var(--md-sys-color-primary) !important;
 }
 
 .dangerButton {
-  border-color: var(--color-error, #ba1a1a) !important;
-  color: var(--color-on-error, #fff) !important;
-  background: var(--color-error, #ba1a1a) !important;
+  border-color: var(--md-sys-color-error) !important;
+  color: var(--md-sys-color-on-error) !important;
+  background: var(--md-sys-color-error) !important;
 }
 
 .fieldControl {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  border: 1px solid var(--color-outline-variant, #cac4d0);
+  border: 1px solid var(--md-sys-color-outline-variant);
   border-radius: 18px;
   padding: 12px;
 }
@@ -124,7 +164,7 @@
 
 .fieldControl select {
   min-width: 140px;
-  background: var(--color-surface, #fff);
+  background: var(--md-sys-color-surface);
 }
 
 .classificationControls {
@@ -138,16 +178,16 @@
 
 .fieldControl input {
   min-width: 0;
-  background: var(--color-surface, #fff);
+  background: var(--md-sys-color-surface);
 }
 
 .dialog {
   width: min(480px, calc(100vw - 32px));
-  border: 1px solid var(--color-outline-variant, #cac4d0);
+  border: 1px solid var(--md-sys-color-outline-variant);
   border-radius: 28px;
   padding: 24px;
-  color: var(--color-on-surface, #1d1b20);
-  background: var(--color-container-high, #ece6f0);
+  color: var(--md-sys-color-on-surface);
+  background: var(--md-sys-color-surface-container-high);
   box-shadow: 0 12px 40px rgb(0 0 0 / 28%);
 }
 

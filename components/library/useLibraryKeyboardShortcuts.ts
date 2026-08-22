@@ -21,13 +21,24 @@ function isTypingTarget(target: EventTarget | null) {
 export function useLibraryKeyboardShortcuts(openAddDialog: () => void) {
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
+      if (event.defaultPrevented) return;
       if (isTypingTarget(event.target)) {
         if (event.key === "Escape") (event.target as HTMLElement).blur();
         return;
       }
       const state = useLibrary.getState();
       const list = applyFiltersAndSort(state.games, state.filters, state.sort);
+      if (event.key === "F6") {
+        event.preventDefault();
+        if (state.selectionMode) state.endSelection();
+        else state.startSelection(state.selectedId ?? undefined);
+        return;
+      }
       if (event.key === "Escape") {
+        if (state.selectionMode) {
+          state.endSelection();
+          return;
+        }
         if (state.addOpen) {
           state.setAddOpen(false);
           return;
@@ -65,7 +76,10 @@ export function useLibraryKeyboardShortcuts(openAddDialog: () => void) {
         const next = list[Math.max(0, (currentId ? index : 0) - 1)];
         if (next) state.selectGame(next.id);
       }
-      if (event.key === "Enter" && currentId) state.openEditor(currentId);
+      if (event.key === "Enter" && currentId) {
+        if (state.selectionMode) state.toggleSelection(currentId);
+        else state.openEditor(currentId);
+      }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);

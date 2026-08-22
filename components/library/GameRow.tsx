@@ -23,16 +23,22 @@ export function GameRow({
   game,
   index,
   selected,
+  compact,
+  selectionMode,
   draggingEnabled,
   onOpen,
   onSelect,
+  onToggleSelection,
 }: {
   game: GameRecord;
   index: number;
   selected: boolean;
+  compact: boolean;
+  selectionMode: boolean;
   draggingEnabled: boolean;
   onOpen: () => void;
   onSelect: () => void;
+  onToggleSelection: () => void;
 }) {
   const canDrag = draggingEnabled && game.priority != null;
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
@@ -41,7 +47,9 @@ export function GameRow({
   });
   const itemRef = useRef<HTMLElement>(null);
   useHostEvent(itemRef, "item-click", () => {
-    if (!isDragging) onOpen();
+    if (isDragging) return;
+    if (selectionMode) onToggleSelection();
+    else onOpen();
   });
 
   const setRefs = (node: HTMLElement | null) => {
@@ -60,16 +68,31 @@ export function GameRow({
   return (
     <m3-list-item
       ref={setRefs}
-      className="game-row"
+      className={`game-row${compact ? " is-compact" : ""}`}
       style={style}
-      lines="3"
+      lines={compact ? "2" : "3"}
       selected={selected}
+      aria-selected={selectionMode ? selected : undefined}
       clickable
       shape="rounded"
       value={game.id}
       onFocus={onSelect}
     >
       <div slot="leading" className="row-leading">
+        {selectionMode ? (
+          <button
+            type="button"
+            className="selection-toggle"
+            aria-label={selected ? `${game.name} aus Auswahl entfernen` : `${game.name} auswählen`}
+            aria-pressed={selected}
+            onClick={(event) => {
+              event.stopPropagation();
+              onToggleSelection();
+            }}
+          >
+            {selected ? "✓" : ""}
+          </button>
+        ) : null}
         <button
           type="button"
           className="drag-handle"
