@@ -1,0 +1,86 @@
+:root[data-motion="none"] *,
+:root[data-motion="none"] *::before,
+:root[data-motion="none"] *::after {
+  scroll-behavior: auto !important;
+  animation: none !important;
+  transition-duration: 0ms !important;
+}
+
+:root[data-motion="none"] .game-row:hover .cover-img,
+:root[data-motion="none"] .game-row:hover .cover-placeholder,
+:root[data-motion="none"] .game-row:focus-within .cover-img,
+:root[data-motion="none"] .game-row:focus-within .cover-placeholder,
+:root[data-motion="none"] .game-row:hover .row-trailing,
+:root[data-motion="none"] .game-row:focus-within .row-trailing,
+:root[data-motion="none"] .motion-option:hover,
+:root[data-motion="none"] .motion-option:active,
+:root[data-motion="none"] .editor-pager:hover:not(:disabled),
+:root[data-motion="none"] .settings-mobile-nav-item:active {
+  transform: none;
+}
+
+:root[data-motion="none"] .mobile-add-fab:hover {
+  translate: none;
+}
+
+html[data-motion="none"]::view-transition-group(*),
+html[data-motion="none"]::view-transition-old(*),
+html[data-motion="none"]::view-transition-new(*) {
+  animation: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-duration-instant: 0ms;
+    --motion-duration-short: 0ms;
+    --motion-duration-medium: 0ms;
+    --motion-duration-long: 0ms;
+    --motion-stagger: 0ms;
+    --motion-enter-distance: 0px;
+    --motion-fullscreen-distance: 0px;
+    --motion-sheet-distance: 0px;
+    --motion-enter-scale: 1;
+    --motion-enter-blur: 0px;
+    --md-sys-motion-duration-short1: 0ms;
+    --md-sys-motion-duration-short2: 0ms;
+    --md-sys-motion-duration-short3: 0ms;
+    --md-sys-motion-duration-short4: 0ms;
+    --md-sys-motion-duration-medium1: 0ms;
+    --md-sys-motion-duration-medium2: 0ms;
+    --md-sys-motion-duration-medium3: 0ms;
+    --md-sys-motion-duration-medium4: 0ms;
+    --md-sys-motion-duration-long1: 0ms;
+    --md-sys-motion-duration-long2: 0ms;
+    --md-sys-motion-duration-long3: 0ms;
+    --md-sys-motion-duration-long4: 0ms;
+    --md-sys-motion-duration-extra-long1: 0ms;
+    --md-sys-motion-duration-extra-long2: 0ms;
+    --md-sys-motion-duration-extra-long3: 0ms;
+    --md-sys-motion-duration-extra-long4: 0ms;
+  }
+
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation: none !important;
+    transition-duration: 0ms !important;
+  }
+
+  .game-row:hover .cover-img,
+  .game-row:hover .cover-placeholder,
+  .game-row:focus-within .cover-img,
+  .game-row:focus-within .cover-placeholder,
+  .game-row:hover .row-trailing,
+  .game-row:focus-within .row-trailing,
+  .motion-option:hover,
+  .motion-option:active,
+  .editor-pager:hover:not(:disabled),
+  .settings-mobile-nav-item:active {
+    transform: none;
+  }
+
+  .mobile-add-fab:hover {
+    translate: none;
+  }
+}

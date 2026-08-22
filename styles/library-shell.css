@@ -1,0 +1,124 @@
+.library-shell {
+  width: min(95vw, 1440px);
+  margin: 0 auto;
+  padding: 16px 0 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.library-tools {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  animation: reveal-up var(--motion-duration-long) var(--motion-easing-decelerate) 40ms backwards;
+}
+
+.desktop-library-actions,
+.mobile-library-actions,
+.reorder-toolbar,
+.settings-data-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mobile-library-actions,
+.mobile-filter-overview,
+.mobile-active-filters,
+.mobile-add-fab,
+.mobile-row-copy,
+.editor-mobile-nav,
+.editor-save-state,
+.settings-mobile-nav,
+.settings-mobile-back {
+  display: none;
+}
+
+.dialog-leading-action {
+  display: inline-flex;
+}
+
+.library-tools m3-search-bar {
+  flex: 1 1 280px;
+  min-width: min(100%, 240px);
+}
+
+@media (max-width: 839px) {
+  .library-shell {
+    width: min(94vw, 760px);
+  }
+}
+
+@media (max-width: 599px) {
+  .desktop-add-action,
+  .desktop-library-actions,
+  .desktop-row-copy,
+  .desktop-dialog-cancel {
+    display: none;
+  }
+
+  .mobile-library-actions,
+  .mobile-row-copy,
+  .mobile-add-fab,
+  .editor-save-state {
+    display: flex;
+  }
+
+  .library-shell {
+    width: 100%;
+    padding: 8px var(--mobile-page-gutter) 24px;
+    gap: 10px;
+  }
+
+  .library-tools {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    width: 100%;
+    gap: 8px;
+  }
+
+  .library-tools m3-search-bar {
+    width: 100%;
+    min-width: 0;
+    --md-comp-search-bar-height: 30px;
+    --md-comp-search-bar-padding-horizontal: 14px;
+  }
+
+  .mobile-library-actions {
+    justify-content: space-between;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .mobile-library-actions m3-split-button {
+    min-width: 0;
+    max-width: calc(100vw - 76px);
+  }
+
+  .mobile-overflow-anchor,
+  .mobile-overflow-anchor m3-icon-button {
+    flex: 0 0 48px;
+    width: 48px;
+    height: 48px;
+  }
+}
+
+@media (max-width: 599px) {
+  .reorder-toolbar {
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 0;
+  }
+
+  .reorder-toolbar .settings-copy {
+    display: none;
+  }
+
+  .reorder-toolbar m3-button {
+    margin-left: auto;
+  }
+}

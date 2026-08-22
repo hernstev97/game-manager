@@ -1,0 +1,132 @@
+::view-transition-group(*) {
+  animation-duration: var(--motion-duration-long);
+  animation-timing-function: var(--motion-easing-decelerate);
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::view-transition-old(*) {
+  animation-name: view-item-out;
+}
+
+::view-transition-new(*) {
+  animation-name: view-item-in;
+}
+
+@keyframes app-bar-enter {
+  from {
+    opacity: 0;
+    transform: translateY(calc(var(--motion-enter-distance) * -1));
+  }
+}
+
+@keyframes reveal-up {
+  from {
+    opacity: 0;
+    filter: blur(var(--motion-enter-blur));
+    transform: translateY(var(--motion-enter-distance));
+  }
+}
+
+@keyframes game-row-enter {
+  from {
+    opacity: 0;
+    transform: translateY(var(--motion-enter-distance)) scale(var(--motion-enter-scale));
+  }
+}
+
+@keyframes panel-enter {
+  from {
+    opacity: 0;
+    transform: translateX(calc(var(--motion-enter-distance) * 0.65));
+  }
+}
+
+@keyframes editor-cover-enter {
+  from {
+    opacity: 0;
+    filter: blur(var(--motion-enter-blur));
+    transform: translateY(calc(var(--motion-enter-distance) * 0.6))
+      scale(var(--motion-enter-scale));
+  }
+}
+
+@keyframes cover-image-reveal {
+  from {
+    opacity: 0;
+    transform: scale(1.035);
+  }
+}
+
+@keyframes soft-pop {
+  from {
+    opacity: 0;
+    transform: translateY(var(--motion-enter-distance)) scale(var(--motion-enter-scale));
+  }
+}
+
+@keyframes chip-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.88);
+  }
+}
+
+@keyframes fab-enter {
+  0% {
+    opacity: 0;
+    transform: translate(12px, 18px) scale(0.72);
+  }
+  70% {
+    opacity: 1;
+    transform: translate(-1px, -2px) scale(1.035);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes motion-demo {
+  0% {
+    opacity: 0.45;
+    transform: translateX(0) scale(0.8);
+  }
+  65% {
+    opacity: 1;
+    transform: translateX(15px) scale(1.16);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(12px) scale(1);
+  }
+}
+
+@keyframes motion-demo-standard {
+  from {
+    opacity: 0.55;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(5px);
+  }
+}
+
+@keyframes view-item-out {
+  to {
+    opacity: 0;
+    transform: scale(0.985);
+  }
+}
+
+@keyframes view-item-in {
+  from {
+    opacity: 0;
+    transform: scale(0.985);
+  }
+}

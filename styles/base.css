@@ -1,0 +1,43 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-height: 100%;
+  margin: 0;
+  background: var(--md-sys-color-background);
+  color: var(--md-sys-color-on-surface);
+  font-family: var(--font-sans), "Google Sans Flex", system-ui, sans-serif;
+  transition:
+    background-color var(--motion-duration-medium) var(--motion-easing-standard),
+    color var(--motion-duration-short) var(--motion-easing-standard);
+}
+
+body {
+  overflow-x: clip;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--md-sys-color-primary);
+  outline-offset: 2px;
+}
+
+.library-app {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+@media (max-width: 599px) {
+  .library-app {
+    padding-bottom: calc(88px + env(safe-area-inset-bottom));
+  }
+}

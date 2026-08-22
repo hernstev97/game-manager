@@ -1,0 +1,124 @@
+.field,
+.editor-fields,
+.settings,
+.add-dialog,
+.editor-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+m3-text-field,
+.notes-input {
+  width: 100%;
+}
+
+.notes-input {
+  min-height: 120px;
+  resize: vertical;
+  border: 1px solid var(--md-sys-color-outline);
+  border-radius: 4px;
+  padding: 12px 16px;
+  background: var(--md-sys-color-surface-container-lowest);
+  color: var(--md-sys-color-on-surface);
+}
+
+.cover-preview .cover-img,
+.cover-preview .cover-placeholder {
+  width: 184px;
+  height: 82px;
+}
+
+.switch-row,
+.radio-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 40px;
+}
+
+.radio-row {
+  justify-content: flex-start;
+}
+
+.steam-price {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.steam-price-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.steam-price-value {
+  font-size: 1.25rem;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+
+.steam-price-was {
+  color: var(--md-sys-color-on-surface-variant);
+  text-decoration: line-through;
+  font-variant-numeric: tabular-nums;
+}
+
+.priority-editor,
+.confirm-row,
+.hex-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.confirm-row m3-text-field {
+  flex: 1 1 180px;
+}
+
+.danger-button {
+  --md-sys-color-primary: var(--md-sys-color-error);
+  --md-sys-color-on-primary: var(--md-sys-color-on-error);
+  --md-sys-color-secondary-container: var(--md-sys-color-error-container);
+  --md-sys-color-on-secondary-container: var(--md-sys-color-on-error-container);
+}
+
+@media (max-width: 599px) {
+  .field,
+  .editor-fields,
+  .settings,
+  .add-dialog,
+  .editor-body {
+    gap: 10px;
+  }
+
+  .cover-preview .cover-img,
+  .cover-preview .cover-placeholder {
+    width: 152px;
+    height: 72px;
+  }
+
+  .add-dialog section m3-list {
+    margin-inline: -8px;
+  }
+
+  .add-dialog section .cover-img,
+  .add-dialog section .cover-placeholder {
+    width: 88px;
+    height: 42px;
+  }
+}
+
+@media (max-width: 599px) {
+  .hex-row m3-text-field {
+    flex: 1 1 100%;
+  }
+
+  .confirm-row {
+    align-items: stretch;
+  }
+}
