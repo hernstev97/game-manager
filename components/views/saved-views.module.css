@@ -7,18 +7,13 @@
   gap: 10px 16px;
 }
 
-.dirtyStatus,
-.cleanStatus {
+.dirtyStatus {
   font-size: 0.84rem;
 }
 
 .dirtyStatus {
   color: var(--md-sys-color-tertiary);
   font-weight: 700;
-}
-
-.cleanStatus {
-  color: var(--md-sys-color-on-surface-variant);
 }
 
 .actionButtons,
@@ -101,6 +96,17 @@
   gap: 12px;
 }
 
+@media (max-width: 599px) {
+  .controller {
+    width: 100%;
+    gap: 0;
+  }
+
+  .controller > .actions {
+    display: none;
+  }
+}
+
 .viewControls {
   display: flex;
   min-width: 0;
@@ -144,4 +150,10 @@
 .selectionButton:focus-visible {
   outline: 3px solid var(--md-sys-color-tertiary);
   outline-offset: 2px;
+}
+
+@media (max-width: 599px) {
+  .viewControls {
+    display: none;
+  }
 }

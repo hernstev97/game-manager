@@ -29,75 +29,9 @@ export function SavedViewRail({
   onMove,
 }: SavedViewRailProps) {
   const customViews = views.filter(isSavedViewMutable);
-  const selectedView = views.find((view) => view.id === selectedViewId);
-  const selectedIsMutable = selectedView ? isSavedViewMutable(selectedView) : false;
-  const selectedCustomIndex = selectedView
-    ? customViews.findIndex((view) => view.id === selectedView.id)
-    : -1;
 
   return (
     <nav className={styles.rail} aria-label="Gespeicherte Ansichten">
-      <label className={styles.mobileSelector}>
-        <span>Ansicht</span>
-        <select value={selectedViewId} onChange={(event) => onSelect(event.target.value)}>
-          {views.map((view) => (
-            <option key={view.id} value={view.id}>
-              {view.isDefault ? "★ " : ""}
-              {view.name}
-              {dirty && view.id === selectedViewId ? " • geändert" : ""}
-            </option>
-          ))}
-        </select>
-      </label>
-      {selectedView &&
-      (onDuplicate ||
-        onSetDefault ||
-        (selectedIsMutable && (onRename || onDelete || onMove))) ? (
-        <details className={styles.mobileManage}>
-          <summary>Ansicht verwalten</summary>
-          <div className={styles.mobileManageItems}>
-            {onDuplicate ? (
-              <button type="button" onClick={() => onDuplicate(selectedView)}>
-                Duplizieren
-              </button>
-            ) : null}
-            {onSetDefault && !selectedView.isDefault ? (
-              <button type="button" onClick={() => onSetDefault(selectedView)}>
-                Als Standard
-              </button>
-            ) : null}
-            {selectedIsMutable && onRename ? (
-              <button type="button" onClick={() => onRename(selectedView)}>
-                Umbenennen
-              </button>
-            ) : null}
-            {selectedIsMutable && onMove ? (
-              <>
-                <button
-                  type="button"
-                  disabled={selectedCustomIndex <= 0}
-                  onClick={() => onMove(selectedView, "up")}
-                >
-                  Nach oben
-                </button>
-                <button
-                  type="button"
-                  disabled={selectedCustomIndex === customViews.length - 1}
-                  onClick={() => onMove(selectedView, "down")}
-                >
-                  Nach unten
-                </button>
-              </>
-            ) : null}
-            {selectedIsMutable && onDelete ? (
-              <button className={styles.danger} type="button" onClick={() => onDelete(selectedView)}>
-                Löschen
-              </button>
-            ) : null}
-          </div>
-        </details>
-      ) : null}
-
       <ul className={styles.viewList}>
         {views.map((view) => {
           const mutable = isSavedViewMutable(view);

@@ -3,7 +3,7 @@
   max-width: 100%;
   gap: 2px;
   padding: 3px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   border: 1px solid var(--md-sys-color-outline-variant);
   border-radius: 20px;
   background: var(--md-sys-color-surface-container);
@@ -21,13 +21,30 @@
 }
 
 .navigationButton {
-  min-height: 36px;
+  min-height: 44px;
   padding: 0 14px;
   border-radius: 999px;
   color: var(--md-sys-color-on-surface-variant);
   background: transparent;
   white-space: nowrap;
   cursor: pointer;
+}
+
+@media (max-width: 599px) {
+  .navigation {
+    display: flex;
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+
+  .navigationButton {
+    min-width: 0;
+    flex: 1 1 0;
+    padding-inline: 8px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 }
 
 .navigationButton[aria-current="page"] {
@@ -373,8 +390,8 @@
 
 @media (max-width: 420px) {
   .navigationButton {
-    padding-inline: 10px;
-    font-size: 0.82rem;
+    padding-inline: 3px;
+    font-size: 0.8125rem;
   }
 
   .view {

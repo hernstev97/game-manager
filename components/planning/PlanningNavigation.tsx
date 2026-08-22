@@ -13,6 +13,12 @@ const MODE_LABELS: Record<PlanningMode, string> = {
   favorites: "Persönliches Ranking",
 };
 
+const MODE_VISUAL_LABELS: Record<PlanningMode, string> = {
+  library: "Bibliothek",
+  queue: "Warteschlange",
+  favorites: "Ranking",
+};
+
 export interface PlanningNavigationProps {
   value: PlanningMode;
   onChange: (mode: PlanningMode) => void;
@@ -53,12 +59,13 @@ export function PlanningNavigation({
           type="button"
           className={styles.navigationButton}
           data-planning-mode={mode}
+          aria-label={MODE_LABELS[mode]}
           aria-current={value === mode ? "page" : undefined}
           tabIndex={value === mode ? 0 : -1}
           disabled={disabled}
           onClick={() => onChange(mode)}
         >
-          {MODE_LABELS[mode]}
+          {MODE_VISUAL_LABELS[mode]}
         </button>
       ))}
     </nav>

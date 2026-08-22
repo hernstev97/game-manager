@@ -28,6 +28,7 @@ import {
   SavedViewNameDialog,
   type SavedViewNameDialogMode,
 } from "./SavedViewNameDialog";
+import { MobileSavedViewBar } from "./MobileSavedViewBar";
 import { SavedViewRail } from "./SavedViewRail";
 import styles from "./saved-views.module.css";
 
@@ -43,6 +44,7 @@ export function LibraryViewsController({
   sort,
   displayMode,
   groupBy,
+  disabled = false,
   onSelect,
   onChange,
 }: {
@@ -52,6 +54,7 @@ export function LibraryViewsController({
   sort: SortState;
   displayMode: DisplayMode;
   groupBy: GroupByMode;
+  disabled?: boolean;
   onSelect: (id: string) => void;
   onChange: (views: readonly SavedView[], defaultView?: string) => void;
 }) {
@@ -72,9 +75,30 @@ export function LibraryViewsController({
     onChange(nextViews);
     onSelect(id);
   };
+  const updateSelectedView = () => {
+    if (selectedView) onChange(updateSavedView(views, selectedView.id, current));
+  };
+  const discardChanges = () => {
+    if (selectedView) onSelect(selectedView.id);
+  };
 
   return (
     <aside className={styles.controller}>
+      <MobileSavedViewBar
+        views={views}
+        selectedViewId={activeViewId}
+        dirty={dirty}
+        disabled={disabled}
+        onSelect={onSelect}
+        onRename={(view) => setNameDialog({ mode: "rename", source: view })}
+        onDuplicate={(view) => setNameDialog({ mode: "duplicate", source: view })}
+        onDelete={(view) => onChange(deleteSavedView(views, view.id))}
+        onSetDefault={(view) => onChange(setDefaultSavedView(views, view.id), view.id)}
+        onMove={(view, direction) => onChange(moveSavedView(views, view.id, direction))}
+        onUpdate={updateSelectedView}
+        onSaveAsNew={() => setNameDialog({ mode: "save" })}
+        onDiscard={discardChanges}
+      />
       <SavedViewRail
         views={views}
         selectedViewId={activeViewId}
@@ -89,9 +113,9 @@ export function LibraryViewsController({
       <SavedViewActions
         selectedView={selectedView}
         dirty={dirty}
-        onUpdate={() => selectedView && onChange(updateSavedView(views, selectedView.id, current))}
+        onUpdate={updateSelectedView}
         onSaveAsNew={() => setNameDialog({ mode: "save" })}
-        onDiscard={() => selectedView && onSelect(selectedView.id)}
+        onDiscard={discardChanges}
       />
       <SavedViewNameDialog
         open={nameDialog !== null}

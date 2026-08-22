@@ -22,30 +22,30 @@ export function SavedViewActions({
 }: SavedViewActionsProps) {
   const decision = savedViewDirtyActionDecision(selectedView, dirty);
 
+  if (!decision.dirty) return null;
+
   return (
     <section className={styles.actions} aria-label="Änderungen an der Ansicht">
-      <span className={decision.dirty ? styles.dirtyStatus : styles.cleanStatus} aria-live="polite">
+      <span className={styles.dirtyStatus} aria-live="polite">
         {decision.message}
       </span>
-      {decision.dirty ? (
-        <div className={styles.actionButtons}>
-          {onDiscard ? (
-            <button type="button" className={styles.secondaryButton} onClick={onDiscard}>
-              Verwerfen
-            </button>
-          ) : null}
-          {decision.canUpdate ? (
-            <button type="button" className={styles.secondaryButton} onClick={onUpdate}>
-              Ansicht aktualisieren
-            </button>
-          ) : null}
-          {decision.canSaveAsNew ? (
-            <button type="button" className={styles.primaryButton} onClick={onSaveAsNew}>
-              Als neue Ansicht speichern
-            </button>
-          ) : null}
-        </div>
-      ) : null}
+      <div className={styles.actionButtons}>
+        {onDiscard ? (
+          <button type="button" className={styles.secondaryButton} onClick={onDiscard}>
+            Verwerfen
+          </button>
+        ) : null}
+        {decision.canUpdate ? (
+          <button type="button" className={styles.secondaryButton} onClick={onUpdate}>
+            Ansicht aktualisieren
+          </button>
+        ) : null}
+        {decision.canSaveAsNew ? (
+          <button type="button" className={styles.primaryButton} onClick={onSaveAsNew}>
+            Als neue Ansicht speichern
+          </button>
+        ) : null}
+      </div>
     </section>
   );
 }
