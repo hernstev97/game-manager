@@ -30,6 +30,11 @@ describe("field registry", () => {
     expect(GAME_FIELDS.some((field) => field.id === "name")).toBe(true);
     expect(fieldById("steamPrice")?.group).toBe("identity");
     expect(fieldById("steamPrice")?.type).toBe("steamPrice");
+    expect(fieldById("queuePosition")?.type).toBe("position");
+    expect(fieldById("favoriteRank")?.type).toBe("position");
+    expect(fieldById("landscapeArtwork")?.type).toBe("artwork");
+    expect(fieldById("caseArtwork")?.type).toBe("artwork");
+    expect(fieldById("provenance")?.type).toBe("provenance");
   });
 
   it("keeps franchise, genre, and difficulty as open vocabularies", () => {

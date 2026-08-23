@@ -3,8 +3,10 @@ import { normalizeGame } from "./game-fields";
 import { importLibraryPayload } from "./import-export";
 import {
   DEFAULT_SETTINGS,
+  LIBRARY_CREDENTIALS_STORAGE_KEY,
   LIBRARY_STORAGE_KEY,
   buildLibraryDocument,
+  createLibraryRepository,
   loadLibraryDocument,
   saveLibraryDocument,
 } from "./storage";
@@ -118,6 +120,36 @@ describe("library localStorage", () => {
     expect(loaded?.settings.igdbClientId).toBe("");
     expect(loaded?.settings.igdbClientSecret).toBe("");
     expect(loaded?.games[0]?.igdbId).toBeNull();
+  });
+
+  it("detects v1 secrets without silently moving them into the sidecar", () => {
+    const memory = installMemoryStorage();
+    restore = memory.restore;
+    memory.map.set(
+      LIBRARY_STORAGE_KEY,
+      JSON.stringify({
+        version: 1,
+        exportedAt: "2026-08-18T18:00:00.000Z",
+        settings: {
+          sortBy: "name",
+          sortDir: "asc",
+          steamId: "1",
+          steamApiKey: "legacy-key",
+          igdbClientId: "client",
+          igdbClientSecret: "legacy-secret",
+        },
+        games: [],
+      }),
+    );
+    const repository = createLibraryRepository(window.localStorage);
+    const loaded = repository.load();
+
+    expect(loaded?.settings.steamApiKey).toBe("");
+    expect(repository.pendingLegacyCredentials()).toEqual({
+      steamApiKey: "legacy-key",
+      igdbClientSecret: "legacy-secret",
+    });
+    expect(memory.map.has(LIBRARY_CREDENTIALS_STORAGE_KEY)).toBe(false);
   });
 
   it("throws on corrupt storage instead of pretending it is empty", () => {

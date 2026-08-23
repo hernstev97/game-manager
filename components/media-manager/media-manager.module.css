@@ -1,0 +1,228 @@
+.dialog {
+  width: min(1080px, calc(100vw - 32px));
+  max-width: none;
+  max-height: min(880px, calc(100dvh - 32px));
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: 24px;
+  color: var(--md-sys-color-on-surface);
+  background: var(--md-sys-color-surface-container-low);
+  box-shadow: 0 20px 60px color-mix(in srgb, var(--md-sys-color-scrim) 34%, transparent);
+}
+.dialog::backdrop {
+  background: color-mix(in srgb, var(--md-sys-color-scrim) 52%, transparent);
+}
+
+.dialogHeader,
+.dialogActions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 22px;
+  background: var(--md-sys-color-surface-container);
+}
+
+.dialogHeader h1,
+.editorSection h2 {
+  margin: 0;
+}
+
+.dialogHeader h1 {
+  font-size: 1.35rem;
+}
+
+.dialogHeader p {
+  margin: 4px 0 0;
+  color: var(--md-sys-color-on-surface-variant);
+  font-size: 0.9rem;
+}
+
+.dialogHeader button,
+.dialogActions button,
+.manualRow button,
+.adjustments button {
+  min-height: 40px;
+  padding: 0 16px;
+  border: 1px solid var(--md-sys-color-outline);
+  border-radius: 999px;
+  color: inherit;
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
+}
+
+.dialogHeader button {
+  width: 40px;
+  padding: 0;
+}
+
+.dialogBody {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  max-height: calc(100dvh - 190px);
+  padding: 22px;
+  overflow: auto;
+}
+
+.editorSection {
+  min-width: 0;
+}
+
+.editorSection h2 {
+  margin-bottom: 14px;
+  font-size: 1.05rem;
+}
+
+.candidateList {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(116px, 1fr));
+  gap: 12px;
+}
+
+.candidate {
+  min-width: 0;
+  padding: 7px;
+  border: 2px solid transparent;
+  border-radius: 14px;
+  color: inherit;
+  background: var(--md-sys-color-surface-container-high);
+  text-align: left;
+  cursor: pointer;
+}
+
+.candidate[data-selected] {
+  border-color: var(--md-sys-color-primary);
+  background: var(--md-sys-color-secondary-container);
+}
+
+.candidate:focus-visible,
+.dialog button:focus-visible,
+.dialog input:focus-visible {
+  outline: 3px solid var(--md-sys-color-primary);
+  outline-offset: 2px;
+}
+
+.candidatePreview {
+  position: relative;
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 9px;
+  background: var(--md-sys-color-surface-container-highest);
+}
+
+.portrait {
+  aspect-ratio: 2 / 3;
+}
+
+.landscape {
+  aspect-ratio: 16 / 9;
+}
+
+.candidateImage {
+  object-fit: cover;
+}
+
+.emptyPreview {
+  display: grid;
+  width: 100%;
+  height: 100%;
+  place-items: center;
+  color: var(--md-sys-color-on-surface-variant);
+  font-size: 0.8rem;
+}
+
+.candidateLabel,
+.checkBadge {
+  display: block;
+  margin-top: 7px;
+  overflow-wrap: anywhere;
+  font-size: 0.78rem;
+}
+
+.checkBadge {
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.checkBadge[data-tone="ok"] {
+  color: var(--md-sys-color-primary);
+}
+
+.checkBadge[data-tone="broken"] {
+  color: var(--md-sys-color-error);
+}
+
+.manualRow,
+.adjustments {
+  display: grid;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.manualRow {
+  grid-template-columns: 1fr auto;
+  align-items: end;
+}
+
+.manualRow label,
+.adjustments label {
+  display: grid;
+  gap: 6px;
+  color: var(--md-sys-color-on-surface-variant);
+  font-size: 0.84rem;
+}
+
+.manualRow input {
+  min-width: 0;
+  height: 40px;
+  padding: 0 11px;
+  border: 1px solid var(--md-sys-color-outline);
+  border-radius: 9px;
+  color: var(--md-sys-color-on-surface);
+  background: var(--md-sys-color-surface-container-lowest);
+  font: inherit;
+}
+
+.adjustments input[type="range"] {
+  width: 100%;
+}
+
+.dialog button:disabled {
+  cursor: default;
+  opacity: 0.45;
+}
+
+.dialogActions {
+  justify-content: flex-end;
+  border-top: 1px solid var(--md-sys-color-outline-variant);
+}
+
+.dialogActions .primaryAction {
+  border-color: var(--md-sys-color-primary);
+  color: var(--md-sys-color-on-primary);
+  background: var(--md-sys-color-primary);
+}
+
+@media (max-width: 760px) {
+  .dialog {
+    width: 100vw;
+    max-height: 100dvh;
+    margin: auto 0 0;
+    border-radius: 24px 24px 0 0;
+  }
+
+  .dialogBody {
+    grid-template-columns: 1fr;
+    max-height: calc(100dvh - 180px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dialog,
+  .candidate {
+    scroll-behavior: auto;
+  }
+}

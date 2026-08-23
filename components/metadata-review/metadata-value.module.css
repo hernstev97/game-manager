@@ -1,0 +1,24 @@
+.value {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+.valueText {
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.imagePreview {
+  position: relative;
+  display: block;
+  width: 100%;
+  min-height: 112px;
+  overflow: hidden;
+  border-radius: 9px;
+  background: var(--md-sys-color-surface-container-highest);
+}
+
+.image {
+  object-fit: contain;
+}

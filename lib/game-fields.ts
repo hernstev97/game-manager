@@ -28,6 +28,24 @@
  * `showInHero` is reserved for a future detail view. Do not build the hero page.
  */
 import { z } from "zod";
+import {
+  GAME_FIELDS,
+  PLATFORMS,
+} from "./model/game-field-definitions";
+import {
+  collectEditorOptions,
+  collectFieldOptions,
+  collectFilterOptions,
+  firstLine,
+  formatDate,
+  formatPlaytime,
+  matchExistingOption,
+} from "./model/game-field-utils";
+import type { FieldProvenanceMap, RemoteImageAsset } from "./model/shared";
+import {
+  fieldProvenanceMapSchema,
+  remoteImageAssetSchema,
+} from "./model/value-schemas";
 import type { SteamPriceSnapshot } from "./steam";
 
 export const FIELD_TYPES = [
@@ -39,7 +57,10 @@ export const FIELD_TYPES = [
   "enum",
   "multiEnum",
   "priority",
+  "position",
   "cover",
+  "artwork",
+  "provenance",
   "steamAppId",
   "steamPrice",
   "igdbId",
@@ -103,22 +124,16 @@ export interface GameFieldDef {
   emptyLabel?: string;
 }
 
-export const PLATFORMS = [
-  "PC",
-  "Switch 2",
-  "Switch",
-  "Wii U",
-  "Wii",
-  "GameCube",
-  "N64",
-  "PS5",
-  "PS4",
-  "PS3",
-  "PS2",
-  "PS1",
-  "PSP",
-  "Xbox",
-] as const;
+export { GAME_FIELDS, PLATFORMS };
+export {
+  collectEditorOptions,
+  collectFieldOptions,
+  collectFilterOptions,
+  firstLine,
+  formatDate,
+  formatPlaytime,
+  matchExistingOption,
+};
 
 export const FIELD_GROUP_LABELS: Record<FieldGroup, string> = {
   identity: "Identität",
@@ -127,323 +142,6 @@ export const FIELD_GROUP_LABELS: Record<FieldGroup, string> = {
   progress: "Fortschritt",
   personal: "Persönlich",
 };
-
-export const GAME_FIELDS = [
-  {
-    id: "id",
-    label: "ID",
-    type: "string",
-    filterable: false,
-    sortable: false,
-    showInRow: false,
-    showInEditor: false,
-    defaultValue: "",
-  },
-  {
-    id: "steamAppId",
-    label: "Steam App-ID",
-    type: "steamAppId",
-    filterable: false,
-    sortable: false,
-    showInRow: false,
-    showInEditor: true,
-    defaultValue: null,
-    group: "identity",
-  },
-  {
-    id: "steamPrice",
-    label: "Steam-Preis",
-    type: "steamPrice",
-    filterable: false,
-    sortable: true,
-    showInRow: true,
-    showInEditor: true,
-    rowSlot: "meta",
-    defaultValue: null,
-    group: "identity",
-    readOnly: true,
-  },
-  {
-    id: "igdbId",
-    label: "IGDB-ID",
-    type: "igdbId",
-    filterable: false,
-    sortable: false,
-    showInRow: false,
-    showInEditor: true,
-    defaultValue: null,
-    group: "identity",
-  },
-  {
-    id: "name",
-    label: "Spiel",
-    type: "string",
-    filterable: false,
-    sortable: true,
-    showInRow: true,
-    showInEditor: true,
-    showInHero: true,
-    rowSlot: "title",
-    defaultValue: "",
-    group: "identity",
-  },
-  {
-    id: "coverUrl",
-    label: "Cover",
-    type: "cover",
-    filterable: false,
-    sortable: false,
-    showInRow: true,
-    showInEditor: true,
-    showInHero: true,
-    rowSlot: "cover",
-    defaultValue: "",
-    group: "identity",
-  },
-  {
-    id: "franchise",
-    label: "Franchise",
-    type: "enum",
-    allowCustom: true,
-    filterMinCount: 2,
-    newOptionLabel: "Neue Franchise",
-    emptyLabel: "Kein Franchise",
-    filterable: true,
-    filterWidget: "chips",
-    sortable: true,
-    showInRow: true,
-    showInEditor: true,
-    rowSlot: "meta",
-    defaultValue: "",
-    group: "classification",
-  },
-  {
-    id: "genres",
-    label: "Genre",
-    type: "multiEnum",
-    allowCustom: true,
-    newOptionLabel: "Neues Genre",
-    maxSelected: 2,
-    filterable: true,
-    filterWidget: "chips",
-    sortable: false,
-    showInRow: true,
-    showInEditor: true,
-    rowSlot: "chips",
-    defaultValue: [],
-    group: "classification",
-  },
-  {
-    id: "platforms",
-    label: "Plattform",
-    type: "multiEnum",
-    options: PLATFORMS,
-    filterable: true,
-    filterWidget: "chips",
-    sortable: false,
-    showInRow: true,
-    showInEditor: true,
-    rowSlot: "meta",
-    defaultValue: [],
-    group: "classification",
-  },
-  {
-    id: "owned",
-    label: "Besitz",
-    type: "boolean",
-    filterable: true,
-    filterWidget: "chips",
-    filterGroup: "ownership",
-    filterGroupLabel: "Besitz",
-    filterTrueLabel: "Im Besitz",
-    filterFalseLabel: "Nicht im Besitz",
-    sortable: false,
-    showInRow: true,
-    showInEditor: true,
-    rowSlot: "chips",
-    defaultValue: false,
-    group: "status",
-    chipTone: "neutral",
-  },
-  {
-    id: "wishlisted",
-    label: "Wunschliste",
-    type: "boolean",
-    filterable: true,
-    filterWidget: "chips",
-    filterGroup: "ownership",
-    filterGroupLabel: "Besitz",
-    filterTrueLabel: "Wunschliste",
-    filterFalseLabel: "Nicht auf Wunschliste",
-    sortable: false,
-    showInRow: true,
-    showInEditor: true,
-    rowSlot: "chips",
-    defaultValue: false,
-    group: "status",
-    chipTone: "secondary",
-  },
-  {
-    id: "played",
-    label: "Gespielt",
-    type: "boolean",
-    filterable: true,
-    filterWidget: "chips",
-    filterGroup: "status",
-    filterGroupLabel: "Status",
-    filterTrueLabel: "Gespielt",
-    filterFalseLabel: "Nicht gespielt",
-    sortable: false,
-    showInRow: true,
-    showInEditor: true,
-    rowSlot: "chips",
-    defaultValue: false,
-    group: "status",
-    chipTone: "primary",
-  },
-  {
-    id: "finished",
-    label: "Durchgespielt",
-    type: "boolean",
-    filterable: true,
-    filterWidget: "chips",
-    filterGroup: "status",
-    filterGroupLabel: "Status",
-    filterTrueLabel: "Durchgespielt",
-    filterFalseLabel: "Nicht durchgespielt",
-    sortable: false,
-    showInRow: true,
-    showInEditor: true,
-    rowSlot: "chips",
-    defaultValue: false,
-    group: "status",
-    chipTone: "tertiary",
-  },
-  {
-    id: "released",
-    label: "Erschienen",
-    type: "boolean",
-    filterable: true,
-    filterWidget: "chips",
-    filterTrueLabel: "Erschienen",
-    filterFalseLabel: "Noch nicht erschienen",
-    sortable: false,
-    showInRow: false,
-    showInEditor: true,
-    defaultValue: true,
-    group: "status",
-  },
-  {
-    id: "completed100",
-    label: "100%",
-    type: "boolean",
-    filterable: true,
-    filterWidget: "chips",
-    filterGroup: "status",
-    filterGroupLabel: "Status",
-    filterTrueLabel: "100%",
-    filterFalseLabel: "Nicht 100%",
-    sortable: false,
-    showInRow: true,
-    showInEditor: true,
-    rowSlot: "chips",
-    defaultValue: false,
-    group: "status",
-    chipTone: "tertiary",
-  },
-  {
-    id: "difficultyTo100",
-    label: "Schwierigkeit 100%",
-    type: "enum",
-    allowCustom: true,
-    newOptionLabel: "Neue Schwierigkeit",
-    emptyLabel: "Keine Angabe",
-    filterable: true,
-    filterWidget: "chips",
-    sortable: true,
-    showInRow: true,
-    showInEditor: true,
-    rowSlot: "meta",
-    defaultValue: "",
-    group: "progress",
-  },
-  {
-    id: "rating",
-    label: "Bewertung",
-    type: "rating",
-    filterable: true,
-    filterWidget: "range",
-    sortable: true,
-    showInRow: true,
-    showInEditor: true,
-    rowSlot: "rating",
-    defaultValue: null,
-    group: "personal",
-  },
-  {
-    id: "priority",
-    label: "Als nächstes",
-    type: "priority",
-    filterable: true,
-    filterWidget: "chips",
-    sortable: true,
-    showInRow: true,
-    showInEditor: true,
-    rowSlot: "priority",
-    defaultValue: null,
-    group: "personal",
-  },
-  {
-    id: "notes",
-    label: "Notizen",
-    type: "text",
-    filterable: true,
-    filterWidget: "toggle",
-    filterTrueLabel: "Hat Notizen",
-    sortable: false,
-    showInRow: true,
-    showInEditor: true,
-    rowSlot: "notes",
-    defaultValue: "",
-    group: "personal",
-  },
-  {
-    id: "playtimeMinutes",
-    label: "Spielzeit",
-    type: "number",
-    filterable: false,
-    sortable: true,
-    showInRow: true,
-    showInEditor: true,
-    rowSlot: "meta",
-    defaultValue: null,
-    group: "progress",
-  },
-  {
-    id: "dateAdded",
-    label: "Hinzugefügt",
-    type: "date",
-    filterable: false,
-    sortable: true,
-    showInRow: false,
-    showInEditor: true,
-    defaultValue: null,
-    group: "identity",
-    readOnly: true,
-  },
-  {
-    id: "lastSynced",
-    label: "Zuletzt synchronisiert",
-    type: "date",
-    filterable: false,
-    sortable: false,
-    showInRow: false,
-    showInEditor: true,
-    defaultValue: null,
-    group: "progress",
-    readOnly: true,
-  },
-] as const satisfies readonly GameFieldDef[];
 
 type FieldUnion = (typeof GAME_FIELDS)[number];
 export type GameFieldId = FieldUnion["id"];
@@ -457,6 +155,12 @@ type FieldTs<T extends FieldType> = T extends "string" | "text" | "cover" | "enu
       ? string[]
       : T extends "number" | "rating" | "priority" | "steamAppId" | "igdbId"
         ? number | null
+        : T extends "position"
+          ? number | null
+          : T extends "artwork"
+            ? RemoteImageAsset | null
+            : T extends "provenance"
+              ? FieldProvenanceMap
         : T extends "steamPrice"
           ? SteamPriceSnapshot | null
           : T extends "date"
@@ -508,49 +212,54 @@ export function sortableFieldOptions(): Array<{ id: string; label: string }> {
   return [...fromRegistry, { id: "status", label: "Status" }];
 }
 
-function zodForField(field: GameFieldDef): z.ZodType {
-  const fallback = field.defaultValue;
-  const orDefault = (schema: z.ZodType) =>
-    z.preprocess(
-      (value) => (value === undefined ? fallback : value),
-      schema.catch(() => fallback),
-    );
-
+function baseZodForField(field: GameFieldDef): z.ZodType {
   switch (field.type) {
     case "string":
     case "text":
     case "cover":
     case "enum":
-      return orDefault(z.string());
+      return z.string();
     case "boolean":
-      return orDefault(z.boolean());
+      return z.boolean();
     case "number":
     case "rating":
     case "priority":
+    case "position":
     case "steamAppId":
-      return orDefault(z.number().nullable());
+      return z.number().finite().nullable();
+    case "artwork":
+      return remoteImageAssetSchema.nullable();
+    case "provenance":
+      return fieldProvenanceMapSchema;
     case "igdbId":
-      return orDefault(z.number().int().positive().nullable());
+      return z.number().int().positive().nullable();
     case "multiEnum":
-      return orDefault(z.array(z.string()));
+      return z.array(z.string());
     case "date":
-      return orDefault(z.union([z.string(), z.null()]));
+      return z.union([z.string(), z.null()]);
     case "steamPrice":
-      return orDefault(
-        z
-          .object({
-            source: z.literal("steam"),
-            currency: z.string(),
-            initialCents: z.number().int().nonnegative().nullable(),
-            finalCents: z.number().int().nonnegative().nullable(),
-            discountPercent: z.number().int().nonnegative(),
-            isFree: z.boolean(),
-            formatted: z.string(),
-            updatedAt: z.string(),
-          })
-          .nullable(),
-      );
+      return z
+        .object({
+          source: z.literal("steam"),
+          currency: z.string(),
+          initialCents: z.number().int().nonnegative().nullable(),
+          finalCents: z.number().int().nonnegative().nullable(),
+          discountPercent: z.number().int().nonnegative(),
+          isFree: z.boolean(),
+          formatted: z.string(),
+          updatedAt: z.string(),
+        })
+        .passthrough()
+        .nullable();
   }
+}
+
+function zodForField(field: GameFieldDef): z.ZodType {
+  const fallback = field.defaultValue;
+  return z.preprocess(
+      (value) => (value === undefined ? fallback : value),
+      baseZodForField(field).catch(() => fallback),
+    );
 }
 
 const gameShape = Object.fromEntries(
@@ -558,6 +267,27 @@ const gameShape = Object.fromEntries(
 );
 
 export const gameSchema = z.object(gameShape).passthrough();
+
+const libraryGameV2Shape = Object.fromEntries(
+  GAME_FIELDS.filter((field) => field.id !== "priority").map((field) => [
+    field.id,
+    baseZodForField(field as GameFieldDef),
+  ]),
+);
+
+export const libraryGameV2Schema = z
+  .object(libraryGameV2Shape)
+  .passthrough()
+  .superRefine((game, context) => {
+    const artwork = game.landscapeArtwork as RemoteImageAsset | null;
+    if (artwork && artwork.url !== game.coverUrl) {
+      context.addIssue({
+        code: "custom",
+        path: ["landscapeArtwork", "url"],
+        message: "landscapeArtwork.url must equal coverUrl",
+      });
+    }
+  });
 
 export function newGameId(): string {
   if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
@@ -577,6 +307,9 @@ export function defaultGameValues(): Game {
 export function normalizeGame(raw: unknown): GameRecord {
   const source =
     raw && typeof raw === "object" ? { ...(raw as Record<string, unknown>) } : {};
+  if (source.queuePosition === undefined && source.priority !== undefined) {
+    source.queuePosition = source.priority;
+  }
   if (typeof source.id !== "string" || source.id.trim() === "") {
     source.id = newGameId();
   }
@@ -599,102 +332,14 @@ export function normalizeGame(raw: unknown): GameRecord {
     parsed.priority = null;
   }
 
+  for (const field of ["queuePosition", "favoriteRank"] as const) {
+    const value = parsed[field];
+    if (typeof value === "number" && (!Number.isFinite(value) || value <= 0)) {
+      parsed[field] = null;
+    }
+  }
+
   return parsed;
 }
 
-function tokensFromValue(value: unknown): string[] {
-  if (Array.isArray(value)) {
-    const seen = new Set<string>();
-    const tokens: string[] = [];
-    for (const item of value) {
-      if (typeof item !== "string") continue;
-      const token = item.trim();
-      if (!token || seen.has(token)) continue;
-      seen.add(token);
-      tokens.push(token);
-    }
-    return tokens;
-  }
-  if (typeof value === "string") {
-    const token = value.trim();
-    return token ? [token] : [];
-  }
-  return [];
-}
-
-export function collectFieldOptions(
-  field: GameFieldDef,
-  games: readonly GameRecord[],
-  opts: { minCount?: number; extra?: readonly string[] } = {},
-): string[] {
-  const counts = new Map<string, number>();
-  for (const option of field.options ?? []) {
-    counts.set(option, 0);
-  }
-  for (const extra of opts.extra ?? []) {
-    const token = extra.trim();
-    if (token && !counts.has(token)) counts.set(token, 0);
-  }
-  for (const game of games) {
-    for (const token of tokensFromValue(game[field.id])) {
-      counts.set(token, (counts.get(token) ?? 0) + 1);
-    }
-  }
-
-  const minCount = opts.minCount ?? 0;
-  const staticOptions = [...(field.options ?? [])];
-  const staticSet = new Set(staticOptions);
-  const dynamic = [...counts.keys()]
-    .filter((token) => !staticSet.has(token) && (counts.get(token) ?? 0) >= minCount)
-    .sort((a, b) => a.localeCompare(b, "de", { sensitivity: "base" }));
-  return [...staticOptions, ...dynamic];
-}
-
-export function collectFilterOptions(field: GameFieldDef, games: readonly GameRecord[]): string[] {
-  return collectFieldOptions(field, games, { minCount: field.filterMinCount ?? 0 });
-}
-
-export function collectEditorOptions(
-  field: GameFieldDef,
-  games: readonly GameRecord[],
-  current?: string | readonly string[] | null,
-): string[] {
-  const extra = Array.isArray(current)
-    ? current
-    : typeof current === "string" && current.trim()
-      ? [current]
-      : [];
-  return collectFieldOptions(field, games, { extra });
-}
-
-export function matchExistingOption(options: readonly string[], raw: string): string {
-  const token = raw.trim();
-  if (!token) return "";
-  const needle = token.toLocaleLowerCase("de-DE");
-  return options.find((option) => option.toLocaleLowerCase("de-DE") === needle) ?? token;
-}
-
-export function firstLine(text: string): string {
-  return text.split(/\r?\n/, 1)[0]?.trim() ?? "";
-}
-
-export function formatPlaytime(minutes: number | null): string {
-  if (minutes == null || !Number.isFinite(minutes)) return "";
-  const safe = Math.max(0, Math.round(minutes));
-  if (safe < 60) return `${safe} Min.`;
-  const hours = Math.floor(safe / 60);
-  const rest = safe % 60;
-  return rest ? `${hours} Std. ${rest} Min.` : `${hours} Std.`;
-}
-
-export function formatDate(iso: string | null): string {
-  if (!iso) return "—";
-  const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) return "—";
-  return new Intl.DateTimeFormat("de-DE", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(date);
-}
-
-export const LIBRARY_JSON_VERSION = 1;
+export const LIBRARY_JSON_VERSION = 2;

@@ -1,0 +1,230 @@
+.dialog {
+  width: min(1040px, calc(100vw - 32px));
+  max-width: none;
+  max-height: min(900px, calc(100dvh - 32px));
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: 24px;
+  color: var(--md-sys-color-on-surface);
+  background: var(--md-sys-color-surface-container-low);
+  box-shadow: 0 20px 60px color-mix(in srgb, var(--md-sys-color-scrim) 34%, transparent);
+}
+
+.dialog::backdrop {
+  background: color-mix(in srgb, var(--md-sys-color-scrim) 52%, transparent);
+}
+
+.header,
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 22px;
+  background: var(--md-sys-color-surface-container);
+}
+
+.header h2,
+.header p,
+.volatileSection h3,
+.volatileSection p,
+.emptyState {
+  margin: 0;
+}
+
+.header h2 {
+  font-size: 1.35rem;
+  line-height: 1.25;
+}
+
+.header p {
+  max-width: 72ch;
+  margin-top: 5px;
+  color: var(--md-sys-color-on-surface-variant);
+  font-size: 0.9rem;
+}
+
+.dialog button {
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid var(--md-sys-color-outline);
+  border-radius: 999px;
+  color: inherit;
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
+  transition:
+    background-color var(--motion-duration-short) var(--motion-easing-standard),
+    border-color var(--motion-duration-short) var(--motion-easing-standard);
+}
+
+.dialog button:hover:not(:disabled) {
+  background: var(--md-sys-color-surface-container-highest);
+}
+
+.dialog button:focus-visible {
+  outline: 3px solid var(--md-sys-color-primary);
+  outline-offset: 2px;
+}
+
+.dialog button:disabled {
+  cursor: default;
+  opacity: 0.45;
+}
+
+.iconButton {
+  flex: 0 0 auto;
+  width: 44px;
+  padding: 0 !important;
+  font-size: 1.5rem !important;
+  line-height: 1;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 22px;
+  border-block: 1px solid var(--md-sys-color-outline-variant);
+  background: var(--md-sys-color-surface-container-lowest);
+}
+
+.toolbar span {
+  margin-left: auto;
+  color: var(--md-sys-color-on-surface-variant);
+  font-size: 0.86rem;
+  white-space: nowrap;
+}
+
+.body {
+  max-height: calc(100dvh - 244px);
+  padding: 20px 22px 28px;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+.changeList,
+.volatileSection ul {
+  display: grid;
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.volatileSection h3 {
+  font-size: 1rem;
+}
+
+.volatileSection {
+  margin-top: 24px;
+  padding: 16px;
+  border: 1px dashed var(--md-sys-color-outline);
+  border-radius: 18px;
+}
+
+.volatileSection > p {
+  margin-top: 6px;
+  color: var(--md-sys-color-on-surface-variant);
+  font-size: 0.86rem;
+}
+
+.volatileSection ul {
+  margin-top: 12px;
+}
+
+.volatileSection li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 10px;
+}
+
+.volatileSection li > div {
+  min-width: 0;
+  padding: 10px;
+  border-radius: 10px;
+  background: var(--md-sys-color-surface-container);
+}
+
+.volatileSection li > div > span {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--md-sys-color-on-surface-variant);
+  font-size: 0.75rem;
+}
+
+.emptyState {
+  padding: 28px 12px;
+  color: var(--md-sys-color-on-surface-variant);
+  text-align: center;
+}
+
+.actions {
+  justify-content: flex-end;
+  border-top: 1px solid var(--md-sys-color-outline-variant);
+}
+
+.actions .primaryAction {
+  border-color: var(--md-sys-color-primary);
+  color: var(--md-sys-color-on-primary);
+  background: var(--md-sys-color-primary);
+}
+
+.actions .primaryAction:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--md-sys-color-primary) 88%, var(--md-sys-color-on-primary));
+}
+
+@media (max-width: 600px) {
+  .dialog {
+    width: 100vw;
+    max-height: 100dvh;
+    margin: auto 0 0;
+    border-radius: 24px 24px 0 0;
+  }
+
+  .header,
+  .actions {
+    padding: 14px 12px;
+  }
+
+  .header h2 {
+    font-size: 1.12rem;
+  }
+
+  .toolbar {
+    flex-wrap: wrap;
+    padding: 10px 12px;
+  }
+
+  .toolbar button {
+    flex: 1 1 130px;
+    padding-inline: 10px;
+  }
+
+  .toolbar span {
+    width: 100%;
+    margin-left: 0;
+    text-align: right;
+  }
+
+  .body {
+    max-height: calc(100dvh - 278px);
+    padding: 12px;
+  }
+
+  .volatileSection li {
+    grid-template-columns: 1fr;
+  }
+
+  .actions button {
+    flex: 1 1 0;
+    padding-inline: 10px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dialog button {
+    transition: none;
+  }
+}

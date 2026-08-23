@@ -1,0 +1,159 @@
+.actions {
+  display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 16px;
+}
+
+.dirtyStatus {
+  font-size: 0.84rem;
+}
+
+.dirtyStatus {
+  color: var(--md-sys-color-tertiary);
+  font-weight: 700;
+}
+
+.actionButtons,
+.dialogActions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.primaryButton,
+.secondaryButton {
+  min-height: 40px;
+  border: 0;
+  border-radius: 999px;
+  padding: 8px 16px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.primaryButton {
+  background: var(--md-sys-color-primary);
+  color: var(--md-sys-color-on-primary);
+}
+
+.secondaryButton {
+  background: var(--md-sys-color-secondary-container);
+  color: var(--md-sys-color-on-secondary-container);
+}
+
+.primaryButton:disabled {
+  cursor: default;
+  opacity: 0.45;
+}
+
+.dialog {
+  width: min(420px, calc(100vw - 32px));
+  box-sizing: border-box;
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: 24px;
+  padding: 24px;
+  background: var(--md-sys-color-surface-container-high);
+  color: var(--md-sys-color-on-surface);
+}
+
+.dialog::backdrop {
+  background: color-mix(in srgb, var(--md-sys-color-scrim) 58%, transparent);
+}
+
+.dialog form,
+.dialog label {
+  display: grid;
+  gap: 12px;
+}
+
+.dialog form {
+  gap: 20px;
+}
+
+.dialog h2 {
+  margin: 0;
+  font-size: 1.35rem;
+}
+
+.dialog input {
+  min-height: 44px;
+  box-sizing: border-box;
+  border: 1px solid var(--md-sys-color-outline);
+  border-radius: 14px;
+  padding: 0 14px;
+  background: var(--md-sys-color-surface-container-low);
+  color: var(--md-sys-color-on-surface);
+  font: inherit;
+}
+.controller {
+  display: grid;
+  min-width: 0;
+  align-content: start;
+  gap: 12px;
+}
+
+@media (max-width: 599px) {
+  .controller {
+    width: 100%;
+    gap: 0;
+  }
+
+  .controller > .actions {
+    display: none;
+  }
+}
+
+.viewControls {
+  display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.groupControl {
+  display: inline-grid;
+  gap: 2px;
+  color: var(--md-sys-color-on-surface-variant);
+  font-size: 0.75rem;
+  font-weight: 650;
+}
+
+.groupControl select,
+.selectionButton {
+  min-height: 42px;
+  box-sizing: border-box;
+  border: 1px solid var(--md-sys-color-outline);
+  border-radius: 999px;
+  padding: 0 14px;
+  color: var(--md-sys-color-on-surface);
+  background: var(--md-sys-color-surface-container-low);
+  font: inherit;
+}
+
+.selectionButton {
+  align-self: end;
+  cursor: pointer;
+}
+
+.selectionButton[aria-pressed="true"] {
+  border-color: var(--md-sys-color-primary);
+  color: var(--md-sys-color-on-secondary-container);
+  background: var(--md-sys-color-secondary-container);
+}
+
+.groupControl select:focus-visible,
+.selectionButton:focus-visible {
+  outline: 3px solid var(--md-sys-color-tertiary);
+  outline-offset: 2px;
+}
+
+@media (max-width: 599px) {
+  .viewControls {
+    display: none;
+  }
+}
