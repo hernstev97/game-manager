@@ -352,6 +352,38 @@ describe("cover and image safety", () => {
     ]);
   });
 
+  it("allows the missing half of a pair when the stored cover URL already matches", () => {
+    const review = reviewFor(
+      game({ coverUrl: url, landscapeArtwork: null }),
+      proposal("steam", {
+        coverUrl: url,
+        landscapeArtwork: artwork() as JsonValue,
+      }),
+    );
+
+    expect(review.metadata.map((change) => change.fieldId)).toEqual(["landscapeArtwork"]);
+    expect(
+      canSelectMetadataChange(review, {
+        fieldId: "landscapeArtwork",
+        source: "steam",
+      }),
+    ).toBe(true);
+    expect(select(review, "landscapeArtwork").metadata[0].selected).toBe(true);
+    expect(metadataChangeWarning(review, review.metadata[0])).not.toMatchObject({
+      code: "paired-artwork-required",
+    });
+  });
+
+  it("allows a cover URL change when the stored landscape asset already matches", () => {
+    const review = reviewFor(
+      game({ coverUrl: "", landscapeArtwork: artwork() }),
+      proposal("steam", { coverUrl: url }),
+    );
+
+    expect(canSelectMetadataChange(review, { fieldId: "coverUrl", source: "steam" })).toBe(true);
+    expect(select(review, "coverUrl").metadata[0].selected).toBe(true);
+  });
+
   it("blocks an unpaired cover overwrite when an existing landscape bridge would break", () => {
     const current = game({
       coverUrl: "https://cdn.example/old.jpg",

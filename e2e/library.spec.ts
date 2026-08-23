@@ -62,6 +62,19 @@ test("@mobile keeps menus and the confirmed filter sheet inside the viewport", a
   await expect(page).toHaveScreenshot("mobile-library-menu.png");
   await moreActions.click();
 
+  const mobileSort = page
+    .getByLabel("Bibliothekssteuerung")
+    .getByLabel("Sortierkriterium wählen");
+  await mobileSort.click();
+  const sortMenu = page.locator("m3-menu[open]");
+  await expect(sortMenu.getByRole("menuitem", { name: "Alphabetisch" })).toBeVisible();
+  const sortBounds = await sortMenu.boundingBox();
+  const viewport = page.viewportSize();
+  expect(sortBounds).not.toBeNull();
+  expect(viewport).not.toBeNull();
+  expect((sortBounds?.x ?? 0) + (sortBounds?.width ?? 0)).toBeLessThanOrEqual(viewport?.width ?? 0);
+  await mobileSort.click();
+
   await page.getByRole("button", { name: "Filter", exact: true }).click();
   await expect(page.locator(".mobile-filter-sheet")).toBeVisible();
   await expect(page.locator(".mobile-filter-sheet m3-chip").filter({ hasText: "PC (3)" })).toBeVisible();
@@ -111,6 +124,21 @@ test("@mobile changes display and grouping in the sheet and survives reload", as
     await expect(page).toHaveScreenshot("mobile-cover-grid-franchise.png");
   }
 
+  const sagaGroup = page
+    .getByRole("heading", { name: "Saga", exact: true })
+    .locator("xpath=ancestor::section");
+  await sagaGroup.getByText("Hintergrund bearbeiten", { exact: true }).click();
+  await sagaGroup.getByLabel("Hintergrund-URL").fill(`${new URL(page.url()).origin}/icons/ggrid-512.png`);
+  await sagaGroup.getByRole("button", { name: "Darstellung speichern" }).click();
+  const headerBackground = sagaGroup.locator(":scope > div[aria-hidden='true']");
+  const [backgroundBounds, groupBounds] = await Promise.all([
+    headerBackground.boundingBox(),
+    sagaGroup.boundingBox(),
+  ]);
+  expect(backgroundBounds).not.toBeNull();
+  expect(groupBounds).not.toBeNull();
+  expect(backgroundBounds?.height).toBeLessThan((groupBounds?.height ?? 0) / 2);
+
   await display.click();
   await page.goBack();
   await expect(sheet).toBeHidden();
@@ -120,6 +148,67 @@ test("@mobile changes display and grouping in the sheet and survives reload", as
   await expect(page.getByRole("grid", { name: "Spiele als Cover-Raster" }).first()).toBeVisible();
   await expect(page.getByRole("heading", { name: "Saga" })).toBeVisible();
   await expectNoHorizontalOverflow(page);
+  expect(errors).toEqual([]);
+});
+
+test("@mobile keeps franchise placements visible and the background editor on top", async ({ page }) => {
+  const errors = collectPageErrors(page);
+  const games = [
+    ...CORE_GAMES.map((game) => game.id === "alpha"
+      ? { ...game, name: "Alpha Quest Remastered Intergrade Complete Edition" }
+      : game),
+    {
+      id: "epsilon",
+      name: "Epsilon Rising",
+      franchise: "Second Saga",
+      platforms: ["PC"],
+      priority: 5,
+    },
+    {
+      id: "zeta",
+      name: "Zeta Returns",
+      franchise: "Second Saga",
+      platforms: ["PC"],
+      priority: 6,
+    },
+  ];
+  await openSeededLibrary(page, games);
+
+  const display = page.getByRole("button", { name: /^Darstellung:/ });
+  await display.click();
+  await page.getByRole("radio", { name: "Franchise" }).click();
+  await page.getByRole("button", { name: "Fertig" }).click();
+
+  const sagaGroup = page
+    .getByRole("heading", { name: "Saga", exact: true })
+    .locator("xpath=ancestor::section");
+  const priority = sagaGroup.locator("m3-chip").filter({ hasText: "#1" });
+  const [priorityBounds, sagaBounds] = await Promise.all([
+    priority.boundingBox(),
+    sagaGroup.boundingBox(),
+  ]);
+  expect(priorityBounds).not.toBeNull();
+  expect(sagaBounds).not.toBeNull();
+  expect((priorityBounds?.x ?? 0) + (priorityBounds?.width ?? 0))
+    .toBeLessThanOrEqual((sagaBounds?.x ?? 0) + (sagaBounds?.width ?? 0));
+  const containedWidth = await sagaGroup.evaluate((group) => ({
+    clientWidth: group.clientWidth,
+    scrollWidth: group.scrollWidth,
+  }));
+  expect(containedWidth.scrollWidth).toBeLessThanOrEqual(containedWidth.clientWidth);
+
+  const editorTrigger = sagaGroup.getByText("Hintergrund bearbeiten", { exact: true });
+  await expect(editorTrigger).toHaveCSS("white-space", "nowrap");
+  await editorTrigger.click();
+  const editor = sagaGroup.locator("form");
+  await expect(editor).toBeVisible();
+  await expect(sagaGroup).toHaveCSS("z-index", "50");
+  const editorOwnsTopLayer = await editor.evaluate((form) => {
+    const rect = form.getBoundingClientRect();
+    const topElement = document.elementFromPoint(rect.left + rect.width / 2, rect.top + 20);
+    return topElement != null && form.contains(topElement);
+  });
+  expect(editorOwnsTopLayer).toBe(true);
   expect(errors).toEqual([]);
 });
 
@@ -178,6 +267,20 @@ test("@desktop saves a view and renders franchise groups in the cover grid", asy
   await expect(page.getByRole("heading", { name: "Saga" })).toBeVisible();
   await expect(page.getByText("2 sichtbare Spiele", { exact: true })).toBeVisible();
   await expect(page).toHaveScreenshot("franchise-cover-grid.png");
+
+  const sagaGroup = page.getByRole("heading", { name: "Saga" }).locator("xpath=ancestor::section");
+  await sagaGroup.getByText("Hintergrund bearbeiten", { exact: true }).click();
+  await sagaGroup.getByLabel("Hintergrund-URL").fill(`${new URL(page.url()).origin}/icons/ggrid-512.png`);
+  await sagaGroup.getByRole("button", { name: "Darstellung speichern" }).click();
+  const headerBackground = sagaGroup.locator(":scope > div[aria-hidden='true']");
+  await expect(headerBackground).toBeVisible();
+  const [backgroundBounds, groupBounds] = await Promise.all([
+    headerBackground.boundingBox(),
+    sagaGroup.boundingBox(),
+  ]);
+  expect(backgroundBounds).not.toBeNull();
+  expect(groupBounds).not.toBeNull();
+  expect(backgroundBounds?.height).toBeLessThan((groupBounds?.height ?? 0) / 2);
 
   await page.getByRole("button", { name: "PC Spiele" }).click();
   await expect(page.getByText("3 von 4 sichtbar", { exact: true })).toBeVisible();
@@ -262,6 +365,39 @@ test("@desktop reviews Steam metadata before applying it", async ({ page }) => {
   await review.getByRole("button", { name: "Auswahl übernehmen" }).click();
   await expect(review).toBeHidden();
   await expect(page.getByText("Alpha Quest Remastered", { exact: true }).first()).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test("@desktop completes a Steam artwork review when the cover URL already matches", async ({ page }) => {
+  const errors = collectPageErrors(page);
+  const steamCoverUrl = "https://cdn.cloudflare.steamstatic.com/steam/apps/10/header.jpg";
+  await page.route("**/api/steam?**", (route) => route.fulfill({
+    status: 200,
+    contentType: "application/json",
+    body: JSON.stringify({
+      "10": {
+        success: true,
+        data: { name: "Alpha Quest", release_date: { coming_soon: false } },
+      },
+    }),
+  }));
+  await page.route(steamCoverUrl, (route) => route.fulfill({
+    status: 200,
+    contentType: "image/png",
+    body: Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=", "base64"),
+  }));
+  await openSeededLibrary(page, CORE_GAMES.map((game) =>
+    game.id === "alpha" ? { ...game, steamAppId: 10, coverUrl: steamCoverUrl } : game));
+
+  await page.locator('m3-icon-button[aria-label="Einstellungen"]').click();
+  await page.getByText("Cover, Namen & Preise aktualisieren", { exact: true }).click();
+  const review = page.getByRole("dialog", { name: /Metadaten prüfen · Alpha Quest/ });
+  await expect(review).toBeVisible({ timeout: 15_000 });
+  const landscapeChange = review.getByRole("listitem").filter({ hasText: "Landscape-Artwork" });
+  await expect(landscapeChange.getByLabel("Neuen Wert übernehmen")).toBeEnabled();
+  await landscapeChange.getByLabel("Neuen Wert übernehmen").check();
+  await review.getByRole("button", { name: "Auswahl übernehmen" }).click();
+  await expect(review).toBeHidden();
   expect(errors).toEqual([]);
 });
 

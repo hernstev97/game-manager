@@ -64,6 +64,7 @@ export function LibraryCollection({
       selectedId={selectedId}
       sortByPriority={sortByQueue && groupBy === "none"}
       compact={displayMode === "compact"}
+      contained={groupBy !== "none"}
       selectionMode={selectionMode}
       selectedIds={selectedIds}
       dndDisabled={dndDisabled || groupBy !== "none"}

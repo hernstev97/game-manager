@@ -174,6 +174,25 @@ function pairedLandscapeChange(
     : undefined;
 }
 
+/** A field that already has the proposed URL does not need a duplicate change. */
+function landscapePairIsCompatible(
+  review: MetadataReview,
+  change: MetadataReviewFieldChange,
+): boolean {
+  if (change.fieldId !== "coverUrl" && change.fieldId !== "landscapeArtwork") {
+    return true;
+  }
+  const pair = pairedLandscapeChange(review, change);
+  if (pair) return true;
+  if (change.fieldId === "coverUrl") {
+    return artworkUrl(review.baseline.values.landscapeArtwork) === change.incomingValue;
+  }
+  return (
+    typeof review.baseline.values.coverUrl === "string" &&
+    artworkUrl(change.incomingValue) === review.baseline.values.coverUrl
+  );
+}
+
 export function canSelectMetadataChange(
   review: MetadataReview,
   key: MetadataReviewSelectionKey,
@@ -185,14 +204,14 @@ export function canSelectMetadataChange(
   }
   if (change.fieldId === "coverUrl") {
     const currentLandscape = review.baseline.values.landscapeArtwork;
-    if (currentLandscape !== null && !pairedLandscapeChange(review, change)) {
+    if (currentLandscape !== null && !landscapePairIsCompatible(review, change)) {
       return false;
     }
   }
   if (
     change.fieldId === "landscapeArtwork" &&
     change.incomingValue !== null &&
-    !pairedLandscapeChange(review, change)
+    !landscapePairIsCompatible(review, change)
   ) {
     return false;
   }

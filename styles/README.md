@@ -23,14 +23,14 @@ breakpoint block is split only where the original cascade crossed a domain
 boundary. `motion-reduced.css` remains last so its reduced-motion overrides
 continue to win.
 
-The layering values are unchanged. The effective z-index hierarchy is:
+The effective z-index hierarchy is:
 
 - `m3-top-app-bar`: `20`
 - `.library-tools`: `10`
 - `.mobile-add-fab`: `45`
 - `m3-snackbar`: `80`
 - Saved-view action menus: `3`
-- Franchise presentation editor: `5`
+- Open franchise group/editor: `50` (above the mobile add FAB)
 - Bulk action bar: `1000`
 - Expanded bulk field panel: `1001`
 - editor sticky tabs and mobile navigation: `3`

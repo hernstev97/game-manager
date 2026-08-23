@@ -53,6 +53,32 @@ describe("franchise grouping", () => {
     expect(sections.every((section) => section.games.length > 0)).toBe(true);
   });
 
+  it("keeps all real franchise sections consecutive before loose games", () => {
+    const games: VisibleGame[] = [
+      { id: "a1", franchise: "Alpha" },
+      { id: "single", franchise: "Standalone" },
+      { id: "b1", franchise: "Beta" },
+      { id: "none", franchise: "" },
+      { id: "a2", franchise: "Alpha" },
+      { id: "b2", franchise: "Beta" },
+    ];
+
+    const sections = groupVisibleGamesByFranchise(games, [], 2);
+
+    expect(sections.map((section) => section.kind)).toEqual([
+      "franchise",
+      "franchise",
+      "ungrouped",
+      "remainder",
+    ]);
+    expect(sections.map((section) => section.games.map((game) => game.id))).toEqual([
+      ["a1", "a2"],
+      ["b1", "b2"],
+      ["single"],
+      ["none"],
+    ]);
+  });
+
   it("looks up presentation by normalized case-insensitive identity", () => {
     const presentation: FranchisePresentation = {
       franchise: "  THE LEGEND OF ZELDA ",

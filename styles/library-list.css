@@ -199,6 +199,21 @@
     width: calc(100% + (var(--mobile-page-gutter) * 2));
   }
 
+  .game-list.is-contained {
+    contain: inline-size;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    margin-inline: 0;
+  }
+
+  .game-list.is-contained .game-row {
+    contain: inline-size;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+  }
+
   .game-row {
     --_item-min-height: 72px;
     --_item-padding-start: 8px;

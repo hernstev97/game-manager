@@ -28,6 +28,7 @@ export function GameList({
   selectedId,
   sortByPriority,
   compact = false,
+  contained = false,
   selectionMode = false,
   selectedIds = [],
   dndDisabled = false,
@@ -43,6 +44,7 @@ export function GameList({
   selectedId: string | null;
   sortByPriority: boolean;
   compact?: boolean;
+  contained?: boolean;
   selectionMode?: boolean;
   selectedIds?: readonly string[];
   dndDisabled?: boolean;
@@ -94,7 +96,7 @@ export function GameList({
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
         <SortableContext items={games.map((game) => game.id)} strategy={verticalListSortingStrategy}>
           <m3-list
-            className={`game-list${compact ? " is-compact" : ""}`}
+            className={`game-list${compact ? " is-compact" : ""}${contained ? " is-contained" : ""}`}
             aria-label="Spiele"
             aria-multiselectable={selectionMode || undefined}
           >

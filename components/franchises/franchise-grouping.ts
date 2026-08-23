@@ -58,8 +58,9 @@ export function findFranchisePresentation(
 }
 
 /**
- * Group already filtered/sorted games. Section order follows the first visible
- * occurrence and order inside every section remains identical to the input.
+ * Group already filtered/sorted games. Franchise sections follow their first
+ * visible occurrence and stay consecutive; loose games follow afterwards in
+ * their original relative order.
  */
 export function groupVisibleGamesByFranchise<T extends FranchiseGame>(
   games: readonly T[],
@@ -87,45 +88,9 @@ export function groupVisibleGamesByFranchise<T extends FranchiseGame>(
   }
 
   const sections: FranchiseSection<T>[] = [];
-  const emitted = new Set<string>();
-  let ungrouped: T[] = [];
-  let ungroupedIndex = 0;
-  let emittedRemainder = false;
-  const flushUngrouped = () => {
-    if (ungrouped.length === 0) return;
-    sections.push({ kind: "ungrouped", key: `ungrouped-${ungroupedIndex++}`, games: ungrouped });
-    ungrouped = [];
-  };
-
-  for (const game of games) {
-    const name = franchiseName(game);
-    if (!name) {
-      flushUngrouped();
-      if (!emittedRemainder && remainder.length > 0) {
-        sections.push({
-          kind: "remainder",
-          key: "without-franchise",
-          name: "Ohne Franchise",
-          games: remainder,
-          visibleCount: remainder.length,
-        });
-        emittedRemainder = true;
-      }
-      continue;
-    }
-
-    const key = canonicalFranchiseIdentity(name);
-    if ((counts.get(key) ?? 0) < threshold) {
-      ungrouped.push(game);
-      continue;
-    }
-
-    flushUngrouped();
-    if (emitted.has(key)) continue;
-    emitted.add(key);
-    const groupedGames = gamesByKey.get(key) ?? [];
-    if (groupedGames.length === 0) continue;
-    const displayName = displayNames.get(key) ?? name;
+  for (const [key, groupedGames] of gamesByKey) {
+    if ((counts.get(key) ?? 0) < threshold || groupedGames.length === 0) continue;
+    const displayName = displayNames.get(key) ?? key;
     sections.push({
       kind: "franchise",
       key,
@@ -135,6 +100,22 @@ export function groupVisibleGamesByFranchise<T extends FranchiseGame>(
       presentation: findFranchisePresentation(presentations, displayName),
     });
   }
-  flushUngrouped();
+
+  const ungrouped = games.filter((game) => {
+    const name = franchiseName(game);
+    return name !== "" && (counts.get(canonicalFranchiseIdentity(name)) ?? 0) < threshold;
+  });
+  if (ungrouped.length > 0) {
+    sections.push({ kind: "ungrouped", key: "ungrouped-franchises", games: ungrouped });
+  }
+  if (remainder.length > 0) {
+    sections.push({
+      kind: "remainder",
+      key: "without-franchise",
+      name: "Ohne Franchise",
+      games: remainder,
+      visibleCount: remainder.length,
+    });
+  }
   return sections;
 }
