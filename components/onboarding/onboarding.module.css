@@ -1,0 +1,41 @@
+.lead,
+.pwaNote span,
+.actions span {
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-block: 16px;
+}
+
+.actions button {
+  display: grid;
+  gap: 6px;
+  min-height: 126px;
+  padding: 16px;
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: 16px;
+  color: inherit;
+  text-align: start;
+  background: var(--md-sys-color-surface-container);
+  cursor: pointer;
+}
+
+.actions button:hover { background: var(--md-sys-color-surface-container-high); }
+.actions button:focus-visible { outline: 3px solid var(--md-sys-color-primary); outline-offset: 2px; }
+
+.pwaNote {
+  display: grid;
+  gap: 4px;
+  padding: 12px;
+  border-radius: 14px;
+  background: var(--md-sys-color-secondary-container);
+}
+
+@media (max-width: 599px) {
+  .actions { grid-template-columns: 1fr; }
+  .actions button { min-height: 92px; }
+}

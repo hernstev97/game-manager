@@ -1,0 +1,229 @@
+.wizard {
+  box-sizing: border-box;
+  width: min(100%, 920px);
+  min-width: 0;
+  margin: 0 auto;
+  padding: clamp(12px, 3vw, 28px);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: 24px;
+  color: var(--md-sys-color-on-surface);
+  background: var(--md-sys-color-surface);
+  overflow-wrap: anywhere;
+}
+
+.header h2,
+.header p,
+.eyebrow,
+.content h3,
+.content p,
+.centeredPanel h3,
+.centeredPanel p {
+  margin: 0;
+}
+
+.header h2 {
+  margin-top: 3px;
+  font-size: clamp(1.35rem, 5vw, 2rem);
+  line-height: 1.18;
+}
+
+.header p:not(.eyebrow) {
+  max-width: 68ch;
+  margin-top: 7px;
+  color: var(--md-sys-color-on-surface-variant);
+  line-height: 1.45;
+}
+
+.eyebrow {
+  color: var(--md-sys-color-primary);
+  font-size: 0.75rem;
+  font-weight: 750;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.steps {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 4px;
+  margin: 20px 0;
+  padding: 0;
+  list-style: none;
+}
+
+.steps li {
+  display: flex;
+  min-width: 0;
+  gap: 6px;
+  align-items: center;
+  padding: 7px 8px;
+  border-radius: 12px;
+  color: var(--md-sys-color-on-surface-variant);
+  font-size: 0.78rem;
+}
+
+.steps li span {
+  display: grid;
+  width: 22px;
+  height: 22px;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid var(--md-sys-color-outline);
+  border-radius: 50%;
+  font-size: 0.7rem;
+}
+
+.steps li[aria-current="step"] {
+  color: var(--md-sys-color-on-primary-container);
+  background: var(--md-sys-color-primary-container);
+  font-weight: 700;
+}
+
+.steps li[data-complete="true"] span {
+  border-color: transparent;
+  color: var(--md-sys-color-on-secondary-container);
+  background: var(--md-sys-color-secondary-container);
+}
+
+.content,
+.centeredPanel {
+  display: grid;
+  min-width: 0;
+  gap: 16px;
+}
+
+.centeredPanel {
+  justify-items: start;
+  padding: clamp(18px, 5vw, 44px);
+  border-radius: 20px;
+  background: var(--md-sys-color-surface-container-low);
+}
+
+.centeredPanel p,
+.content > p {
+  color: var(--md-sys-color-on-surface-variant);
+  line-height: 1.45;
+}
+
+.primaryButton,
+.secondaryButton,
+.textButton {
+  min-height: 42px;
+  border-radius: 999px;
+  font: inherit;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.primaryButton {
+  padding: 0 18px;
+  border: 0;
+  color: var(--md-sys-color-on-primary);
+  background: var(--md-sys-color-primary);
+}
+
+.secondaryButton {
+  padding: 0 16px;
+  border: 1px solid var(--md-sys-color-outline);
+  color: var(--md-sys-color-primary);
+  background: transparent;
+}
+
+.textButton {
+  min-height: 36px;
+  padding: 0 10px;
+  border: 0;
+  color: var(--md-sys-color-primary);
+  background: transparent;
+}
+
+.primaryButton:disabled,
+.secondaryButton:disabled,
+.textButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.52;
+}
+
+.primaryButton:focus-visible,
+.secondaryButton:focus-visible,
+.textButton:focus-visible {
+  outline: 3px solid var(--md-sys-color-primary);
+  outline-offset: 3px;
+}
+
+.progress {
+  width: min(100%, 360px);
+  accent-color: var(--md-sys-color-primary);
+}
+
+.notice,
+.error,
+.success,
+.snapshotNote {
+  margin: 12px 0;
+  padding: 12px 14px;
+  border-radius: 14px;
+  line-height: 1.4;
+}
+
+.notice,
+.snapshotNote {
+  color: var(--md-sys-color-on-secondary-container);
+  background: var(--md-sys-color-secondary-container);
+}
+
+.error {
+  color: var(--md-sys-color-on-error-container);
+  background: var(--md-sys-color-error-container);
+}
+
+.success {
+  color: var(--md-sys-color-on-tertiary-container);
+  background: var(--md-sys-color-tertiary-container);
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  padding-top: 4px;
+}
+
+@media (max-width: 520px) {
+  .wizard {
+    border-radius: 18px;
+  }
+
+  .steps {
+    grid-template-columns: 1fr;
+  }
+
+  .steps li:not([aria-current="step"]):not([data-complete="true"]) {
+    display: none;
+  }
+
+  .actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .primaryButton,
+  .secondaryButton,
+  .textButton {
+    width: 100%;
+  }
+
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wizard *,
+  .wizard *::before,
+  .wizard *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

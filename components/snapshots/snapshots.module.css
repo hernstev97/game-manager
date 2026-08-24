@@ -1,0 +1,110 @@
+.manager {
+  display: grid;
+  gap: 14px;
+}
+
+.headingRow,
+.cardActions,
+.inlineActions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.headingRow h3,
+.headingRow p {
+  margin: 0;
+}
+
+.headingRow p,
+.previewButton span,
+.empty {
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.list {
+  display: grid;
+  gap: 8px;
+  max-height: 360px;
+  overflow: auto;
+  content-visibility: auto;
+}
+
+.card {
+  display: grid;
+  gap: 6px;
+  padding: 10px;
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: 14px;
+  background: var(--md-sys-color-surface-container);
+}
+
+.previewButton {
+  display: grid;
+  gap: 2px;
+  padding: 2px;
+  border: 0;
+  color: inherit;
+  text-align: start;
+  background: transparent;
+  cursor: pointer;
+}
+
+.previewButton:focus-visible {
+  outline: 3px solid var(--md-sys-color-primary);
+  outline-offset: 3px;
+}
+
+.error {
+  display: grid;
+  gap: 4px;
+  padding: 12px;
+  border-radius: 12px;
+  color: var(--md-sys-color-on-error-container);
+  background: var(--md-sys-color-error-container);
+}
+
+.preview {
+  display: grid;
+  gap: 12px;
+}
+
+.detail {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid var(--md-sys-color-primary);
+  border-radius: 14px;
+  background: var(--md-sys-color-surface-container-high);
+}
+
+.detail h4,
+.detail p { margin: 0; }
+
+.preview ul {
+  margin-block: 6px;
+  padding-inline-start: 20px;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+}
+
+@media (max-width: 599px) {
+  .headingRow,
+  .cardActions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .cardActions m3-button,
+  .headingRow m3-button {
+    width: 100%;
+  }
+}

@@ -1,0 +1,126 @@
+.rail {
+  min-width: 0;
+  color: var(--md-sys-color-on-surface);
+}
+
+.viewList {
+  display: none;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.menuItems button:disabled {
+  cursor: default;
+  opacity: 0.45;
+}
+
+.viewItem {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 4px;
+}
+
+.viewButton,
+.menu summary,
+.menuItems button {
+  border: 0;
+  font: inherit;
+  cursor: pointer;
+}
+
+.viewButton {
+  display: flex;
+  min-width: 0;
+  min-height: 44px;
+  align-items: center;
+  gap: 8px;
+  border-radius: 14px;
+  padding: 8px 12px;
+  background: transparent;
+  color: var(--md-sys-color-on-surface-variant);
+  text-align: left;
+  transition: background-color var(--motion-duration-short) var(--motion-easing-standard);
+}
+
+.viewButton[aria-current="page"] {
+  background: var(--md-sys-color-secondary-container);
+  color: var(--md-sys-color-on-secondary-container);
+  font-weight: 700;
+}
+
+.viewName {
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dirtyDot {
+  width: 8px;
+  height: 8px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: var(--md-sys-color-tertiary);
+}
+
+.menu summary {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--md-sys-color-on-surface-variant);
+  list-style: none;
+}
+
+.menu summary::-webkit-details-marker {
+  display: none;
+}
+
+.menuItems {
+  position: absolute;
+  z-index: 3;
+  right: 0;
+  display: grid;
+  min-width: 170px;
+  padding: 6px;
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: 14px;
+  background: var(--md-sys-color-surface-container-high);
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--md-sys-color-scrim) 18%, transparent);
+}
+
+.menuItems button {
+  min-height: 40px;
+  border-radius: 10px;
+  padding: 6px 10px;
+  background: transparent;
+  color: var(--md-sys-color-on-surface);
+  text-align: left;
+}
+
+.menuItems button:hover,
+.viewButton:hover {
+  background: color-mix(in srgb, var(--md-sys-color-on-surface) 8%, transparent);
+}
+
+.menuItems .danger {
+  color: var(--md-sys-color-error);
+}
+
+@media (min-width: 600px) {
+  .viewList {
+    display: grid;
+    gap: 4px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .viewButton {
+    transition: none;
+  }
+}

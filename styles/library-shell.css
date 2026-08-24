@@ -1,0 +1,171 @@
+.library-shell {
+  width: min(95vw, 1440px);
+  margin: 0 auto;
+  padding: 16px 0 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.library-layout {
+  display: grid;
+  grid-template-columns: minmax(190px, 230px) minmax(0, 1fr);
+  align-items: start;
+  gap: clamp(16px, 2.4vw, 32px);
+}
+
+.library-workspace {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.top-app-actions {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 10px;
+}
+
+.library-tools {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  animation: reveal-up var(--motion-duration-long) var(--motion-easing-decelerate) 40ms backwards;
+}
+
+.desktop-library-actions,
+.mobile-library-actions,
+.reorder-toolbar,
+.settings-data-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mobile-library-actions,
+.mobile-filter-overview,
+.mobile-active-filters,
+.mobile-add-fab,
+.mobile-row-copy,
+.editor-mobile-nav,
+.editor-save-state,
+.settings-mobile-nav,
+.settings-mobile-back {
+  display: none;
+}
+
+.dialog-leading-action {
+  display: inline-flex;
+}
+
+.library-tools m3-search-bar {
+  flex: 1 1 280px;
+  min-width: min(100%, 240px);
+}
+
+@media (max-width: 839px) {
+  .library-shell {
+    width: min(94vw, 760px);
+  }
+
+  .library-layout {
+    grid-template-columns: minmax(150px, 190px) minmax(0, 1fr);
+    gap: 14px;
+  }
+}
+
+@media (max-width: 599px) {
+  .desktop-add-action,
+  .desktop-library-actions,
+  .desktop-library-toolbar,
+  .desktop-view-controls,
+  .desktop-row-copy,
+  .desktop-dialog-cancel {
+    display: none;
+  }
+
+  .mobile-library-actions,
+  .mobile-row-copy,
+  .mobile-add-fab,
+  .editor-save-state {
+    display: flex;
+  }
+
+  .library-shell {
+    width: 100%;
+    padding: 6px var(--mobile-page-gutter) calc(88px + env(safe-area-inset-bottom));
+    gap: 8px;
+  }
+
+  .library-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .library-workspace {
+    width: 100%;
+    gap: 8px;
+  }
+
+  .mobile-library-actions {
+    flex: 0 0 44px;
+    width: 44px;
+  }
+
+  .mobile-overflow-anchor,
+  .mobile-overflow-anchor m3-icon-button {
+    flex: 0 0 44px;
+    width: 44px;
+    height: 44px;
+  }
+
+  .mobile-menu-group-label {
+    display: block;
+    padding: 8px 16px 4px;
+    color: var(--md-sys-color-on-surface-variant);
+    font-size: 0.72rem;
+    font-weight: 750;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .library-collection-divider {
+    margin-top: -2px;
+  }
+
+  .is-selection-mode .filter-bar {
+    opacity: 0.82;
+  }
+
+  .top-app-actions {
+    gap: 4px;
+  }
+}
+
+@media (max-width: 359px) {
+  .top-app-actions > m3-icon-button[aria-label="Tastenkürzel anzeigen"] {
+    display: none;
+  }
+}
+
+@media (max-width: 599px) {
+  .reorder-toolbar {
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 0;
+  }
+
+  .reorder-toolbar .settings-copy {
+    display: none;
+  }
+
+  .reorder-toolbar m3-button {
+    margin-left: auto;
+  }
+}

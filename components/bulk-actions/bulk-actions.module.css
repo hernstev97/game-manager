@@ -1,0 +1,262 @@
+.bar {
+  position: fixed;
+  z-index: 1000;
+  right: max(20px, env(safe-area-inset-right));
+  bottom: max(20px, env(safe-area-inset-bottom));
+  left: max(20px, env(safe-area-inset-left));
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  max-width: 1100px;
+  margin-inline: auto;
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: 24px;
+  padding: 12px 14px;
+  color: var(--md-sys-color-on-surface);
+  background: var(--md-sys-color-surface-container-high);
+  box-shadow: 0 8px 28px rgb(0 0 0 / 22%);
+}
+
+.summary,
+.selectionActions,
+.bulkActions,
+.quickActions,
+.dialogActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.summary {
+  white-space: nowrap;
+}
+
+.summary strong {
+  display: grid;
+  min-width: 32px;
+  min-height: 32px;
+  place-items: center;
+  border-radius: 16px;
+  color: var(--md-sys-color-on-primary);
+  background: var(--md-sys-color-primary);
+}
+
+.bulkActions {
+  min-width: 0;
+  overflow-x: auto;
+}
+
+.quickActions {
+  flex-wrap: wrap;
+}
+
+.moreActions {
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.moreActions summary {
+  min-height: 40px;
+  box-sizing: border-box;
+  border: 1px solid var(--md-sys-color-outline);
+  border-radius: 999px;
+  padding: 10px 14px;
+  background: var(--md-sys-color-surface-container-low);
+  cursor: pointer;
+  list-style: none;
+}
+
+.moreActions summary::-webkit-details-marker {
+  display: none;
+}
+
+.moreActionsPanel {
+  position: fixed;
+  z-index: 1001;
+  right: max(20px, env(safe-area-inset-right));
+  bottom: 104px;
+  left: max(20px, env(safe-area-inset-left));
+  display: grid;
+  max-width: 980px;
+  max-height: min(70vh, 620px);
+  gap: 12px;
+  margin-inline: auto;
+  overflow: auto;
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: 22px;
+  padding: 16px;
+  color: var(--md-sys-color-on-surface);
+  background: var(--md-sys-color-surface-container-highest);
+  box-shadow: 0 10px 32px color-mix(in srgb, var(--md-sys-color-scrim) 28%, transparent);
+}
+
+.bar button,
+.fieldControl button,
+.quickActions button,
+.dialog button,
+.fieldControl select,
+.fieldControl input {
+  min-height: 40px;
+  border: 1px solid var(--md-sys-color-outline);
+  border-radius: 999px;
+  padding: 0 14px;
+  color: inherit;
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
+}
+
+.bar button:focus-visible,
+.fieldControl button:focus-visible,
+.quickActions button:focus-visible,
+.dialog button:focus-visible,
+.fieldControl select:focus-visible,
+.fieldControl input:focus-visible {
+  outline: 3px solid var(--md-sys-color-tertiary);
+  outline-offset: 2px;
+}
+
+.bar button:disabled,
+.fieldControl:disabled,
+.quickActions button:disabled {
+  cursor: default;
+  opacity: 0.45;
+}
+
+.textButton,
+.closeButton {
+  border-color: transparent !important;
+}
+
+.closeButton {
+  width: 44px;
+  padding: 0 !important;
+  font-size: 1.5rem !important;
+}
+
+.primaryButton {
+  border-color: var(--md-sys-color-primary) !important;
+  color: var(--md-sys-color-on-primary) !important;
+  background: var(--md-sys-color-primary) !important;
+}
+
+.dangerButton {
+  border-color: var(--md-sys-color-error) !important;
+  color: var(--md-sys-color-on-error) !important;
+  background: var(--md-sys-color-error) !important;
+}
+
+.fieldControl {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: 18px;
+  padding: 12px;
+}
+
+.fieldControl label {
+  display: grid;
+  gap: 4px;
+  font-size: 0.75rem;
+}
+
+.fieldControl select {
+  min-width: 140px;
+  background: var(--md-sys-color-surface);
+}
+
+.classificationControls {
+  display: grid;
+  gap: 12px;
+}
+
+.growingField {
+  flex: 1 1 180px;
+}
+
+.fieldControl input {
+  min-width: 0;
+  background: var(--md-sys-color-surface);
+}
+
+.dialog {
+  width: min(480px, calc(100vw - 32px));
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: 28px;
+  padding: 24px;
+  color: var(--md-sys-color-on-surface);
+  background: var(--md-sys-color-surface-container-high);
+  box-shadow: 0 12px 40px rgb(0 0 0 / 28%);
+}
+
+.dialog::backdrop {
+  background: rgb(0 0 0 / 48%);
+}
+
+.dialog h2 {
+  margin: 0 0 12px;
+}
+
+.dialogActions {
+  justify-content: flex-end;
+  margin-top: 24px;
+}
+
+@media (max-width: 599px) {
+  .bar {
+    right: 8px;
+    bottom: max(8px, env(safe-area-inset-bottom));
+    left: 8px;
+    grid-template-columns: 1fr auto;
+    gap: 8px;
+    padding: 10px 12px;
+    border-radius: 20px;
+  }
+
+  .selectionActions,
+  .bulkActions {
+    grid-column: 1 / -1;
+  }
+
+  .bulkActions,
+  .quickActions {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+  }
+
+  .quickActions button {
+    flex: 0 0 auto;
+  }
+
+  .closeButton {
+    grid-column: 2;
+    grid-row: 1;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .bar,
+  .dialog {
+    animation: bulk-enter 180ms ease-out;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bar,
+  .dialog,
+  .bar *,
+  .dialog * {
+    scroll-behavior: auto !important;
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+@keyframes bulk-enter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}

@@ -46,6 +46,14 @@ export function IconSettings(props: IconProps) {
   );
 }
 
+export function IconMore(props: IconProps) {
+  return <Glyph path="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2m0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2m0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2" {...props} />;
+}
+
+export function IconTune(props: IconProps) {
+  return <Glyph path="M3 17v2h6v-2zm0-12v2h10V5zm10 16v-2h8v-2h-8v-2h-2v6zM7 9v2H3v2h4v2h2V9zm14 4v-2H11v2zm-6-4h2V7h4V5h-4V3h-2z" {...props} />;
+}
+
 export function IconAdd(props: IconProps) {
   return <Glyph path="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6z" {...props} />;
 }

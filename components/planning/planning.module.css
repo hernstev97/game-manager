@@ -1,0 +1,445 @@
+.navigation {
+  display: inline-flex;
+  max-width: 100%;
+  gap: 2px;
+  padding: 3px;
+  flex-wrap: nowrap;
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: 20px;
+  background: var(--md-sys-color-surface-container);
+}
+
+.navigationButton,
+.reorderButton,
+.secondaryButton,
+.removeButton,
+.gameNameButton,
+.dragHandle {
+  border: 0;
+  color: inherit;
+  font: inherit;
+}
+
+.navigationButton {
+  min-height: 44px;
+  padding: 0 14px;
+  border-radius: 999px;
+  color: var(--md-sys-color-on-surface-variant);
+  background: transparent;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+@media (max-width: 599px) {
+  .navigation {
+    display: flex;
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+
+  .navigationButton {
+    min-width: 0;
+    flex: 1 1 0;
+    padding-inline: 8px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+.navigationButton[aria-current="page"] {
+  color: var(--md-sys-color-on-secondary-container);
+  background: var(--md-sys-color-secondary-container);
+}
+
+.view {
+  width: 100%;
+  min-width: 0;
+  padding: clamp(12px, 2.4vw, 28px);
+  overflow: clip;
+}
+
+.header {
+  display: flex;
+  min-width: 0;
+  gap: 16px;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.eyebrow,
+.title,
+.description {
+  margin: 0;
+}
+
+.eyebrow {
+  color: var(--md-sys-color-primary);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.title {
+  margin-top: 3px;
+  color: var(--md-sys-color-on-surface);
+  font-size: clamp(1.35rem, 4vw, 1.85rem);
+  line-height: 1.18;
+  overflow-wrap: anywhere;
+}
+
+.description {
+  max-width: 66ch;
+  margin-top: 6px;
+  color: var(--md-sys-color-on-surface-variant);
+  line-height: 1.45;
+}
+
+.count {
+  flex: 0 0 auto;
+  padding: 6px 10px;
+  border-radius: 999px;
+  color: var(--md-sys-color-on-secondary-container);
+  background: var(--md-sys-color-secondary-container);
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.insertionPanel {
+  display: grid;
+  grid-template-columns: minmax(130px, 1fr) minmax(180px, 2fr) auto;
+  gap: 8px 12px;
+  align-items: center;
+  margin-bottom: 12px;
+  padding: 12px;
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: 16px;
+  background: var(--md-sys-color-surface-container-low);
+}
+
+.candidateLabel {
+  color: var(--md-sys-color-on-surface);
+  font-weight: 650;
+}
+
+.select,
+.rankControl select {
+  box-sizing: border-box;
+  min-width: 0;
+  min-height: 40px;
+  border: 1px solid var(--md-sys-color-outline);
+  border-radius: 10px;
+  color: var(--md-sys-color-on-surface);
+  background: var(--md-sys-color-surface);
+  font: inherit;
+}
+
+.select {
+  width: 100%;
+  padding: 0 34px 0 10px;
+}
+
+.insertionActions,
+.itemActions {
+  display: flex;
+  min-width: 0;
+  gap: 8px;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+.secondaryButton,
+.removeButton,
+.reorderButton {
+  min-height: 40px;
+  padding: 0 13px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.secondaryButton,
+.reorderButton {
+  border: 1px solid var(--md-sys-color-outline);
+  color: var(--md-sys-color-primary);
+  background: transparent;
+}
+
+.removeButton {
+  color: var(--md-sys-color-error);
+  background: transparent;
+}
+
+.reorderControl {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  margin: 12px 0;
+  padding: 8px 10px 8px 14px;
+  border-radius: 14px;
+  background: var(--md-sys-color-surface-container);
+}
+
+.reorderHint {
+  min-width: 0;
+  color: var(--md-sys-color-on-surface-variant);
+  font-size: 0.86rem;
+  line-height: 1.35;
+}
+
+.reorderButton {
+  display: inline-flex;
+  flex: 0 0 auto;
+  gap: 7px;
+  align-items: center;
+}
+
+.reorderButton[aria-pressed="true"] {
+  border-color: transparent;
+  color: var(--md-sys-color-on-tertiary-container);
+  background: var(--md-sys-color-tertiary-container);
+}
+
+.list {
+  display: grid;
+  min-width: 0;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 88px minmax(0, 1fr) auto;
+  min-width: 0;
+  gap: 12px;
+  align-items: center;
+  padding: 9px 10px;
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: 16px;
+  background: var(--md-sys-color-surface-container-low);
+  transition:
+    box-shadow var(--motion-duration-short) var(--motion-easing-standard),
+    background-color var(--motion-duration-short) var(--motion-easing-standard);
+}
+
+.item[data-dragging] {
+  background: var(--md-sys-color-surface-container-high);
+  box-shadow: 0 8px 22px color-mix(in srgb, var(--md-sys-color-scrim) 20%, transparent);
+}
+
+.position {
+  display: inline-flex;
+  min-width: 42px;
+  height: 42px;
+  align-items: baseline;
+  justify-content: center;
+  border-radius: 12px;
+  color: var(--md-sys-color-on-primary-container);
+  background: var(--md-sys-color-primary-container);
+  font-size: 1.05rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 750;
+  line-height: 42px;
+}
+
+.cover {
+  display: block;
+  width: 88px;
+  height: 52px;
+  object-fit: cover;
+  overflow: hidden;
+  border-radius: 9px;
+  background: var(--md-sys-color-surface-container-high);
+}
+
+.itemCopy {
+  display: grid;
+  min-width: 0;
+  gap: 3px;
+}
+
+.gameName,
+.gameNameButton {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--md-sys-color-on-surface);
+  font-weight: 680;
+  line-height: 1.3;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.gameNameButton {
+  width: fit-content;
+  max-width: 100%;
+  padding: 2px 0;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.status {
+  overflow: hidden;
+  color: var(--md-sys-color-on-surface-variant);
+  font-size: 0.82rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dragHandle {
+  display: inline-grid;
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--md-sys-color-on-secondary-container);
+  background: var(--md-sys-color-secondary-container);
+  cursor: grab;
+  touch-action: none;
+}
+
+.dragHandle:active {
+  cursor: grabbing;
+}
+
+.rankControl {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  color: var(--md-sys-color-on-surface-variant);
+  font-size: 0.82rem;
+}
+
+.rankControl select {
+  width: 62px;
+  padding-inline: 8px;
+}
+
+.emptyState {
+  margin: 8px 0 0;
+  padding: clamp(22px, 6vw, 52px) 16px;
+  border: 1px dashed var(--md-sys-color-outline);
+  border-radius: 16px;
+  color: var(--md-sys-color-on-surface-variant);
+  background: var(--md-sys-color-surface-container-low);
+  text-align: center;
+}
+
+.navigationButton:focus-visible,
+.reorderButton:focus-visible,
+.secondaryButton:focus-visible,
+.removeButton:focus-visible,
+.gameNameButton:focus-visible,
+.dragHandle:focus-visible,
+.select:focus-visible,
+.rankControl select:focus-visible {
+  outline: 3px solid var(--md-sys-color-primary);
+  outline-offset: 2px;
+}
+
+.navigationButton:disabled,
+.reorderButton:disabled,
+.secondaryButton:disabled,
+.removeButton:disabled,
+.gameNameButton:disabled,
+.dragHandle:disabled,
+.select:disabled,
+.rankControl select:disabled {
+  cursor: default;
+  opacity: 0.45;
+}
+
+@media (max-width: 760px) {
+  .header {
+    display: grid;
+  }
+
+  .count {
+    width: fit-content;
+  }
+
+  .insertionPanel {
+    grid-template-columns: 1fr;
+  }
+
+  .insertionActions {
+    justify-content: flex-start;
+  }
+
+  .item {
+    grid-template-columns: auto 72px minmax(0, 1fr);
+  }
+
+  .itemActions {
+    grid-column: 2 / -1;
+    justify-content: flex-start;
+  }
+
+  .cover {
+    width: 72px;
+    height: 44px;
+  }
+}
+
+@media (max-width: 420px) {
+  .navigationButton {
+    padding-inline: 3px;
+    font-size: 0.8125rem;
+  }
+
+  .view {
+    padding-inline: 8px;
+  }
+
+  .reorderControl {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .reorderButton {
+    justify-content: center;
+  }
+
+  .item {
+    grid-template-columns: 38px 64px minmax(0, 1fr);
+    gap: 8px;
+    padding: 8px;
+  }
+
+  .position {
+    min-width: 38px;
+    height: 38px;
+    line-height: 38px;
+  }
+
+  .cover {
+    width: 64px;
+    height: 40px;
+  }
+
+  .itemActions {
+    grid-column: 1 / -1;
+  }
+
+  .secondaryButton,
+  .removeButton {
+    flex: 1 1 auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .item {
+    transition: none;
+  }
+}
+
+:global(:root[data-motion="none"]) .item {
+  transition: none;
+}
