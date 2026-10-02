@@ -49,46 +49,48 @@ m3-dialog.is-paged .editor-body {
   position: relative;
   flex: 0 0 auto;
   width: 100%;
-  height: clamp(170px, 38vw, 240px);
+  height: clamp(160px, 34vw, 220px);
   overflow: hidden;
-  border-radius: 20px;
+  border-radius: var(--md-sys-shape-corner-extra-large);
   background: var(--md-sys-color-surface-container-highest);
-  box-shadow: 0 8px 24px color-mix(in srgb, var(--md-sys-color-scrim) 12%, transparent);
   animation: editor-cover-enter var(--motion-duration-long) var(--motion-easing-decelerate) backwards;
 }
 
 .editor-cover-manage {
   position: absolute;
   z-index: 2;
-  right: 14px;
-  bottom: 14px;
-  min-height: 42px;
-  border: 1px solid rgb(255 255 255 / 45%);
-  border-radius: 999px;
-  padding: 0 16px;
-  color: #fff;
-  background: rgb(0 0 0 / 68%);
-  font: inherit;
-  font-weight: 700;
+  right: var(--space-3);
+  bottom: var(--space-3);
+  min-height: 40px;
+  border: 0;
+  border-radius: var(--md-sys-shape-corner-full);
+  padding: 0 var(--space-4);
+  color: var(--md-sys-color-on-secondary-container);
+  background: var(--md-sys-color-secondary-container);
+  box-shadow: var(--md-sys-elevation-level2);
+  font: var(--md-sys-typescale-label-large);
   cursor: pointer;
-  backdrop-filter: blur(8px);
+  transition: border-radius var(--motion-duration-medium) var(--md-sys-motion-spring-fast-spatial);
+}
+
+.editor-cover-manage:active {
+  border-radius: var(--md-sys-shape-corner-small);
 }
 
 .editor-cover-warning {
   position: absolute;
   z-index: 2;
-  left: 14px;
-  bottom: 14px;
-  padding: 8px 12px;
-  border-radius: 999px;
+  left: var(--space-3);
+  bottom: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--md-sys-shape-corner-full);
   color: var(--md-sys-color-on-error-container);
-  background: color-mix(in srgb, var(--md-sys-color-error-container) 92%, transparent);
-  font-size: 0.78rem;
-  font-weight: 700;
+  background: var(--md-sys-color-error-container);
+  font: var(--md-sys-typescale-label-medium);
 }
 
 .editor-cover-manage:focus-visible {
-  outline: 3px solid var(--md-sys-color-tertiary-container);
+  outline: 3px solid var(--md-sys-color-secondary);
   outline-offset: 2px;
 }
 
@@ -119,31 +121,218 @@ m3-dialog.is-paged .editor-body {
   animation: cover-image-reveal var(--motion-duration-medium) var(--motion-easing-decelerate) backwards;
 }
 
-.editor-identity-fields {
-  gap: 16px;
+.editor-title-row {
+  display: grid;
+  gap: var(--space-1);
+}
+
+/* Sections: always-visible groups first, rare groups collapsed. */
+.editor-section {
+  display: grid;
+  min-width: 0;
+  gap: var(--space-3);
+}
+
+.editor-section + .editor-section {
+  padding-top: var(--space-2);
+}
+
+.editor-section-title {
+  margin: 0;
+  color: var(--md-sys-color-primary);
+  font: var(--md-sys-typescale-title-small);
+}
+
+.editor-section-body {
+  display: grid;
+  min-width: 0;
+  gap: var(--space-4);
+}
+
+.editor-section.is-collapsible {
+  gap: 0;
+  padding: 0;
+  border-radius: var(--md-sys-shape-corner-large);
+  background: var(--md-sys-color-surface-container-low);
+}
+
+.editor-section.is-collapsible + .editor-section.is-collapsible {
+  margin-top: calc(var(--space-4) * -1 + 2px);
+  border-top-left-radius: var(--md-sys-shape-corner-extra-small);
+  border-top-right-radius: var(--md-sys-shape-corner-extra-small);
+}
+
+.editor-section.is-collapsible:has(+ .editor-section.is-collapsible) {
+  border-bottom-left-radius: var(--md-sys-shape-corner-extra-small);
+  border-bottom-right-radius: var(--md-sys-shape-corner-extra-small);
+}
+
+.editor-section-summary {
+  display: flex;
+  min-height: 64px;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-4);
+  border-radius: inherit;
+  cursor: pointer;
+  list-style: none;
+}
+
+.editor-section-summary::-webkit-details-marker {
+  display: none;
+}
+
+.editor-section-summary:hover {
+  background: color-mix(in srgb, var(--md-sys-color-on-surface) 8%, transparent);
+}
+
+.editor-section-summary:focus-visible {
+  outline: 3px solid var(--md-sys-color-secondary);
+  outline-offset: -3px;
+}
+
+.editor-section-heading {
+  display: grid;
+  gap: 2px;
+}
+
+.editor-section.is-collapsible .editor-section-title {
+  color: var(--md-sys-color-on-surface);
+  font: var(--md-sys-typescale-title-medium);
+}
+
+.editor-section-hint {
+  color: var(--md-sys-color-on-surface-variant);
+  font: var(--md-sys-typescale-body-medium);
+}
+
+.editor-section-chevron {
+  flex: 0 0 auto;
+  color: var(--md-sys-color-on-surface-variant);
+  transition: rotate var(--motion-duration-medium) var(--md-sys-motion-spring-fast-spatial);
+}
+
+.editor-section[open] .editor-section-chevron {
+  rotate: 180deg;
+}
+
+.editor-section.is-collapsible > .editor-section-body {
+  padding: var(--space-2) var(--space-4) var(--space-4);
+}
+
+.rating-field {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.rating-field-header {
+  display: flex;
+  min-height: 40px;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.rating-field-label {
+  color: var(--md-sys-color-on-surface);
+  font: var(--md-sys-typescale-title-medium);
+}
+
+.rating-field-value {
+  margin-right: auto;
+  color: var(--md-sys-color-on-surface-variant);
+  font: var(--md-sys-typescale-emphasized-title-medium);
+  font-variant-numeric: tabular-nums;
+}
+
+.rating-control m3-slider {
+  width: 100%;
+}
+
+.status-chips {
+  gap: var(--space-2);
+}
+
+/* Queue / ranking slot inside the editor. */
+.plan-slot {
+  display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-4);
+  min-height: 56px;
+  padding: var(--space-2) var(--space-2) var(--space-2) var(--space-4);
+  border-radius: var(--md-sys-shape-corner-large);
+  background: var(--md-sys-color-surface-container-low);
+}
+
+.plan-slot-copy {
+  display: grid;
+  min-width: 0;
+}
+
+.plan-slot-label {
+  color: var(--md-sys-color-on-surface);
+  font: var(--md-sys-typescale-title-medium);
+}
+
+.plan-slot-value {
+  color: var(--md-sys-color-on-surface-variant);
+  font: var(--md-sys-typescale-body-medium);
+}
+
+.plan-slot-actions {
+  display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-1);
+  margin-left: auto;
+}
+
+.plan-slot-input {
+  width: 64px;
+  height: 40px;
+  box-sizing: border-box;
+  padding: 0 var(--space-2);
+  border: 1px solid var(--md-sys-color-outline);
+  border-radius: var(--md-sys-shape-corner-small);
+  color: var(--md-sys-color-on-surface);
+  background: transparent;
+  font: var(--md-sys-typescale-title-medium);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+.plan-slot-input:focus {
+  border-color: var(--md-sys-color-primary);
+  outline: 1px solid var(--md-sys-color-primary);
 }
 
 .editor-source-stack {
   display: grid;
-  gap: 12px;
+  gap: 2px;
 }
 
 .editor-source-card {
   display: block;
   min-width: 0;
   margin: 0;
-  padding: 16px;
-  border: 1px solid var(--md-sys-color-outline-variant);
-  border-radius: 20px;
-  background: color-mix(
-    in srgb,
-    var(--md-sys-color-surface-container-highest) 72%,
-    transparent
-  );
+  padding: var(--space-4);
+  border-radius: var(--md-sys-shape-corner-extra-small);
+  background: var(--md-sys-color-surface-container);
 }
 
-.editor-source-card[open] {
-  padding-bottom: 16px;
+.editor-source-card:first-child {
+  border-top-left-radius: var(--md-sys-shape-corner-large);
+  border-top-right-radius: var(--md-sys-shape-corner-large);
+}
+
+.editor-source-card:last-child {
+  border-bottom-left-radius: var(--md-sys-shape-corner-large);
+  border-bottom-right-radius: var(--md-sys-shape-corner-large);
 }
 
 .editor-source-header {
@@ -162,21 +351,20 @@ m3-dialog.is-paged .editor-body {
 .editor-source-header strong {
   margin: 0;
   color: var(--md-sys-color-on-surface);
-  font-size: 1rem;
-  font-weight: 650;
+  font: var(--md-sys-typescale-title-medium);
 }
 
 .editor-source-header small {
   color: var(--md-sys-color-on-surface-variant);
-  font-size: 0.75rem;
+  font: var(--md-sys-typescale-body-small);
 }
 
 .editor-source-status {
-  padding: 4px 8px;
-  border-radius: 999px;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--md-sys-shape-corner-small);
   color: var(--md-sys-color-on-surface-variant);
   background: var(--md-sys-color-surface-container-highest);
-  font-size: 0.72rem;
+  font: var(--md-sys-typescale-label-medium);
 }
 
 .editor-source-status[data-connected="true"] {
@@ -186,33 +374,33 @@ m3-dialog.is-paged .editor-body {
 
 .editor-source-fields {
   display: grid;
-  gap: 12px;
-  padding-top: 12px;
+  gap: var(--space-3);
+  padding-top: var(--space-3);
 }
 
 .editor-field-with-provenance {
   display: grid;
-  gap: 4px;
+  gap: var(--space-1);
 }
 
 .editor-field-provenance {
   color: var(--md-sys-color-on-surface-variant);
-  font-size: 0.7rem;
+  font: var(--md-sys-typescale-body-small);
 }
 
 .editor-mobile-nav {
   align-items: center;
   justify-content: space-between;
-  min-height: 52px;
-  padding: 4px 8px;
+  min-height: 56px;
+  padding: var(--space-1) var(--space-2);
   color: var(--md-sys-color-on-surface-variant);
-  background: color-mix(in srgb, var(--md-sys-color-surface-container-high) 94%, transparent);
-  border-top: 1px solid var(--md-sys-color-outline-variant);
+  background: var(--md-sys-color-surface-container);
+  font: var(--md-sys-typescale-label-large);
 }
 
 .editor-save-state {
   color: var(--md-sys-color-on-surface-variant);
-  font-size: 0.75rem;
+  font: var(--md-sys-typescale-body-small);
 }
 
 .visually-hidden {
@@ -240,40 +428,17 @@ m3-dialog.is-paged .editor-body {
     overscroll-behavior: contain;
   }
 
-  .editor-body > m3-tabs {
-    flex: 0 0 auto;
-    position: sticky;
-    top: 0;
-    z-index: 3;
-    margin-inline: -16px;
-    width: calc(100% + 32px);
-    background: var(--md-sys-color-surface-container-high);
-  }
-
   .editor-save-state {
     padding: 8px 0 0;
   }
 
   .editor-cover-hero {
-    width: calc(100% + 32px);
-    height: clamp(145px, 46vw, 210px);
-    margin: -10px -16px 0;
-    border-radius: 0 0 22px 22px;
-    box-shadow: 0 10px 24px color-mix(in srgb, var(--md-sys-color-scrim) 14%, transparent);
+    height: clamp(140px, 44vw, 200px);
+    border-radius: var(--md-sys-shape-corner-large);
   }
 
-  .editor-cover-hero + .editor-save-state {
-    padding-top: 0;
-  }
-
-  .editor-source-card {
-    padding: 14px;
-    border-radius: 18px;
-  }
-
-  .editor-fields {
-    flex: 0 0 auto;
-    padding: 4px 0 16px;
+  .plan-slot-actions {
+    width: 100%;
   }
 
   .editor-mobile-nav {
@@ -283,7 +448,6 @@ m3-dialog.is-paged .editor-body {
     z-index: 3;
     display: flex;
     margin: 0 -16px -16px;
-    padding-inline: 12px;
-    backdrop-filter: blur(10px);
+    padding-inline: var(--space-3);
   }
 }

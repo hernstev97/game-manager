@@ -20,7 +20,7 @@ import {
 } from "@/components/editor/fields/ChoiceFields";
 import { RatingField } from "@/components/editor/fields/RatingField";
 import { PriorityField } from "@/components/editor/fields/PriorityField";
-import { PositionField } from "@/components/editor/fields/PositionField";
+import { PlanSlotField } from "@/components/editor/fields/PlanSlotField";
 import { SteamAppIdField } from "@/components/editor/fields/SteamFields";
 import { IgdbIdField } from "@/components/editor/fields/IgdbFields";
 import { SteamPriceField } from "@/components/editor/fields/SteamPriceField";
@@ -113,15 +113,18 @@ export function EditorField({
   }
 
   if (field.type === "priority") {
-    return <PriorityField field={field} value={value} onPriority={onPriority} />;
+    return <PriorityField field={field} value={value} total={games.length} onPriority={onPriority} />;
   }
 
   if (field.type === "position") {
     const fieldId = field.id === "favoriteRank" ? "favoriteRank" : "queuePosition";
     return (
-      <PositionField
-        label={field.label}
+      <PlanSlotField
+        label={fieldId === "favoriteRank" ? "Ranking" : "Als Nächstes"}
         value={value}
+        total={games.length}
+        emptyText={fieldId === "favoriteRank" ? "Nicht gerankt" : "Nicht eingereiht"}
+        addLabel={fieldId === "favoriteRank" ? "Ranken" : "Einreihen"}
         onPosition={(position) => onPosition(fieldId, position)}
       />
     );
