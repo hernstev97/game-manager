@@ -1,16 +1,15 @@
 "use client";
 
-import { useId, useMemo, useRef } from "react";
+import { useMemo } from "react";
+import { PlanningGamePicker } from "./PlanningGamePicker";
 import { PlanningList } from "./PlanningList";
-import { ReorderModeControl } from "./ReorderModeControl";
-import { orderedPlanningGames } from "./planning-helpers";
+import { PlanningRowMenu } from "./PlanningRowMenu";
+import { orderedPlanningGames, planningOrderWithEdgeMove } from "./planning-helpers";
 import type { PlanningGame, QueueInsertion } from "./types";
 import styles from "./planning.module.css";
 
 export interface QueueViewProps {
   games: readonly PlanningGame[];
-  reorderMode: boolean;
-  onReorderModeChange: (active: boolean) => void;
   onReorder: (orderedIds: readonly string[]) => void;
   onInsert: (gameId: string, placement: QueueInsertion) => void;
   onRemove: (gameId: string) => void;
@@ -18,18 +17,19 @@ export interface QueueViewProps {
   disabled?: boolean;
 }
 
+const INSERT_ACTIONS = [
+  { value: "first", label: "Als Nächstes" },
+  { value: "last", label: "Ans Ende" },
+] as const;
+
 export function QueueView({
   games,
-  reorderMode,
-  onReorderModeChange,
   onReorder,
   onInsert,
   onRemove,
   onOpenGame,
   disabled = false,
 }: QueueViewProps) {
-  const candidateId = useId();
-  const selectRef = useRef<HTMLSelectElement>(null);
   const queuedGames = useMemo(
     () => orderedPlanningGames(games, "queuePosition"),
     [games],
@@ -45,86 +45,51 @@ export function QueueView({
     },
     [games, queuedGames],
   );
-  const insert = (placement: QueueInsertion) => {
-    const gameId = selectRef.current?.value;
-    if (gameId) onInsert(gameId, placement);
-  };
-  const reorderAvailable = queuedGames.length > 1;
-  const reordering = reorderMode && reorderAvailable && !disabled;
 
   return (
-    <section className={styles.view} aria-labelledby="queue-view-title">
-      <header className={styles.header}>
-        <div>
-          <p className={styles.eyebrow}>Planung</p>
-          <h2 id="queue-view-title" className={styles.title}>Spielwarteschlange</h2>
-          <p className={styles.description}>
-            Die sichtbare Nummer ist die Spielreihenfolge – unabhängig von Bewertung und Status.
-          </p>
-        </div>
-        <span className={styles.count}>{queuedGames.length} in der Warteschlange</span>
-      </header>
-
-      <div className={styles.insertionPanel}>
-        <label className={styles.candidateLabel} htmlFor={candidateId}>
-          Spiel hinzufügen
-        </label>
-        <select
-          ref={selectRef}
-          id={candidateId}
-          className={styles.select}
-          disabled={disabled || candidates.length === 0}
-          defaultValue={candidates[0]?.id ?? ""}
-        >
-          {candidates.length === 0 ? <option value="">Alle Spiele sind eingeordnet</option> : null}
-          {candidates.map((game) => (
-            <option key={game.id} value={game.id}>{game.name || "Unbenanntes Spiel"}</option>
-          ))}
-        </select>
-        <div className={styles.insertionActions}>
-          <button
-            type="button"
-            className={styles.secondaryButton}
-            disabled={disabled || candidates.length === 0}
-            onClick={() => insert("first")}
-          >
-            An erste Position
-          </button>
-          <button
-            type="button"
-            className={styles.secondaryButton}
-            disabled={disabled || candidates.length === 0}
-            onClick={() => insert("last")}
-          >
-            An letzte Position
-          </button>
-        </div>
+    <section className={styles.view} aria-label="Spielwarteschlange">
+      <div className={styles.intro}>
+        <p className={styles.description}>
+          Deine Reihenfolge für die nächsten Spiele – unabhängig von Bewertung und Status.
+        </p>
+        <span className={styles.count}>{queuedGames.length} eingereiht</span>
       </div>
 
-      <ReorderModeControl
-        active={reordering}
-        disabled={disabled || !reorderAvailable}
-        subject="Spielreihenfolge"
-        onChange={onReorderModeChange}
+      <PlanningGamePicker
+        candidates={candidates}
+        triggerLabel="Spiel einreihen"
+        emptyLabel="Alle Spiele sind eingereiht"
+        actions={INSERT_ACTIONS}
+        disabled={disabled}
+        onPick={(gameId, action) => onInsert(gameId, action as QueueInsertion)}
       />
+
       <PlanningList
         games={queuedGames}
         listLabel="Warteschlange nach Spielreihenfolge"
         positionLabel="Spielreihenfolge"
-        emptyMessage="Die Spielwarteschlange ist leer. Füge ein Spiel an der ersten oder letzten Position ein."
-        reorderMode={reordering}
+        emptyMessage="Noch nichts eingereiht. Wähle oben ein Spiel, das du als Nächstes spielen willst."
         disabled={disabled}
         onReorder={onReorder}
         onOpenGame={onOpenGame}
-        renderActions={(game) => (
-          <button
-            type="button"
-            className={styles.removeButton}
+        renderActions={(game, position) => (
+          <PlanningRowMenu
+            gameName={game.name || "Unbenanntes Spiel"}
             disabled={disabled}
-            onClick={() => onRemove(game.id)}
-          >
-            Entfernen
-          </button>
+            actions={[
+              { value: "start", label: "An den Anfang", disabled: position === 1 },
+              { value: "end", label: "Ans Ende", disabled: position === queuedGames.length },
+              { value: "remove", label: "Aus Warteschlange entfernen" },
+            ]}
+            onAction={(action) => {
+              if (action === "remove") {
+                onRemove(game.id);
+                return;
+              }
+              const next = planningOrderWithEdgeMove(queuedGames, game.id, action as "start" | "end");
+              if (next) onReorder(next);
+            }}
+          />
         )}
       />
     </section>

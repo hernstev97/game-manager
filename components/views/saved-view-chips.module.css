@@ -1,0 +1,114 @@
+.row {
+  position: relative;
+  min-width: 0;
+}
+
+.scroller {
+  display: flex;
+  min-width: 0;
+  gap: var(--space-2);
+  padding-block: var(--space-1);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-padding-inline: var(--app-gutter);
+  scrollbar-width: none;
+}
+
+.scroller::-webkit-scrollbar {
+  display: none;
+}
+
+.chip {
+  position: relative;
+  display: inline-flex;
+  flex: 0 0 auto;
+  height: 32px;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0 var(--space-4);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-corner-small);
+  color: var(--md-sys-color-on-surface-variant);
+  background: transparent;
+  font: var(--md-sys-typescale-label-large);
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    border-radius var(--motion-duration-medium) var(--md-sys-motion-spring-fast-spatial),
+    background-color var(--motion-duration-short) var(--md-sys-motion-spring-fast-effects),
+    color var(--motion-duration-short) var(--md-sys-motion-spring-fast-effects);
+}
+
+.chip::before {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: currentColor;
+  content: "";
+  opacity: 0;
+  pointer-events: none;
+}
+
+.chip:hover::before {
+  opacity: var(--md-sys-state-hover-opacity);
+}
+
+.chip:active::before {
+  opacity: var(--md-sys-state-pressed-opacity);
+}
+
+.chip:focus-visible {
+  outline: 3px solid var(--md-sys-color-secondary);
+  outline-offset: 2px;
+}
+
+.chip[aria-current="true"] {
+  padding-inline: var(--space-3) var(--space-2);
+  border-color: transparent;
+  border-radius: var(--md-sys-shape-corner-large);
+  color: var(--md-sys-color-on-secondary-container);
+  background: var(--md-sys-color-secondary-container);
+}
+
+.chip:has(.leading) {
+  padding-left: var(--space-2);
+}
+
+.chip:disabled {
+  cursor: default;
+  opacity: 0.38;
+}
+
+.leading,
+.trailing {
+  flex: 0 0 auto;
+}
+
+.leading {
+  color: var(--md-sys-color-primary);
+}
+
+.chip[aria-current="true"] .leading {
+  color: inherit;
+}
+
+.name {
+  max-width: 22ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dirtyDot {
+  width: 8px;
+  height: 8px;
+  flex: 0 0 auto;
+  border-radius: var(--md-sys-shape-corner-full);
+  background: var(--md-sys-color-tertiary);
+}
+
+@media (max-width: 599px) {
+  .scroller {
+    margin-inline: calc(var(--app-gutter) * -1);
+    padding-inline: var(--app-gutter);
+  }
+}

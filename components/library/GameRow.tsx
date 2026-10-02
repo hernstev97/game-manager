@@ -4,8 +4,9 @@ import { useEffect, useRef, type CSSProperties } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import type { GameRecord } from "@/lib/game-fields";
-import { CoverImage } from "@/components/cover-image";
-import { PriorityBadge, RatingStars } from "@/components/field-widgets";
+import { CoverImage } from "@/components/media/CoverImage";
+import { PriorityBadge } from "@/components/editor/fields/PriorityField";
+import { RatingStars } from "@/components/editor/fields/RatingField";
 import { IconGrip } from "@/components/m3/icons";
 import { useHostEvent } from "@/components/m3/events";
 import { GameRowText } from "@/components/library/GameRowText";
@@ -131,17 +132,19 @@ export function GameRow({
             onToggle={onToggleSelection}
           />
         ) : null}
-        <button
-          type="button"
-          className="drag-handle"
-          aria-label={canDrag ? "Priorität verschieben" : "Nur bei gesetzter Priorität verschiebbar"}
-          disabled={!canDrag}
-          onClick={(event) => event.stopPropagation()}
-          {...attributes}
-          {...listeners}
-        >
-          <IconGrip width={18} height={18} />
-        </button>
+        {draggingEnabled ? (
+          <button
+            type="button"
+            className="drag-handle"
+            aria-label={canDrag ? `${game.name}: Position in der Warteschlange verschieben` : "Nicht eingereiht – nicht verschiebbar"}
+            disabled={!canDrag}
+            onClick={(event) => event.stopPropagation()}
+            {...attributes}
+            {...listeners}
+          >
+            <IconGrip width={18} height={18} />
+          </button>
+        ) : null}
         <CoverImage
           name={game.name}
           franchise={game.franchise}

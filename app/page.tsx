@@ -1,4 +1,4 @@
-import { LibraryApp } from "@/components/library-app";
+import { LibraryApp } from "@/components/library/LibraryApp";
 
 export default function Page() {
   return <LibraryApp />;

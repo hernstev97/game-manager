@@ -8,6 +8,7 @@ body {
   margin: 0;
   background: var(--md-sys-color-background);
   color: var(--md-sys-color-on-surface);
+  font: var(--md-sys-typescale-body-large);
   font-family: var(--font-sans), "Google Sans Flex", system-ui, sans-serif;
   transition:
     background-color var(--motion-duration-medium) var(--motion-easing-standard),
@@ -31,17 +32,11 @@ textarea {
 }
 
 :focus-visible {
-  outline: 2px solid var(--md-sys-color-primary);
+  outline: 3px solid var(--md-sys-color-secondary);
   outline-offset: 2px;
 }
 
 .library-app {
   min-height: 100vh;
   min-height: 100dvh;
-}
-
-@media (max-width: 599px) {
-  .library-app {
-    padding-bottom: calc(88px + env(safe-area-inset-bottom));
-  }
 }

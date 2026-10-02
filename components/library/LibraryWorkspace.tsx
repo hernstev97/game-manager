@@ -1,23 +1,31 @@
 "use client";
 
+import { useState } from "react";
 import type { GameRecord } from "@/lib/game-fields";
 import type { LibraryFilters, SortState } from "@/lib/filter-games";
 import type { FranchisePresentation } from "@/lib/model/shared";
 import type { DisplayMode, GroupByMode, SavedView } from "@/lib/model/views";
-import { IconAdd } from "@/components/m3/icons";
-import { LibraryToolbar } from "@/components/library/LibraryToolbar";
-import { FilterBar } from "@/components/filters/FilterBar";
+import { IconAdd, IconSettings } from "@/components/m3/icons";
+import { AppNavigation } from "@/components/shell/AppNavigation";
+import { FilterBar, fieldFilterCount } from "@/components/filters/FilterBar";
 import { LibraryCollection } from "@/components/library/LibraryCollection";
-import { LibraryViewControls, LibraryViewsController } from "@/components/views";
+import { LibraryResultsBar } from "@/components/library/LibraryResultsBar";
+import { LibrarySearchField } from "@/components/library/LibrarySearchField";
+import { LibraryViewsController } from "@/components/views";
 import {
   FavoriteRankingView,
-  PlanningNavigation,
   QueueView,
   type PlanningMode,
   type QueueInsertion,
 } from "@/components/planning";
 import { LibraryJobCenter } from "@/components/library/LibraryJobCenter";
 import { SaveStatusIndicator } from "@/components/save-status";
+
+const DESTINATION_TITLES: Record<PlanningMode, string> = {
+  library: "Bibliothek",
+  queue: "Als Nächstes",
+  favorites: "Ranking",
+};
 
 export function LibraryWorkspace({
   games,
@@ -34,8 +42,6 @@ export function LibraryWorkspace({
   dndDisabled,
   selectedId,
   planningMode,
-  queueReorderMode,
-  favoriteReorderMode,
   searchEpoch,
   onQuery,
   onSort,
@@ -44,10 +50,7 @@ export function LibraryWorkspace({
   onDisplayMode,
   onGroupBy,
   onSelectionMode,
-  onImport,
-  onExport,
   onSettings,
-  onHelp,
   onFilterChange,
   onClearFilters,
   onOpenAdd,
@@ -57,8 +60,6 @@ export function LibraryWorkspace({
   onReorder,
   onFranchisePresentation,
   onPlanningMode,
-  onQueueReorderMode,
-  onFavoriteReorderMode,
   onQueueInsert,
   onQueueRemove,
   onQueueReorder,
@@ -80,8 +81,6 @@ export function LibraryWorkspace({
   dndDisabled: boolean;
   selectedId: string | null;
   planningMode: PlanningMode;
-  queueReorderMode: boolean;
-  favoriteReorderMode: boolean;
   searchEpoch: number;
   onQuery: (query: string) => void;
   onSort: (sort: SortState) => void;
@@ -90,10 +89,7 @@ export function LibraryWorkspace({
   onDisplayMode: (mode: DisplayMode) => void;
   onGroupBy: (groupBy: GroupByMode) => void;
   onSelectionMode: (enabled: boolean) => void;
-  onImport: (file: File) => void;
-  onExport: () => void;
   onSettings: () => void;
-  onHelp: () => void;
   onFilterChange: (next: LibraryFilters) => void;
   onClearFilters: () => void;
   onOpenAdd: () => void;
@@ -103,8 +99,6 @@ export function LibraryWorkspace({
   onReorder: (orderedIds: string[]) => void;
   onFranchisePresentation: (presentation: FranchisePresentation) => void;
   onPlanningMode: (mode: PlanningMode) => void;
-  onQueueReorderMode: (active: boolean) => void;
-  onFavoriteReorderMode: (active: boolean) => void;
   onQueueInsert: (gameId: string, placement: QueueInsertion) => void;
   onQueueRemove: (gameId: string) => void;
   onQueueReorder: (orderedIds: readonly string[]) => void;
@@ -112,134 +106,118 @@ export function LibraryWorkspace({
   onFavoriteRemove: (gameId: string) => void;
   onFavoriteReorder: (orderedIds: readonly string[]) => void;
 }) {
+  const [filtersOpen, setFiltersOpen] = useState(false);
+
   return (
     <>
-      <m3-top-app-bar>
-        gGrid
-        <span slot="actions" className="top-app-actions">
-          <SaveStatusIndicator />
-          <LibraryJobCenter />
-          <m3-icon-button aria-label="Tastenkürzel anzeigen" onClick={onHelp}>?</m3-icon-button>
-          <m3-button className="desktop-add-action" onClick={onOpenAdd}>
-            <IconAdd slot="icon" width={18} height={18} />
-            Spiel hinzufügen
-          </m3-button>
-        </span>
-      </m3-top-app-bar>
-      <div className="library-shell">
-        <div className={`library-layout${selectionMode ? " is-selection-mode" : ""}`}>
-          <LibraryViewsController
-            views={savedViews}
-            activeViewId={activeViewId}
-            filters={filters}
-            sort={sort}
-            displayMode={displayMode}
-            groupBy={groupBy}
-            disabled={selectionMode}
-            onSelect={onSelectView}
-            onChange={onSavedViews}
-          />
-          <main className="library-workspace">
-            <PlanningNavigation
-              value={planningMode}
-              onChange={onPlanningMode}
-              disabled={selectionMode}
+      <AppNavigation
+        value={planningMode}
+        onChange={onPlanningMode}
+        onAdd={onOpenAdd}
+        onSettings={onSettings}
+        disabled={selectionMode}
+      />
+      <div className={`app-main${selectionMode ? " is-selection-mode" : ""}`}>
+        <header className="app-header">
+          {planningMode === "library" ? (
+            <LibrarySearchField
+              key={`${activeViewId}:${searchEpoch}`}
+              query={filters.query}
+              totalCount={games.length}
+              filterCount={fieldFilterCount(filters)}
+              onQuery={onQuery}
+              onOpenFilters={() => setFiltersOpen(true)}
             />
-            {planningMode === "queue" ? (
-              <QueueView
-                games={games}
-                reorderMode={queueReorderMode}
-                onReorderModeChange={onQueueReorderMode}
-                onReorder={onQueueReorder}
-                onInsert={onQueueInsert}
-                onRemove={onQueueRemove}
-                onOpenGame={onOpenGame}
-              />
-            ) : planningMode === "favorites" ? (
-              <FavoriteRankingView
-                games={games}
-                reorderMode={favoriteReorderMode}
-                onReorderModeChange={onFavoriteReorderMode}
-                onReorder={onFavoriteReorder}
-                onChangeRank={onFavoriteRank}
-                onRemoveRank={onFavoriteRemove}
-                onOpenGame={onOpenGame}
-              />
-            ) : (
-              <>
-                <LibraryToolbar
-                  key={searchEpoch}
-                  query={filters.query}
+          ) : (
+            <h1 className="app-header-title">{DESTINATION_TITLES[planningMode]}</h1>
+          )}
+          <div className="app-header-actions">
+            <SaveStatusIndicator quiet />
+            <LibraryJobCenter />
+            <m3-icon-button className="compact-only" aria-label="Einstellungen" onClick={onSettings}>
+              <IconSettings />
+            </m3-icon-button>
+          </div>
+        </header>
+        <main className="library-workspace">
+          {planningMode === "queue" ? (
+            <QueueView
+              games={games}
+              onReorder={onQueueReorder}
+              onInsert={onQueueInsert}
+              onRemove={onQueueRemove}
+              onOpenGame={onOpenGame}
+            />
+          ) : planningMode === "favorites" ? (
+            <FavoriteRankingView
+              games={games}
+              onReorder={onFavoriteReorder}
+              onChangeRank={onFavoriteRank}
+              onRemoveRank={onFavoriteRemove}
+              onOpenGame={onOpenGame}
+            />
+          ) : (
+            <>
+              <div className="library-controls">
+                <LibraryViewsController
+                  views={savedViews}
+                  activeViewId={activeViewId}
+                  filters={filters}
                   sort={sort}
-                  totalCount={games.length}
-                  onQuery={onQuery}
-                  onSort={onSort}
-                  onImport={onImport}
-                  onExport={onExport}
-                  onSettings={onSettings}
+                  displayMode={displayMode}
+                  groupBy={groupBy}
+                  disabled={selectionMode}
+                  onSelect={onSelectView}
+                  onChange={onSavedViews}
                 />
                 <FilterBar
                   games={games}
                   filters={filters}
-                  visibleCount={visibleGames.length}
-                  mobileControlsKey={`${activeViewId}:${searchEpoch}`}
-                  mobileControls={{
-                    query: filters.query,
-                    sort,
-                    displayMode,
-                    groupBy,
-                    selectionMode,
-                    onQuery,
-                    onSort,
-                    onDisplayMode,
-                    onGroupBy,
-                    onSelectionMode,
-                    onImport,
-                    onExport,
-                    onSettings,
-                    onHelp,
-                  }}
+                  sheetOpen={filtersOpen}
+                  onSheetOpenChange={setFiltersOpen}
                   onChange={onFilterChange}
-                  onClear={onClearFilters}
                 />
-                <LibraryViewControls
+                <LibraryResultsBar
+                  visibleCount={visibleGames.length}
+                  totalCount={games.length}
+                  sort={sort}
                   displayMode={displayMode}
                   groupBy={groupBy}
                   selectionMode={selectionMode}
+                  onSort={onSort}
                   onDisplayMode={onDisplayMode}
                   onGroupBy={onGroupBy}
                   onSelectionMode={onSelectionMode}
                 />
-                <m3-divider className="library-collection-divider" />
-                <LibraryCollection
-                  games={visibleGames}
-                  libraryEmpty={games.length === 0}
-                  displayMode={displayMode}
-                  groupBy={groupBy}
-                  franchises={franchises}
-                  selectedId={selectedId}
-                  sortByQueue={sort.by === "priority" || sort.by === "queuePosition"}
-                  selectionMode={selectionMode}
-                  selectedIds={selectedIds}
-                  dndDisabled={dndDisabled}
-                  onOpen={onOpenGame}
-                  onSelect={onSelectGame}
-                  onToggleSelection={onToggleSelection}
-                  onSelectionMode={onSelectionMode}
-                  onReorder={onReorder}
-                  onAdd={onOpenAdd}
-                  onClearFilters={onClearFilters}
-                  onFranchisePresentation={onFranchisePresentation}
-                />
-              </>
-            )}
-          </main>
-        </div>
+              </div>
+              <LibraryCollection
+                games={visibleGames}
+                libraryEmpty={games.length === 0}
+                displayMode={displayMode}
+                groupBy={groupBy}
+                franchises={franchises}
+                selectedId={selectedId}
+                sortByQueue={sort.by === "priority" || sort.by === "queuePosition"}
+                selectionMode={selectionMode}
+                selectedIds={selectedIds}
+                dndDisabled={dndDisabled}
+                onOpen={onOpenGame}
+                onSelect={onSelectGame}
+                onToggleSelection={onToggleSelection}
+                onSelectionMode={onSelectionMode}
+                onReorder={onReorder}
+                onAdd={onOpenAdd}
+                onClearFilters={onClearFilters}
+                onFranchisePresentation={onFranchisePresentation}
+              />
+            </>
+          )}
+        </main>
       </div>
       {!selectionMode && games.length > 0 ? (
-        <m3-button className="mobile-add-fab" aria-label="Spiel hinzufügen" onClick={onOpenAdd}>
-          <IconAdd slot="icon" width={20} height={20} />
-        </m3-button>
+        <button type="button" className="app-fab compact-only" aria-label="Spiel hinzufügen" onClick={onOpenAdd}>
+          <IconAdd />
+        </button>
       ) : null}
     </>
   );

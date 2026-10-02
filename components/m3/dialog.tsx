@@ -10,7 +10,8 @@ type DialogEl = HTMLElement & {
   close: (reason?: string) => boolean;
 };
 
-type DialogPresentation = "default" | "fullscreen" | "sheet" | "editor";
+/** `side` is a modal side sheet on wide windows and a bottom sheet on compact ones. */
+type DialogPresentation = "default" | "fullscreen" | "sheet" | "side" | "editor";
 
 export function M3Dialog({
   open,
@@ -35,7 +36,11 @@ export function M3Dialog({
   useHostEvent(ref, "dialog-close", onClose);
 
   const presentationClass =
-    presentation === "default" ? "" : `adaptive-${presentation}`;
+    presentation === "default"
+      ? ""
+      : presentation === "side"
+        ? "adaptive-sheet adaptive-side"
+        : `adaptive-${presentation}`;
   const classes = [className, presentationClass].filter(Boolean).join(" ");
 
   useEffect(() => {

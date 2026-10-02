@@ -1,0 +1,246 @@
+.sheet {
+  width: min(100%, 560px);
+  max-width: none;
+  max-height: min(88dvh, 720px);
+  box-sizing: border-box;
+  inset: auto 0 0;
+  margin: auto auto 0;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: var(--md-sys-shape-corner-extra-large) var(--md-sys-shape-corner-extra-large) 0 0;
+  color: var(--md-sys-color-on-surface);
+  background: var(--md-sys-color-surface-container-low);
+}
+
+.sheet[open] {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  animation: saved-view-sheet-enter var(--motion-duration-long)
+    var(--motion-easing-decelerate) both;
+}
+
+.sheet::backdrop {
+  background: color-mix(in srgb, var(--md-sys-color-scrim) 32%, transparent);
+  animation: saved-view-backdrop-enter var(--motion-duration-medium)
+    var(--motion-easing-standard) both;
+}
+
+.sheet::before {
+  justify-self: center;
+  width: 32px;
+  height: 4px;
+  margin-top: var(--space-4);
+  border-radius: var(--md-sys-shape-corner-full);
+  background: var(--md-sys-color-on-surface-variant);
+  content: "";
+  opacity: 0.4;
+  grid-row: 1;
+  grid-column: 1;
+  align-self: start;
+}
+
+.sheetHeader {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-8) var(--space-4) var(--space-3) var(--space-6);
+  grid-row: 1;
+  grid-column: 1;
+}
+
+.sheetHeader > div {
+  min-width: 0;
+}
+
+.sheetHeader h2,
+.sheetHeader p,
+.dirtyPanel h3,
+.manageSection h3 {
+  margin: 0;
+}
+
+.sheetHeader h2 {
+  overflow: hidden;
+  font: var(--md-sys-typescale-headline-small);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.eyebrow {
+  color: var(--md-sys-color-on-surface-variant);
+  font: var(--md-sys-typescale-label-medium);
+}
+
+.closeButton,
+.dirtyActions button,
+.actionList button {
+  border: 0;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.closeButton {
+  display: inline-grid;
+  flex: 0 0 auto;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  place-items: center;
+  border-radius: var(--md-sys-shape-corner-full);
+  color: var(--md-sys-color-on-surface-variant);
+  background: transparent;
+}
+
+.closeButton:hover {
+  background: color-mix(in srgb, currentColor 8%, transparent);
+}
+
+.sheetBody {
+  display: grid;
+  min-height: 0;
+  gap: var(--space-4);
+  padding: 0 var(--space-4) max(var(--space-6), env(safe-area-inset-bottom));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.dirtyPanel {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-radius: var(--md-sys-shape-corner-large);
+  color: var(--md-sys-color-on-tertiary-container);
+  background: var(--md-sys-color-tertiary-container);
+}
+
+.dirtyPanel h3 {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font: var(--md-sys-typescale-title-medium);
+}
+
+.dirtyDot {
+  width: 8px;
+  height: 8px;
+  flex: 0 0 auto;
+  border-radius: var(--md-sys-shape-corner-full);
+  background: var(--md-sys-color-tertiary);
+}
+
+.dirtyActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.dirtyActions button {
+  min-height: 40px;
+  padding: 0 var(--space-4);
+  border-radius: var(--md-sys-shape-corner-full);
+  color: var(--md-sys-color-on-surface);
+  background: color-mix(in srgb, var(--md-sys-color-surface) 72%, transparent);
+  font: var(--md-sys-typescale-label-large);
+}
+
+.dirtyActions .primaryAction {
+  flex: 1 1 100%;
+  color: var(--md-sys-color-on-primary);
+  background: var(--md-sys-color-primary);
+}
+
+.manageSection {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.manageSection h3 {
+  padding: var(--space-2) var(--space-2) 0;
+  color: var(--md-sys-color-on-surface-variant);
+  font: var(--md-sys-typescale-title-small);
+}
+
+.actionList {
+  display: grid;
+  gap: 2px;
+  overflow: hidden;
+  border-radius: var(--md-sys-shape-corner-large);
+}
+
+.actionList button {
+  min-height: 56px;
+  padding: 0 var(--space-4);
+  border-radius: var(--md-sys-shape-corner-extra-small);
+  color: var(--md-sys-color-on-surface);
+  background: var(--md-sys-color-surface-container-highest);
+  font: var(--md-sys-typescale-body-large);
+  text-align: left;
+}
+
+.actionList button:hover {
+  background: color-mix(in srgb, var(--md-sys-color-on-surface) 8%, var(--md-sys-color-surface-container-highest));
+}
+
+.actionList button:disabled {
+  cursor: default;
+  opacity: 0.38;
+}
+
+.actionList .dangerAction {
+  color: var(--md-sys-color-error);
+}
+
+.closeButton:focus-visible,
+.dirtyActions button:focus-visible,
+.actionList button:focus-visible {
+  outline: 3px solid var(--md-sys-color-secondary);
+  outline-offset: 2px;
+}
+
+@media (min-width: 600px) {
+  .sheet {
+    width: min(440px, calc(100vw - 48px));
+    inset: 0;
+    margin: auto;
+    border-radius: var(--md-sys-shape-corner-extra-large);
+    box-shadow: var(--md-sys-elevation-level3);
+  }
+
+  .sheet::before {
+    display: none;
+  }
+
+  .sheetHeader {
+    padding-top: var(--space-6);
+  }
+}
+
+@keyframes saved-view-sheet-enter {
+  from {
+    opacity: 0.8;
+    transform: translateY(var(--motion-sheet-distance))
+      scale(var(--motion-enter-scale));
+  }
+}
+
+@keyframes saved-view-backdrop-enter {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sheet[open],
+  .sheet::backdrop {
+    animation: none;
+  }
+}
+
+:global(:root[data-motion="none"]) .sheet[open],
+:global(:root[data-motion="none"]) .sheet::backdrop {
+  animation: none;
+}

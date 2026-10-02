@@ -18,12 +18,9 @@ export function registerM3Components(): Promise<void> {
     import("@banegasn/m3-search-bar"),
     import("@banegasn/m3-slider"),
     import("@banegasn/m3-snackbar"),
-    import("@banegasn/m3-split-button"),
     import("@banegasn/m3-switch"),
     import("@banegasn/m3-tabs"),
     import("@banegasn/m3-text-field"),
-    import("@banegasn/m3-tooltip"),
-    import("@banegasn/m3-top-app-bar"),
   ]).then(() => undefined);
   return pending;
 }

@@ -12,7 +12,7 @@ export function ReorderToolbar({
   return (
     <div className="reorder-toolbar">
       <span className="settings-copy">
-        {reorderMode ? "Ziehe am Griff oder nutze die Pfeiltasten." : "Prioritäten direkt anordnen."}
+        {reorderMode ? "Ziehe am Griff oder nutze die Pfeiltasten." : "Warteschlange direkt in der Liste anordnen."}
       </span>
       <m3-button variant={reorderMode ? "tonal" : "outlined"} onClick={onToggle}>
         <IconGrip slot="icon" width={18} height={18} />

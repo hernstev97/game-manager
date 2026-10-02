@@ -18,6 +18,8 @@ export type TaskStatusIndicatorProps = {
   titleForJob?: (job: RuntimeJob) => string;
   controlsId?: string;
   expanded?: boolean;
+  /** Render nothing until at least one job exists (progressive disclosure). */
+  hideWhenEmpty?: boolean;
 };
 
 export function TaskStatusIndicator({
@@ -27,6 +29,7 @@ export function TaskStatusIndicator({
   titleForJob = defaultJobLabel,
   controlsId,
   expanded,
+  hideWhenEmpty = false,
 }: TaskStatusIndicatorProps) {
   const summary = summarizeJobs(jobs, isOnline);
   const current = sortJobsForDisplay(jobs, isOnline)[0];
@@ -59,6 +62,8 @@ export function TaskStatusIndicator({
     ? summary.active
     : null;
 
+  if (hideWhenEmpty && jobs.length === 0) return null;
+
   return (
     <button
       type="button"
@@ -68,6 +73,7 @@ export function TaskStatusIndicator({
       aria-controls={controlsId}
       aria-expanded={expanded}
       aria-label={`${label}. Aufgaben-Center öffnen.`}
+      title={label}
     >
       <span className={styles.icon} aria-hidden="true">
         <span />

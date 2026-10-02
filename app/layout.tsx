@@ -1,8 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Google_Sans_Flex } from "next/font/google";
 import Script from "next/script";
-import { MotionProvider } from "@/components/motion-provider";
-import { ThemeProvider } from "@/components/theme-provider";
+import { MotionProvider } from "@/components/preferences/MotionProvider";
+import { ThemeProvider } from "@/components/preferences/ThemeProvider";
 import { MOTION_BOOT_SCRIPT } from "@/lib/motion";
 import { THEME_BOOT_SCRIPT } from "@/lib/theme";
 import "./globals.css";

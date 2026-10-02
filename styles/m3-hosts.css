@@ -1,13 +1,8 @@
-m3-top-app-bar {
-  position: sticky;
-  top: 0;
-  z-index: 20;
-  padding: 0 2vw;
-  animation: app-bar-enter var(--motion-duration-long) var(--motion-easing-decelerate) backwards;
+/* Host-level defaults for the @banegasn M3 web components. */
+m3-icon-button {
+  flex: 0 0 auto;
 }
 
-@media (max-width: 599px) {
-  m3-top-app-bar {
-    padding: env(safe-area-inset-top) 0 0;
-  }
+m3-chip {
+  --md-sys-shape-corner-small: 8px;
 }

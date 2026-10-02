@@ -67,6 +67,7 @@ export function LibraryJobCenter() {
         isOnline={online}
         controlsId={TASK_CENTER_ID}
         expanded={open}
+        hideWhenEmpty
         onOpen={() => setOpen(true)}
       />
       <M3Dialog

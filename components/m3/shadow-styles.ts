@@ -150,6 +150,48 @@ export const ADAPTIVE_DIALOG_STYLE = `
   }
 }
 
+@media (min-width: 600px) {
+  :host(.adaptive-side) .dialog[open] {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    width: min(400px, calc(100vw - 56px));
+    max-width: none;
+    height: 100dvh;
+    max-height: none;
+    margin: 0 0 0 auto;
+    border-radius: var(--md-sys-shape-corner-large, 16px) 0 0 var(--md-sys-shape-corner-large, 16px);
+    background-color: var(--md-sys-color-surface-container-low, #f8f2fa);
+    transform-origin: right center;
+    animation-name: ggrid-side-enter;
+  }
+
+  :host(.adaptive-side) .dialog[open] .headline {
+    padding: 24px 24px 16px;
+    text-align: left;
+  }
+
+  :host(.adaptive-side) .dialog[open] .content {
+    flex: 1 1 auto;
+    min-height: 0;
+    padding: 0 24px 24px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  :host(.adaptive-side) .dialog[open] .actions {
+    padding: 16px 24px 24px;
+    border-top: 1px solid var(--md-sys-color-outline-variant, #cac4cf);
+  }
+}
+
+@keyframes ggrid-side-enter {
+  from {
+    opacity: .8;
+    transform: translateX(var(--motion-sheet-distance, 48px));
+  }
+}
+
 @keyframes ggrid-dialog-enter {
   from {
     opacity: 0;

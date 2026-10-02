@@ -8,9 +8,9 @@ import {
 } from "react";
 import { M3Dialog, M3Radio } from "@/components/m3/host";
 import type { DisplayMode, GroupByMode } from "@/lib/model/views";
-import styles from "./mobile-display-sheet.module.css";
+import styles from "./display-sheet.module.css";
 
-export type MobileDisplaySheetProps = {
+export type DisplaySheetProps = {
   open: boolean;
   displayMode: DisplayMode;
   groupBy: GroupByMode;
@@ -25,9 +25,9 @@ export type MobileDisplaySheetProps = {
   triggerRef?: RefObject<HTMLElement | null>;
 };
 
-const HISTORY_STATE_KEY = "__ggridMobileDisplaySheet";
+const HISTORY_STATE_KEY = "__ggridDisplaySheet";
 
-function focusTrigger(triggerRef: MobileDisplaySheetProps["triggerRef"]) {
+function focusTrigger(triggerRef: DisplaySheetProps["triggerRef"]) {
   const trigger = triggerRef?.current;
   if (!trigger?.isConnected) return;
 
@@ -72,7 +72,7 @@ function useBrowserBackClose(open: boolean, onClose: () => void) {
   }, [open]);
 }
 
-export function MobileDisplaySheet({
+export function DisplaySheet({
   open,
   displayMode,
   groupBy,
@@ -80,7 +80,7 @@ export function MobileDisplaySheet({
   onGroupBy,
   onClose,
   triggerRef,
-}: MobileDisplaySheetProps) {
+}: DisplaySheetProps) {
   const displayName = useId();
   const groupingName = useId();
   const wasOpenRef = useRef(open);

@@ -45,7 +45,7 @@ export function RecentFilterPresets({
 
   return (
     <div className="recent-filters" aria-label="Zuletzt verwendete Filter">
-      <span className="recent-filters-label">Zuletzt</span>
+      <span className="recent-filters-label">Zuletzt verwendet</span>
       <div className="recent-filter-scroll">
         {presets.map((preset) => (
           <M3Chip

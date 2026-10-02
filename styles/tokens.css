@@ -172,3 +172,83 @@
     --mobile-page-gutter: 12px;
   }
 }
+
+/*
+ * Material 3 Expressive foundation. Every component style should draw from
+ * these scales instead of ad-hoc radii, font sizes, and spacing.
+ */
+:root {
+  /* Shape scale (M3 Expressive adds the "increased" steps). */
+  --md-sys-shape-corner-none: 0;
+  --md-sys-shape-corner-extra-small: 4px;
+  --md-sys-shape-corner-small: 8px;
+  --md-sys-shape-corner-medium: 12px;
+  --md-sys-shape-corner-large: 16px;
+  --md-sys-shape-corner-large-increased: 20px;
+  --md-sys-shape-corner-extra-large: 28px;
+  --md-sys-shape-corner-extra-large-increased: 32px;
+  --md-sys-shape-corner-extra-extra-large: 48px;
+  --md-sys-shape-corner-full: 999px;
+
+  /* Typescale (Google Sans Flex). Use with `font: var(--md-sys-typescale-…)`. */
+  --md-sys-typescale-display-small: 400 2.25rem/2.75rem var(--font-sans), system-ui, sans-serif;
+  --md-sys-typescale-headline-large: 400 2rem/2.5rem var(--font-sans), system-ui, sans-serif;
+  --md-sys-typescale-headline-medium: 400 1.75rem/2.25rem var(--font-sans), system-ui, sans-serif;
+  --md-sys-typescale-headline-small: 400 1.5rem/2rem var(--font-sans), system-ui, sans-serif;
+  --md-sys-typescale-title-large: 400 1.375rem/1.75rem var(--font-sans), system-ui, sans-serif;
+  --md-sys-typescale-title-medium: 500 1rem/1.5rem var(--font-sans), system-ui, sans-serif;
+  --md-sys-typescale-title-small: 500 0.875rem/1.25rem var(--font-sans), system-ui, sans-serif;
+  --md-sys-typescale-body-large: 400 1rem/1.5rem var(--font-sans), system-ui, sans-serif;
+  --md-sys-typescale-body-medium: 400 0.875rem/1.25rem var(--font-sans), system-ui, sans-serif;
+  --md-sys-typescale-body-small: 400 0.75rem/1rem var(--font-sans), system-ui, sans-serif;
+  --md-sys-typescale-label-large: 500 0.875rem/1.25rem var(--font-sans), system-ui, sans-serif;
+  --md-sys-typescale-label-medium: 500 0.75rem/1rem var(--font-sans), system-ui, sans-serif;
+  --md-sys-typescale-label-small: 500 0.6875rem/1rem var(--font-sans), system-ui, sans-serif;
+  /* Emphasized variants for Expressive hierarchy moments. */
+  --md-sys-typescale-emphasized-headline-medium: 600 1.75rem/2.25rem var(--font-sans), system-ui, sans-serif;
+  --md-sys-typescale-emphasized-title-large: 600 1.375rem/1.75rem var(--font-sans), system-ui, sans-serif;
+  --md-sys-typescale-emphasized-title-medium: 650 1rem/1.5rem var(--font-sans), system-ui, sans-serif;
+  --md-sys-typescale-emphasized-label-large: 650 0.875rem/1.25rem var(--font-sans), system-ui, sans-serif;
+
+  /* 4dp spacing grid. */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+
+  /* State layers. */
+  --md-sys-state-hover-opacity: 0.08;
+  --md-sys-state-focus-opacity: 0.1;
+  --md-sys-state-pressed-opacity: 0.1;
+  --md-sys-state-dragged-opacity: 0.16;
+
+  /* Elevation (tonal surfaces carry most depth; shadows stay subtle). */
+  --md-sys-elevation-level0: none;
+  --md-sys-elevation-level1: 0 1px 2px rgb(0 0 0 / 0.24), 0 1px 3px 1px rgb(0 0 0 / 0.12);
+  --md-sys-elevation-level2: 0 1px 2px rgb(0 0 0 / 0.24), 0 2px 6px 2px rgb(0 0 0 / 0.12);
+  --md-sys-elevation-level3: 0 4px 8px 3px rgb(0 0 0 / 0.12), 0 1px 3px rgb(0 0 0 / 0.24);
+
+  /* Expressive spring approximations. */
+  --md-sys-motion-spring-fast-spatial: cubic-bezier(0.42, 1.67, 0.21, 0.9);
+  --md-sys-motion-spring-default-spatial: cubic-bezier(0.38, 1.21, 0.22, 1);
+  --md-sys-motion-spring-slow-spatial: cubic-bezier(0.39, 1.29, 0.35, 0.98);
+  --md-sys-motion-spring-fast-effects: cubic-bezier(0.31, 0.94, 0.34, 1);
+  --md-sys-motion-spring-default-effects: cubic-bezier(0.34, 0.8, 0.34, 1);
+
+  /* Layout. */
+  --app-rail-width: 96px;
+  --app-nav-bar-height: 80px;
+  --app-content-max: 1200px;
+  --app-gutter: var(--space-6);
+}
+
+@media (max-width: 599px) {
+  :root {
+    --app-gutter: var(--space-4);
+  }
+}

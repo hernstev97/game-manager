@@ -6,9 +6,10 @@ import {
   isSavedViewMutable,
   savedViewDirtyActionDecision,
 } from "./saved-view-helpers";
-import styles from "./mobile-saved-view.module.css";
+import { IconClose } from "@/components/m3/icons";
+import styles from "./saved-view-sheet.module.css";
 
-export type MobileSavedViewSheetProps = {
+export type SavedViewSheetProps = {
   open: boolean;
   selectedView?: SavedView;
   dirty: boolean;
@@ -25,8 +26,8 @@ export type MobileSavedViewSheetProps = {
   onMove?: (direction: "up" | "down") => void;
 };
 
-/** Mobile-only presentation for all actions scoped to the selected saved view. */
-export function MobileSavedViewSheet({
+/** Bottom sheet (compact) or dialog (larger windows) for all actions scoped to the selected saved view. */
+export function SavedViewSheet({
   open,
   selectedView,
   dirty,
@@ -41,7 +42,7 @@ export function MobileSavedViewSheet({
   onDelete,
   onSetDefault,
   onMove,
-}: MobileSavedViewSheetProps) {
+}: SavedViewSheetProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const titleId = useId();
   const dirtyDecision = savedViewDirtyActionDecision(selectedView, dirty);
@@ -95,7 +96,7 @@ export function MobileSavedViewSheet({
           aria-label="Ansichtsverwaltung schließen"
           onClick={() => onClose()}
         >
-          <span aria-hidden="true">×</span>
+          <IconClose />
         </button>
       </header>
 
@@ -156,14 +157,14 @@ export function MobileSavedViewSheet({
                     disabled={!canMoveUp}
                     onClick={() => onMove("up")}
                   >
-                    Nach oben verschieben
+                    Nach vorne verschieben
                   </button>
                   <button
                     type="button"
                     disabled={!canMoveDown}
                     onClick={() => onMove("down")}
                   >
-                    Nach unten verschieben
+                    Nach hinten verschieben
                   </button>
                 </>
               ) : null}
