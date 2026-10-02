@@ -15,7 +15,7 @@
 :root[data-motion="none"] .motion-option:hover,
 :root[data-motion="none"] .motion-option:active,
 :root[data-motion="none"] .editor-pager:hover:not(:disabled),
-:root[data-motion="none"] .settings-mobile-nav-item:active {
+:root[data-motion="none"] .settings-nav-item:active {
   transform: none;
 }
 
@@ -76,7 +76,7 @@ html[data-motion="none"]::view-transition-new(*) {
   .motion-option:hover,
   .motion-option:active,
   .editor-pager:hover:not(:disabled),
-  .settings-mobile-nav-item:active {
+  .settings-nav-item:active {
     transform: none;
   }
 

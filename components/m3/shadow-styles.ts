@@ -185,6 +185,19 @@ export const ADAPTIVE_DIALOG_STYLE = `
   }
 }
 
+@media (min-width: 600px) {
+  :host(.settings-dialog) .dialog[open] {
+    width: min(920px, calc(100vw - 48px));
+    max-width: none;
+    height: min(760px, calc(100dvh - 48px));
+    max-height: none;
+  }
+
+  :host(.settings-dialog) .dialog[open] .headline {
+    text-align: left;
+  }
+}
+
 @keyframes ggrid-side-enter {
   from {
     opacity: .8;

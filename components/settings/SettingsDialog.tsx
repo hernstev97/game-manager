@@ -10,6 +10,7 @@ import { SteamSettingsPanel } from "@/components/settings/SteamSettingsPanel";
 import { IgdbSettingsPanel } from "@/components/settings/IgdbSettingsPanel";
 import { AppearanceSettingsPanel } from "@/components/settings/AppearanceSettingsPanel";
 import { DataSettingsPanel } from "@/components/settings/DataSettingsPanel";
+import { HelpSettingsPanel } from "@/components/settings/HelpSettingsPanel";
 import type { GameRecord } from "@/lib/game-fields";
 import {
   parseSteamIdentity,
@@ -137,6 +138,7 @@ export function SettingsDialog({
       onClose={onClose}
       headline="Einstellungen"
       presentation="fullscreen"
+      className="settings-dialog"
       leadingAction={
         <m3-icon-button aria-label="Einstellungen schließen" onClick={onClose}>
           <IconClose />
@@ -150,34 +152,39 @@ export function SettingsDialog({
           onTabChange={setTab}
           onMobileSectionOpen={setMobileSectionOpen}
         />
-        <SteamSettingsPanel
-          hidden={tab !== 0}
-          idDraft={idDraft}
-          keyDraft={keyDraft}
-          busy={busy}
-          onIdDraftChange={setIdDraft}
-          onKeyDraftChange={setKeyDraft}
-          onSave={saveSteam}
-          onRefreshCovers={refreshCovers}
-          onOpenImport={openSteamImport}
-        />
-        <IgdbSettingsPanel
-          hidden={tab !== 1}
-          idDraft={igdbIdDraft}
-          secretDraft={igdbSecretDraft}
-          busy={busy}
-          onIdDraftChange={setIgdbIdDraft}
-          onSecretDraftChange={setIgdbSecretDraft}
-          onSave={saveIgdb}
-          onRefresh={refreshIgdb}
-        />
-        <AppearanceSettingsPanel hidden={tab !== 2} />
-        <DataSettingsPanel
-          hidden={tab !== 3}
-          onClearLibrary={onClearLibrary}
-          onImport={onImport}
-          onExport={onExport}
-        />
+        <div className="settings-detail">
+          <SteamSettingsPanel
+            hidden={tab !== 0}
+            connected={Boolean(steamId && steamApiKey)}
+            idDraft={idDraft}
+            keyDraft={keyDraft}
+            busy={busy}
+            onIdDraftChange={setIdDraft}
+            onKeyDraftChange={setKeyDraft}
+            onSave={saveSteam}
+            onRefreshCovers={refreshCovers}
+            onOpenImport={openSteamImport}
+          />
+          <IgdbSettingsPanel
+            hidden={tab !== 0}
+            connected={hasIgdbCredentials({ clientId: igdbClientId, clientSecret: igdbClientSecret })}
+            idDraft={igdbIdDraft}
+            secretDraft={igdbSecretDraft}
+            busy={busy}
+            onIdDraftChange={setIgdbIdDraft}
+            onSecretDraftChange={setIgdbSecretDraft}
+            onSave={saveIgdb}
+            onRefresh={refreshIgdb}
+          />
+          <AppearanceSettingsPanel hidden={tab !== 1} />
+          <DataSettingsPanel
+            hidden={tab !== 2}
+            onClearLibrary={onClearLibrary}
+            onImport={onImport}
+            onExport={onExport}
+          />
+          <HelpSettingsPanel hidden={tab !== 3} />
+        </div>
       </div>
     </M3Dialog>
   );
