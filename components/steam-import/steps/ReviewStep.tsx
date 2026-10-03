@@ -45,9 +45,8 @@ export function ReviewStep({
         </div>
       ) : null}
       <div className={styles.actions}>
-        <button
-          type="button"
-          className={styles.secondaryButton}
+        <m3-button
+          variant="outlined"
           disabled={controller.applying}
           onClick={() => {
             controller.setPlan(null);
@@ -55,15 +54,15 @@ export function ReviewStep({
           }}
         >
           Zurück
-        </button>
-        <button
-          type="button"
-          className={styles.primaryButton}
+        </m3-button>
+        <m3-button
+          variant="filled"
+          loading={controller.applying}
           disabled={!plan.canApply || controller.applying}
           onClick={() => void controller.apply()}
         >
           {controller.applying ? "Wird atomar übernommen…" : "Import übernehmen"}
-        </button>
+        </m3-button>
       </div>
     </div>
   );

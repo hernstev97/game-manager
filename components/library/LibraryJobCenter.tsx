@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { TaskCenter } from "@/components/jobs";
 import { M3Dialog } from "@/components/m3/host";
+import { IconClose } from "@/components/m3/icons";
 import { useOnlineStatus } from "@/components/pwa";
 import { TaskStatusIndicator } from "@/components/sync-status";
 import type { RuntimeJob } from "@/lib/jobs";
@@ -67,6 +68,7 @@ export function LibraryJobCenter() {
         isOnline={online}
         controlsId={TASK_CENTER_ID}
         expanded={open}
+        hideWhenEmpty
         onOpen={() => setOpen(true)}
       />
       <M3Dialog
@@ -74,6 +76,11 @@ export function LibraryJobCenter() {
         onClose={() => setOpen(false)}
         headline="Aufgaben"
         presentation="fullscreen"
+        leadingAction={
+          <m3-icon-button aria-label="Aufgaben schließen" onClick={() => setOpen(false)}>
+            <IconClose />
+          </m3-icon-button>
+        }
       >
         <div id={TASK_CENTER_ID}>
           <TaskCenter
@@ -83,6 +90,7 @@ export function LibraryJobCenter() {
             onCancel={(id) => runAction(id, "cancel")}
             onRetry={(id) => runAction(id, "retry")}
             onClose={() => setOpen(false)}
+            embedded
           />
         </div>
       </M3Dialog>

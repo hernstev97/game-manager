@@ -15,14 +15,14 @@ export function LoadStep({
         Zugangsdaten bleiben außerhalb dieses Assistenten. Der konfigurierte
         Loader liefert nur öffentlich benötigte Spieldaten.
       </p>
-      <button
-        type="button"
-        className={styles.primaryButton}
+      <m3-button
+        variant="filled"
+        loading={controller.loading}
         disabled={!online || controller.loading}
         onClick={() => void controller.load()}
       >
         {controller.loading ? "Bibliothek wird geladen…" : "Bibliothek laden"}
-      </button>
+      </m3-button>
       {controller.loading ? (
         <progress
           className={styles.progress}

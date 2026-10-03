@@ -11,7 +11,7 @@ export function MotionSelector() {
 
   return (
     <>
-      <span className="field-label">Animationen</span>
+      <h3 className="settings-section-title">Animationen</h3>
       <div className="motion-options" role="radiogroup" aria-label="Animationsstufe">
         {motionPreferences.map((motionPreference) => {
           const detail = MOTION_PREFERENCE_DETAILS[motionPreference];

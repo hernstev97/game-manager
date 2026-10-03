@@ -10,7 +10,7 @@ export function ShortcutHelpDialog({ open, onClose }: { open: boolean; onClose: 
       open={open}
       onClose={onClose}
       headline="Tastenkürzel"
-      actions={<m3-button slot="action" onClick={onClose}>Schließen</m3-button>}
+      actions={<m3-button slot="actions" onClick={onClose}>Schließen</m3-button>}
     >
       <p className={styles.intro}>Kürzel werden nicht ausgelöst, während du in einem Textfeld schreibst.</p>
       <dl className={styles.list}>

@@ -5,7 +5,7 @@
 .editor-body {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--space-3);
 }
 
 m3-text-field,
@@ -17,10 +17,16 @@ m3-text-field,
   min-height: 120px;
   resize: vertical;
   border: 1px solid var(--md-sys-color-outline);
-  border-radius: 4px;
-  padding: 12px 16px;
-  background: var(--md-sys-color-surface-container-lowest);
+  border-radius: var(--md-sys-shape-corner-extra-small);
+  padding: var(--space-3) var(--space-4);
+  background: transparent;
   color: var(--md-sys-color-on-surface);
+  font: var(--md-sys-typescale-body-large);
+}
+
+.notes-input:focus {
+  border-color: var(--md-sys-color-primary);
+  outline: 1px solid var(--md-sys-color-primary);
 }
 
 .cover-preview .cover-img,
@@ -56,8 +62,7 @@ m3-text-field,
 }
 
 .steam-price-value {
-  font-size: 1.25rem;
-  font-weight: 650;
+  font: var(--md-sys-typescale-emphasized-title-large);
   font-variant-numeric: tabular-nums;
 }
 

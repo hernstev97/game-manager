@@ -1,13 +1,28 @@
 "use client";
 
-import { M3Tabs } from "@/components/m3/host";
+import type { ComponentType, SVGProps } from "react";
 import {
+  IconBackup,
   IconChevronLeft,
   IconChevronRight,
+  IconHelp,
+  IconLink,
+  IconPalette,
 } from "@/components/m3/icons";
 
-const SETTINGS_SECTIONS = ["Steam", "IGDB", "Erscheinungsbild", "Daten"] as const;
+export const SETTINGS_SECTIONS: ReadonlyArray<{
+  id: string;
+  label: string;
+  description: string;
+  Icon: ComponentType<SVGProps<SVGSVGElement>>;
+}> = [
+  { id: "connections", label: "Verbindungen", description: "Steam und IGDB", Icon: IconLink },
+  { id: "appearance", label: "Erscheinungsbild", description: "Farben, Modus, Animationen", Icon: IconPalette },
+  { id: "data", label: "Daten & Sicherung", description: "Export, Import, Snapshots", Icon: IconBackup },
+  { id: "help", label: "Hilfe", description: "Tastenkürzel", Icon: IconHelp },
+];
 
+/** List of settings areas: a side list on wide windows, a drill-in list on phones. */
 export function SettingsNavigation({
   tab,
   onTabChange,
@@ -19,19 +34,24 @@ export function SettingsNavigation({
 }) {
   return (
     <>
-      <nav className="settings-mobile-nav" aria-label="Einstellungsbereiche">
-        {SETTINGS_SECTIONS.map((label, index) => (
+      <nav className="settings-nav" aria-label="Einstellungsbereiche">
+        {SETTINGS_SECTIONS.map(({ id, label, description, Icon }, index) => (
           <button
-            key={label}
+            key={id}
             type="button"
-            className="settings-mobile-nav-item"
+            className="settings-nav-item"
+            aria-current={tab === index ? "page" : undefined}
             onClick={() => {
               onTabChange(index);
               onMobileSectionOpen(true);
             }}
           >
-            <span>{label}</span>
-            <IconChevronRight />
+            <Icon className="settings-nav-icon" />
+            <span className="settings-nav-copy">
+              <span>{label}</span>
+              <small>{description}</small>
+            </span>
+            <IconChevronRight className="settings-nav-chevron" />
           </button>
         ))}
       </nav>
@@ -39,26 +59,8 @@ export function SettingsNavigation({
       <div className="settings-mobile-back">
         <m3-button variant="text" onClick={() => onMobileSectionOpen(false)}>
           <IconChevronLeft slot="icon" />
-          Bereiche
+          Alle Einstellungen
         </m3-button>
-        <strong>{SETTINGS_SECTIONS[tab]}</strong>
-      </div>
-
-      <div className="settings-tabs-desktop">
-        <M3Tabs activeTab={tab} onChange={(index) => onTabChange(index)}>
-          <m3-tab panel="settings-steam" value="steam">
-            Steam
-          </m3-tab>
-          <m3-tab panel="settings-igdb" value="igdb">
-            IGDB
-          </m3-tab>
-          <m3-tab panel="settings-theme" value="theme">
-            Erscheinungsbild
-          </m3-tab>
-          <m3-tab panel="settings-data" value="data">
-            Daten
-          </m3-tab>
-        </M3Tabs>
       </div>
     </>
   );

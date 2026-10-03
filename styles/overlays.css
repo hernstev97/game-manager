@@ -1,14 +1,13 @@
 .add-dialog h3 {
-  margin: 8px 0 0;
-  font-size: 0.85rem;
-  font-weight: 600;
+  margin: var(--space-2) 0 0;
   color: var(--md-sys-color-on-surface-variant);
+  font: var(--md-sys-typescale-title-small);
 }
 
 .swatch {
   display: inline-flex;
   overflow: hidden;
-  border-radius: 999px;
+  border-radius: var(--md-sys-shape-corner-full);
 }
 
 .swatch i,
@@ -19,73 +18,45 @@
 }
 
 .seed-dot {
-  border-radius: 999px;
+  border-radius: var(--md-sys-shape-corner-full);
 }
 
 m3-snackbar {
   position: fixed;
-  left: 16px;
-  bottom: 16px;
+  left: calc(var(--app-rail-width) + var(--space-4));
+  bottom: var(--space-4);
   z-index: 80;
-  max-width: min(560px, calc(100vw - 32px));
+  max-width: min(560px, calc(100vw - var(--app-rail-width) - 32px));
 }
 
-.mobile-add-fab {
-  animation: fab-enter var(--motion-duration-long) var(--motion-easing-decelerate) 120ms backwards;
-  transition:
-    translate var(--motion-duration-medium) var(--motion-easing-decelerate),
-    filter var(--motion-duration-medium) var(--motion-easing-standard);
-}
-
-.mobile-add-fab:hover {
-  translate: 0 -3px;
-}
-
-.active-filters m3-chip,
-.mobile-active-filter-scroll m3-chip {
+.active-filter-scroll m3-chip {
   animation: chip-enter var(--motion-duration-medium) var(--motion-easing-decelerate) backwards;
 }
 
 .add-dialog section,
-.mobile-filter-group {
+.filter-group-section {
   animation: reveal-up var(--motion-duration-medium) var(--motion-easing-decelerate) backwards;
 }
 
 .add-dialog section:nth-of-type(2),
-.mobile-filter-group:nth-child(2) {
+.filter-group-section:nth-child(2) {
   animation-delay: var(--motion-stagger);
 }
 
 .add-dialog section:nth-of-type(3),
-.mobile-filter-group:nth-child(3) {
+.filter-group-section:nth-child(3) {
   animation-delay: calc(var(--motion-stagger) * 2);
 }
 
-.mobile-filter-group:nth-child(n + 4) {
+.filter-group-section:nth-child(n + 4) {
   animation-delay: calc(var(--motion-stagger) * 3);
 }
 
 @media (max-width: 599px) {
-  .mobile-add-fab {
-    position: fixed;
-    right: max(14px, env(safe-area-inset-right));
-    bottom: max(16px, env(safe-area-inset-bottom));
-    z-index: 45;
-    width: 56px;
-    min-width: 56px;
-    height: 56px;
-    padding: 0;
-    --md-comp-button-container-height: 56px;
-    --md-comp-button-container-shape: 999px;
-    --md-comp-button-label-text-size: 1rem;
-    filter: drop-shadow(0 3px 5px color-mix(in srgb, var(--md-sys-color-scrim) 28%, transparent));
-  }
-}
-
-@media (max-width: 599px) {
   m3-snackbar {
-    right: 16px;
-    bottom: calc(84px + env(safe-area-inset-bottom));
+    left: var(--space-4);
+    right: var(--space-4);
+    bottom: calc(var(--app-nav-bar-height) + 88px + env(safe-area-inset-bottom));
     max-width: none;
   }
 }

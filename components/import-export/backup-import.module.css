@@ -1,79 +1,144 @@
-.dialog {
-  width: min(680px, calc(100vw - 24px));
-  max-height: min(820px, calc(100dvh - 24px));
-  box-sizing: border-box;
-  overflow: auto;
-  border: 1px solid var(--md-sys-color-outline-variant);
-  border-radius: 28px;
-  padding: 0;
+.body {
+  display: grid;
+  min-width: 0;
+  gap: var(--space-4);
   color: var(--md-sys-color-on-surface);
-  background: var(--md-sys-color-surface-container-high);
-  box-shadow: 0 18px 56px color-mix(in srgb, var(--md-sys-color-scrim) 32%, transparent);
+  font: var(--md-sys-typescale-body-medium);
 }
 
-.dialog::backdrop {
-  background: color-mix(in srgb, var(--md-sys-color-scrim) 58%, transparent);
+.body p,
+.body h3 {
+  margin: 0;
 }
 
-.dialog header,
-.dialog footer {
-  position: sticky;
-  z-index: 2;
-  display: flex;
+.fileName {
+  overflow-wrap: anywhere;
+  color: var(--md-sys-color-on-surface-variant);
+  font: var(--md-sys-typescale-body-small);
+}
+
+.modeChoice {
+  display: grid;
+  gap: var(--space-1);
+  margin: 0;
+  border: 0;
+  padding: 0;
+}
+
+.modeChoice legend {
+  padding: 0;
+  margin-bottom: var(--space-2);
+  font: var(--md-sys-typescale-title-small);
+}
+
+/* M3 list row with a leading native radio/checkbox. */
+.choiceRow {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--space-4);
   align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 18px 22px;
-  background: var(--md-sys-color-surface-container-high);
+  min-height: 56px;
+  box-sizing: border-box;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--md-sys-shape-corner-large);
+  cursor: pointer;
+  transition: background-color var(--motion-duration-short) var(--md-sys-motion-spring-fast-effects);
 }
 
-.dialog header { top: 0; border-bottom: 1px solid var(--md-sys-color-outline-variant); }
-.dialog footer { bottom: 0; justify-content: flex-end; border-top: 1px solid var(--md-sys-color-outline-variant); }
-.dialog h1, .dialog h2, .dialog p { margin: 0; }
-.dialog h1 { font-size: 1.35rem; }
-.dialog h2 { font-size: 1rem; }
-.dialog header p { color: var(--md-sys-color-on-surface-variant); font-size: 0.82rem; }
+.choiceRow:hover {
+  background: color-mix(in srgb, var(--md-sys-color-on-surface) 8%, transparent);
+}
 
-.dialog button,
-.dialog select {
-  min-height: 42px;
-  border: 1px solid var(--md-sys-color-outline);
-  border-radius: 999px;
-  padding: 0 14px;
+.choiceRow:has(input:checked) {
+  background: var(--md-sys-color-secondary-container);
+  color: var(--md-sys-color-on-secondary-container);
+}
+
+.modeChoice:disabled .choiceRow {
+  cursor: default;
+  opacity: 0.38;
+}
+
+.choiceRow span {
+  display: grid;
+  min-width: 0;
+  gap: 2px;
+}
+
+.choiceRow strong {
+  font: var(--md-sys-typescale-body-large);
+}
+
+.choiceRow small {
+  color: var(--md-sys-color-on-surface-variant);
+  font: var(--md-sys-typescale-body-medium);
+}
+
+.summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2);
+  margin: 0;
+}
+
+.summary div {
+  border-radius: var(--md-sys-shape-corner-large);
+  padding: var(--space-3);
+  background: var(--md-sys-color-surface-container);
+}
+
+.summary dt {
+  color: var(--md-sys-color-on-surface-variant);
+  font: var(--md-sys-typescale-label-medium);
+}
+
+.summary dd {
+  margin: var(--space-1) 0 0;
+  font: var(--md-sys-typescale-emphasized-title-medium);
+  font-variant-numeric: tabular-nums;
+}
+
+.conflicts {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.conflicts h3 {
+  font: var(--md-sys-typescale-title-small);
+}
+
+.conflicts > :global(.m3-select) {
+  display: grid;
+  width: 100%;
+}
+
+.secretChoice,
+.secretChoice:has(input:checked),
+.secretChoice:hover {
+  color: var(--md-sys-color-on-error-container);
+  background: var(--md-sys-color-error-container);
+}
+
+.secretChoice small {
   color: inherit;
-  background: var(--md-sys-color-surface-container-low);
-  font: inherit;
 }
 
-.dialog header button { width: 42px; padding: 0; border-color: transparent; }
-.dialog button { cursor: pointer; }
-.dialog button:disabled { cursor: default; opacity: 0.5; }
-.dialog button:focus-visible, .dialog select:focus-visible, .dialog input:focus-visible { outline: 3px solid var(--md-sys-color-tertiary); outline-offset: 2px; }
-.dialog .primary { border-color: var(--md-sys-color-primary); color: var(--md-sys-color-on-primary); background: var(--md-sys-color-primary); }
+.snapshotNote {
+  color: var(--md-sys-color-on-surface-variant);
+}
 
-.body { display: grid; gap: 18px; padding: 22px; }
-.modeChoice { display: grid; gap: 10px; border: 0; padding: 0; }
-.modeChoice label, .secretChoice { display: flex; align-items: flex-start; gap: 10px; }
-.modeChoice input, .secretChoice input { width: 20px; height: 20px; flex: 0 0 auto; accent-color: var(--md-sys-color-primary); }
-
-.summary { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin: 0; }
-.summary div { border-radius: 14px; padding: 12px; background: var(--md-sys-color-surface-container); }
-.summary dt { color: var(--md-sys-color-on-surface-variant); font-size: 0.76rem; }
-.summary dd { margin: 4px 0 0; font-size: 1.05rem; font-weight: 750; }
-
-.conflicts { display: grid; gap: 10px; }
-.conflicts label { display: grid; gap: 5px; }
-.conflicts select { width: 100%; border-radius: 12px; }
-.secretChoice { border-radius: 14px; padding: 14px; color: var(--md-sys-color-on-error-container); background: var(--md-sys-color-error-container); }
-.secretChoice span { display: grid; gap: 3px; }
-.snapshotNote { color: var(--md-sys-color-on-surface-variant); font-size: 0.86rem; }
-.error { margin: 22px !important; color: var(--md-sys-color-error); }
+.error {
+  color: var(--md-sys-color-error);
+}
 
 @media (max-width: 520px) {
-  .dialog { width: 100vw; max-width: none; max-height: 100dvh; height: 100dvh; border: 0; border-radius: 0; }
-  .summary { grid-template-columns: 1fr; }
+  .summary {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .dialog, .dialog * { scroll-behavior: auto; transition: none; animation: none; }
+  .choiceRow {
+    transition: none;
+  }
 }

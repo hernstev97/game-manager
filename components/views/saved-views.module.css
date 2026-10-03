@@ -1,19 +1,48 @@
+.controller {
+  display: grid;
+  min-width: 0;
+  gap: var(--space-2);
+}
+
 .actions {
   display: flex;
   min-width: 0;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
   justify-content: space-between;
-  gap: 10px 16px;
+  gap: var(--space-1) var(--space-4);
+  padding: var(--space-1) var(--space-1) var(--space-1) var(--space-4);
+  border-radius: var(--md-sys-shape-corner-large);
+  color: var(--md-sys-color-on-tertiary-container);
+  background: var(--md-sys-color-tertiary-container);
+  animation: reveal-up var(--motion-duration-medium) var(--motion-easing-decelerate) backwards;
 }
 
 .dirtyStatus {
-  font-size: 0.84rem;
+  display: inline-flex;
+  min-width: 0;
+  align-items: center;
+  gap: var(--space-2);
+  overflow: hidden;
+  font: var(--md-sys-typescale-label-large);
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.dirtyStatus {
-  color: var(--md-sys-color-tertiary);
-  font-weight: 700;
+.actions .actionButtons {
+  flex: 0 0 auto;
+  flex-wrap: nowrap;
+}
+
+.dirtyDot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--md-sys-shape-corner-full);
+  background: var(--md-sys-color-tertiary);
+}
+
+.actions m3-button {
+  --md-sys-color-primary: var(--md-sys-color-on-tertiary-container);
 }
 
 .actionButtons,
@@ -21,139 +50,11 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-end;
-  gap: 8px;
+  gap: var(--space-1);
 }
 
-.primaryButton,
-.secondaryButton {
-  min-height: 40px;
-  border: 0;
-  border-radius: 999px;
-  padding: 8px 16px;
-  font: inherit;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.primaryButton {
-  background: var(--md-sys-color-primary);
-  color: var(--md-sys-color-on-primary);
-}
-
-.secondaryButton {
-  background: var(--md-sys-color-secondary-container);
-  color: var(--md-sys-color-on-secondary-container);
-}
-
-.primaryButton:disabled {
-  cursor: default;
-  opacity: 0.45;
-}
-
-.dialog {
-  width: min(420px, calc(100vw - 32px));
-  box-sizing: border-box;
-  border: 1px solid var(--md-sys-color-outline-variant);
-  border-radius: 24px;
-  padding: 24px;
-  background: var(--md-sys-color-surface-container-high);
-  color: var(--md-sys-color-on-surface);
-}
-
-.dialog::backdrop {
-  background: color-mix(in srgb, var(--md-sys-color-scrim) 58%, transparent);
-}
-
-.dialog form,
-.dialog label {
+.nameField {
   display: grid;
-  gap: 12px;
-}
-
-.dialog form {
-  gap: 20px;
-}
-
-.dialog h2 {
-  margin: 0;
-  font-size: 1.35rem;
-}
-
-.dialog input {
-  min-height: 44px;
-  box-sizing: border-box;
-  border: 1px solid var(--md-sys-color-outline);
-  border-radius: 14px;
-  padding: 0 14px;
-  background: var(--md-sys-color-surface-container-low);
-  color: var(--md-sys-color-on-surface);
-  font: inherit;
-}
-.controller {
-  display: grid;
-  min-width: 0;
-  align-content: start;
-  gap: 12px;
-}
-
-@media (max-width: 599px) {
-  .controller {
-    width: 100%;
-    gap: 0;
-  }
-
-  .controller > .actions {
-    display: none;
-  }
-}
-
-.viewControls {
-  display: flex;
-  min-width: 0;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 10px;
-}
-
-.groupControl {
-  display: inline-grid;
-  gap: 2px;
-  color: var(--md-sys-color-on-surface-variant);
-  font-size: 0.75rem;
-  font-weight: 650;
-}
-
-.groupControl select,
-.selectionButton {
-  min-height: 42px;
-  box-sizing: border-box;
-  border: 1px solid var(--md-sys-color-outline);
-  border-radius: 999px;
-  padding: 0 14px;
-  color: var(--md-sys-color-on-surface);
-  background: var(--md-sys-color-surface-container-low);
-  font: inherit;
-}
-
-.selectionButton {
-  align-self: end;
-  cursor: pointer;
-}
-
-.selectionButton[aria-pressed="true"] {
-  border-color: var(--md-sys-color-primary);
-  color: var(--md-sys-color-on-secondary-container);
-  background: var(--md-sys-color-secondary-container);
-}
-
-.groupControl select:focus-visible,
-.selectionButton:focus-visible {
-  outline: 3px solid var(--md-sys-color-tertiary);
-  outline-offset: 2px;
-}
-
-@media (max-width: 599px) {
-  .viewControls {
-    display: none;
-  }
+  min-width: min(360px, calc(100vw - 96px));
+  padding-top: var(--space-2);
 }

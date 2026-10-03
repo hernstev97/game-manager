@@ -1,16 +1,15 @@
 "use client";
 
 import { useMemo } from "react";
+import { PlanningGamePicker } from "./PlanningGamePicker";
 import { PlanningList } from "./PlanningList";
-import { ReorderModeControl } from "./ReorderModeControl";
+import { PlanningRowMenu } from "./PlanningRowMenu";
 import { orderedPlanningGames } from "./planning-helpers";
 import type { PlanningGame } from "./types";
 import styles from "./planning.module.css";
 
 export interface FavoriteRankingViewProps {
   games: readonly PlanningGame[];
-  reorderMode: boolean;
-  onReorderModeChange: (active: boolean) => void;
   onReorder: (orderedIds: readonly string[]) => void;
   onChangeRank: (gameId: string, rank: number) => void;
   onRemoveRank: (gameId: string) => void;
@@ -18,10 +17,10 @@ export interface FavoriteRankingViewProps {
   disabled?: boolean;
 }
 
+const RANK_ACTIONS = [{ value: "append", label: "Ranken" }] as const;
+
 export function FavoriteRankingView({
   games,
-  reorderMode,
-  onReorderModeChange,
   onReorder,
   onChangeRank,
   onRemoveRank,
@@ -32,61 +31,59 @@ export function FavoriteRankingView({
     () => orderedPlanningGames(games, "favoriteRank"),
     [games],
   );
-  const reorderAvailable = favorites.length > 1;
-  const reordering = reorderMode && reorderAvailable && !disabled;
+  const candidates = useMemo(
+    () => {
+      const rankedIds = new Set(favorites.map((game) => game.id));
+      return games
+        .filter((game) => !rankedIds.has(game.id))
+        .toSorted((left, right) => left.name.localeCompare(right.name, "de", {
+          sensitivity: "base",
+        }));
+    },
+    [games, favorites],
+  );
 
   return (
-    <section className={styles.view} aria-labelledby="favorite-ranking-title">
-      <header className={styles.header}>
-        <div>
-          <p className={styles.eyebrow}>Favoriten</p>
-          <h2 id="favorite-ranking-title" className={styles.title}>Persönliches Ranking</h2>
-          <p className={styles.description}>
-            Der persönliche Rang ordnet Favoriten. Er verändert weder Bewertung noch Warteschlange.
-          </p>
-        </div>
-        <span className={styles.count}>{favorites.length} mit persönlichem Rang</span>
-      </header>
+    <section className={styles.view} aria-label="Persönliches Ranking">
+      <div className={styles.intro}>
+        <p className={styles.description}>
+          Deine Lieblingsspiele in Reihenfolge. Das Ranking ändert weder Bewertung noch Warteschlange.
+        </p>
+        <span className={styles.count}>{favorites.length} gerankt</span>
+      </div>
 
-      <ReorderModeControl
-        active={reordering}
-        disabled={disabled || !reorderAvailable}
-        subject="persönliche Ränge"
-        onChange={onReorderModeChange}
+      <PlanningGamePicker
+        candidates={candidates}
+        triggerLabel="Spiel ranken"
+        emptyLabel="Alle Spiele sind gerankt"
+        actions={RANK_ACTIONS}
+        disabled={disabled}
+        onPick={(gameId) => onChangeRank(gameId, favorites.length + 1)}
       />
+
       <PlanningList
         games={favorites}
         listLabel="Favoriten nach persönlichem Rang"
         positionLabel="Persönlicher Rang"
-        emptyMessage="Noch kein persönlicher Rang vergeben."
-        reorderMode={reordering}
+        emptyMessage="Noch kein Spiel gerankt. Füge oben deinen ersten Favoriten hinzu."
         disabled={disabled}
         onReorder={onReorder}
         onOpenGame={onOpenGame}
-        renderActions={(game, visiblePosition) => (
-          <>
-            <label className={styles.rankControl}>
-              <span>Rang</span>
-              <select
-                aria-label={`${game.name || "Unbenanntes Spiel"}: persönlichen Rang ändern`}
-                value={visiblePosition}
-                disabled={disabled || favorites.length < 2}
-                onChange={(event) => onChangeRank(game.id, Number(event.target.value))}
-              >
-                {favorites.map((_, index) => (
-                  <option key={index + 1} value={index + 1}>{index + 1}</option>
-                ))}
-              </select>
-            </label>
-            <button
-              type="button"
-              className={styles.removeButton}
-              disabled={disabled}
-              onClick={() => onRemoveRank(game.id)}
-            >
-              Rang entfernen
-            </button>
-          </>
+        renderActions={(game, position) => (
+          <PlanningRowMenu
+            gameName={game.name || "Unbenanntes Spiel"}
+            disabled={disabled}
+            actions={[
+              { value: "top", label: "Auf Platz 1", disabled: position === 1 },
+              { value: "bottom", label: "Ans Ende", disabled: position === favorites.length },
+              { value: "remove", label: "Rang entfernen" },
+            ]}
+            onAction={(action) => {
+              if (action === "remove") onRemoveRank(game.id);
+              else if (action === "top") onChangeRank(game.id, 1);
+              else onChangeRank(game.id, favorites.length);
+            }}
+          />
         )}
       />
     </section>

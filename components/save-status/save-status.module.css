@@ -2,16 +2,16 @@
   display: inline-flex;
   min-width: 0;
   align-items: center;
-  gap: 6px;
+  gap: var(--space-2);
   color: var(--md-sys-color-on-surface-variant);
-  font-size: 0.76rem;
+  font: var(--md-sys-typescale-body-small);
   white-space: nowrap;
 }
 
 .dot {
   width: 8px;
   height: 8px;
-  border-radius: 50%;
+  border-radius: var(--md-sys-shape-corner-full);
   background: var(--md-sys-color-outline);
 }
 
@@ -37,7 +37,4 @@
   .status[data-kind="saving"] .dot { animation: none; }
 }
 
-@media (max-width: 599px) {
-  .status { font-size: 0; }
-  .dot { width: 10px; height: 10px; }
-}
+

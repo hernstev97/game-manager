@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { FranchisePresentation } from "@/lib/model/shared";
+import { M3Slider, M3TextField } from "@/components/m3/host";
 import styles from "./franchises.module.css";
 
 export type FranchisePresentationPopoverProps = {
@@ -49,58 +50,42 @@ function PresentationDraft({
           onChange(next);
         }}
       >
-        <label className={styles.urlField}>
-          <span>Hintergrund-URL</span>
-          <input
+        {/* The field's input lives in a shadow root, so Enter is not an implicit submit. */}
+        <div
+          className={styles.urlField}
+          onKeyDown={(event) => {
+            if (event.key !== "Enter") return;
+            event.preventDefault();
+            event.currentTarget.closest("form")?.requestSubmit();
+          }}
+        >
+          <M3TextField
+            label="Hintergrund-URL"
             type="url"
-            inputMode="url"
             placeholder="https://…"
             value={backgroundUrl}
-            onChange={(event) => setBackgroundUrl(event.target.value)}
+            onChange={setBackgroundUrl}
           />
-        </label>
-        <label>
+        </div>
+        <div className={styles.sliderField}>
           <span>Fokus horizontal: {Math.round(focalX * 100)} %</span>
-          <input
-            type="range"
-            min="0"
-            max="1"
-            step="0.01"
-            value={focalX}
-            onChange={(event) => setFocalX(event.target.valueAsNumber)}
-          />
-        </label>
-        <label>
+          <M3Slider label="Fokus horizontal" min={0} max={1} step={0.01} value={focalX} onChange={setFocalX} />
+        </div>
+        <div className={styles.sliderField}>
           <span>Fokus vertikal: {Math.round(focalY * 100)} %</span>
-          <input
-            type="range"
-            min="0"
-            max="1"
-            step="0.01"
-            value={focalY}
-            onChange={(event) => setFocalY(event.target.valueAsNumber)}
-          />
-        </label>
-        <label>
+          <M3Slider label="Fokus vertikal" min={0} max={1} step={0.01} value={focalY} onChange={setFocalY} />
+        </div>
+        <div className={styles.sliderField}>
           <span>Overlay: {Math.round(overlay * 100)} %</span>
-          <input
-            type="range"
-            min="0"
-            max="1"
-            step="0.01"
-            value={overlay}
-            onChange={(event) => setOverlay(event.target.valueAsNumber)}
-          />
-        </label>
+          <M3Slider label="Overlay" min={0} max={1} step={0.01} value={overlay} onChange={setOverlay} />
+        </div>
         <div className={styles.editorActions}>
           {presentation?.backgroundUrl ? (
-            <button type="button" className={styles.removeButton} onClick={removeBackground}>
+            <m3-button variant="text" className={styles.removeButton} onClick={removeBackground}>
               Hintergrund entfernen
-            </button>
+            </m3-button>
           ) : null}
-          <button type="submit" className={styles.saveButton}>
-            Darstellung speichern
-          </button>
+          <m3-button type="submit">Darstellung speichern</m3-button>
         </div>
       </form>
     </details>

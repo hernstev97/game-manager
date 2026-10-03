@@ -4,13 +4,13 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLibrary } from "@/store/library";
 import { applyFiltersAndSort } from "@/lib/filter-games";
 import { LibraryWorkspace } from "@/components/library/LibraryWorkspace";
-import { filtersWithQuery } from "@/components/library/LibraryToolbar";
+import { filtersWithQuery } from "@/components/library/LibrarySearchField";
 import { registerM3Components } from "@/components/m3/register";
 import { SnackbarHost, toast } from "@/components/m3/snackbar";
 import { MorphLoader } from "@/components/morph-loader";
-import { runMotionViewTransition, useMotion } from "@/components/motion-provider";
+import { runMotionViewTransition, useMotion } from "@/components/preferences/MotionProvider";
 import { PwaShell, type PwaSharePayload, type PwaShortcutAction } from "@/components/pwa";
-import { useTheme } from "@/components/theme-provider";
+import { useTheme } from "@/components/preferences/ThemeProvider";
 import { useLibraryKeyboardShortcuts } from "@/components/library/useLibraryKeyboardShortcuts";
 import { LibraryBulkActions } from "@/components/bulk-actions/LibraryBulkActions";
 import { LibraryDialogs } from "@/components/library/LibraryDialogs";
@@ -52,7 +52,6 @@ export function LibraryApp() {
   const setAddOpen = useLibrary((state) => state.setAddOpen);
   const setSettingsOpen = useLibrary((state) => state.setSettingsOpen);
   const reorderPriorities = useLibrary((state) => state.reorderPriorities);
-  const exportJson = useLibrary((state) => state.exportJson);
   const themePreferences = useTheme().prefs;
   const motionPreference = useMotion().preference;
 
@@ -187,8 +186,6 @@ export function LibraryApp() {
         dndDisabled={dndDisabled}
         selectedId={selectedId}
         planningMode={planning.planningMode}
-        queueReorderMode={planning.queueReorderMode}
-        favoriteReorderMode={planning.favoriteReorderMode}
         searchEpoch={searchEpoch}
         onQuery={onQuery}
         onSort={onAnimatedSort}
@@ -200,10 +197,8 @@ export function LibraryApp() {
         onDisplayMode={setDisplayMode}
         onGroupBy={setGroupBy}
         onSelectionMode={(enabled) => enabled ? startSelection(selectedId ?? undefined) : endSelection()}
-        onImport={(file) => void importFile(file)}
-        onExport={exportJson}
         onSettings={() => setSettingsOpen(true)}
-        onHelp={openShortcutHelp}
+        onImport={(file) => void importFile(file)}
         onFilterChange={onFilterChange}
         onClearFilters={onClearFilters}
         onOpenAdd={() => openAddDialog()}
@@ -212,9 +207,7 @@ export function LibraryApp() {
         onToggleSelection={toggleSelection}
         onReorder={reorderPriorities}
         onFranchisePresentation={setFranchisePresentation}
-        onPlanningMode={planning.changePlanningMode}
-        onQueueReorderMode={planning.setQueueReorderMode}
-        onFavoriteReorderMode={planning.setFavoriteReorderMode}
+        onPlanningMode={(mode) => runMotionViewTransition(() => planning.changePlanningMode(mode))}
         onQueueInsert={planning.insertQueue}
         onQueueRemove={planning.removeQueue}
         onQueueReorder={planning.reorderQueue}

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { BulkBooleanField } from "../../lib/bulk/operations";
+import { M3Select } from "@/components/m3/host";
 import styles from "./bulk-actions.module.css";
 
 const FIELD_OPTIONS: Array<{ value: BulkBooleanField; label: string }> = [
@@ -26,24 +27,18 @@ export function BulkBooleanControl({
   return (
     <fieldset className={styles.fieldControl} disabled={disabled}>
       <legend>Status setzen</legend>
-      <label>
-        <span>Feld</span>
-        <select value={field} onChange={(event) => setField(event.target.value as BulkBooleanField)}>
-          {FIELD_OPTIONS.map((option) => (
-            <option key={option.value} value={option.value}>{option.label}</option>
-          ))}
-        </select>
-      </label>
-      <label>
-        <span>Wert</span>
-        <select value={String(value)} onChange={(event) => setValue(event.target.value === "true")}>
-          <option value="true">Ja</option>
-          <option value="false">Nein</option>
-        </select>
-      </label>
-      <button type="button" className={styles.primaryButton} onClick={() => onApply(field, value)}>
+      <M3Select label="Feld" value={field} disabled={disabled} onChange={(next) => setField(next as BulkBooleanField)}>
+        {FIELD_OPTIONS.map((option) => (
+          <option key={option.value} value={option.value}>{option.label}</option>
+        ))}
+      </M3Select>
+      <M3Select label="Wert" value={String(value)} disabled={disabled} onChange={(next) => setValue(next === "true")}>
+        <option value="true">Ja</option>
+        <option value="false">Nein</option>
+      </M3Select>
+      <m3-button disabled={disabled} onClick={() => onApply(field, value)}>
         Anwenden
-      </button>
+      </m3-button>
     </fieldset>
   );
 }

@@ -52,20 +52,12 @@ export function OptionsStep({
         </label>
       </fieldset>
       <div className={styles.actions}>
-        <button
-          type="button"
-          className={styles.secondaryButton}
-          onClick={() => controller.setStep("select")}
-        >
+        <m3-button variant="outlined" onClick={() => controller.setStep("select")}>
           Zurück
-        </button>
-        <button
-          type="button"
-          className={styles.primaryButton}
-          onClick={controller.prepareReview}
-        >
+        </m3-button>
+        <m3-button variant="filled" onClick={controller.prepareReview}>
           Importplan prüfen
-        </button>
+        </m3-button>
       </div>
     </div>
   );

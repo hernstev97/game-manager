@@ -3,6 +3,10 @@ export const ADAPTIVE_DIALOG_STYLE = `
   display: none !important;
 }
 
+:host(.no-actions) .dialog[open] .actions {
+  display: none !important;
+}
+
 .dialog[open] {
   transform-origin: center;
   animation: ggrid-dialog-enter var(--motion-duration-long, 420ms)
@@ -147,6 +151,82 @@ export const ADAPTIVE_DIALOG_STYLE = `
     padding: 10px 16px max(12px, env(safe-area-inset-bottom));
     flex-wrap: wrap;
     border-top: 1px solid var(--md-sys-color-outline-variant, #cac4cf);
+  }
+}
+
+@media (min-width: 600px) {
+  :host(.adaptive-side) .dialog[open] {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    width: min(400px, calc(100vw - 56px));
+    max-width: none;
+    height: 100dvh;
+    max-height: none;
+    margin: 0 0 0 auto;
+    border-radius: var(--md-sys-shape-corner-large, 16px) 0 0 var(--md-sys-shape-corner-large, 16px);
+    background-color: var(--md-sys-color-surface-container-low, #f8f2fa);
+    transform-origin: right center;
+    animation-name: ggrid-side-enter;
+  }
+
+  :host(.adaptive-side) .dialog[open] .headline {
+    padding: 24px 24px 16px;
+    text-align: left;
+  }
+
+  :host(.adaptive-side) .dialog[open] .content {
+    flex: 1 1 auto;
+    min-height: 0;
+    padding: 0 24px 24px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  :host(.adaptive-side) .dialog[open] .actions {
+    padding: 16px 24px 24px;
+    border-top: 1px solid var(--md-sys-color-outline-variant, #cac4cf);
+  }
+}
+
+@media (min-width: 600px) {
+  /* Large-screen dialogs keep their close action, pinned to the top end. */
+  :host(.adaptive-fullscreen) .dialog[open] .icon-slot,
+  :host(.adaptive-editor) .dialog[open] .icon-slot {
+    position: absolute;
+    z-index: 2;
+    top: 12px;
+    right: 12px;
+    display: flex !important;
+    margin: 0;
+    padding: 0;
+  }
+
+  :host(.wide-dialog) .dialog[open] {
+    width: min(1080px, calc(100vw - 48px));
+    max-width: none;
+    max-height: min(900px, calc(100dvh - 48px));
+  }
+
+  :host(.wide-dialog) .dialog[open] .headline,
+  :host(.settings-dialog) .dialog[open] .headline {
+    padding-right: 64px;
+    text-align: left;
+  }
+
+  :host(.settings-dialog) .dialog[open] {
+    width: min(920px, calc(100vw - 48px));
+    max-width: none;
+    height: min(760px, calc(100dvh - 48px));
+    max-height: none;
+  }
+
+}
+
+@keyframes ggrid-side-enter {
+  from {
+    opacity: .8;
+    transform: translateX(var(--motion-sheet-distance, 48px));
   }
 }
 

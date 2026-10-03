@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef } from "react";
-import { CoverImage } from "@/components/cover-image";
+import { CoverImage } from "@/components/media/CoverImage";
 import { useHostEvent } from "@/components/m3/events";
 
 export function ResultItem({

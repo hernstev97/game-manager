@@ -119,7 +119,7 @@ export function ComboEnumField({
           autoFocus
         />
       ) : null}
-      {field.filterMinCount && field.filterMinCount > 1 ? (
+      {creating && field.filterMinCount && field.filterMinCount > 1 ? (
         <span className="settings-copy">
           Im Filter erst ab {field.filterMinCount} Spielen sichtbar.
         </span>

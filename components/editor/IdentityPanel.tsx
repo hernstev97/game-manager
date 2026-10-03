@@ -4,7 +4,6 @@ import type { GameFieldDef, GameRecord } from "@/lib/game-fields";
 import { EditorFieldItem, SourceCard } from "@/components/editor/SourceCard";
 
 const IDENTITY_PRIMARY_FIELDS = new Set([
-  "name",
   "steamAppId",
   "steamPrice",
   "igdbId",
@@ -31,8 +30,6 @@ export function IdentityPanel({
 
   return (
     <>
-      <EditorFieldItem field={byId.get("name")} {...sharedProps} />
-
       <div className="editor-source-stack" aria-label="Externe Spieldaten">
         <SourceCard
           title="Steam"

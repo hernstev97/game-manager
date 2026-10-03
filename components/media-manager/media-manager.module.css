@@ -1,107 +1,64 @@
-.dialog {
-  width: min(1080px, calc(100vw - 32px));
-  max-width: none;
-  max-height: min(880px, calc(100dvh - 32px));
-  padding: 0;
-  overflow: hidden;
-  border: 1px solid var(--md-sys-color-outline-variant);
-  border-radius: 24px;
-  color: var(--md-sys-color-on-surface);
-  background: var(--md-sys-color-surface-container-low);
-  box-shadow: 0 20px 60px color-mix(in srgb, var(--md-sys-color-scrim) 34%, transparent);
-}
-.dialog::backdrop {
-  background: color-mix(in srgb, var(--md-sys-color-scrim) 52%, transparent);
-}
-
-.dialogHeader,
-.dialogActions {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 18px 22px;
-  background: var(--md-sys-color-surface-container);
-}
-
-.dialogHeader h1,
-.editorSection h2 {
-  margin: 0;
-}
-
-.dialogHeader h1 {
-  font-size: 1.35rem;
-}
-
-.dialogHeader p {
-  margin: 4px 0 0;
-  color: var(--md-sys-color-on-surface-variant);
-  font-size: 0.9rem;
-}
-
-.dialogHeader button,
-.dialogActions button,
-.manualRow button,
-.adjustments button {
-  min-height: 40px;
-  padding: 0 16px;
-  border: 1px solid var(--md-sys-color-outline);
-  border-radius: 999px;
-  color: inherit;
-  background: transparent;
-  font: inherit;
-  cursor: pointer;
-}
-
-.dialogHeader button {
-  width: 40px;
-  padding: 0;
-}
-
-.dialogBody {
+.content {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 24px;
-  max-height: calc(100dvh - 190px);
-  padding: 22px;
-  overflow: auto;
+  gap: var(--space-5);
+  min-width: 0;
+  color: var(--md-sys-color-on-surface);
+}
+
+.description {
+  margin: 0;
+  color: var(--md-sys-color-on-surface-variant);
+  font: var(--md-sys-typescale-body-medium);
+}
+
+.editors {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--space-6);
 }
 
 .editorSection {
   min-width: 0;
 }
 
-.editorSection h2 {
-  margin-bottom: 14px;
-  font-size: 1.05rem;
+.editorSection h3 {
+  margin: 0 0 var(--space-3);
+  font: var(--md-sys-typescale-title-small);
 }
 
 .candidateList {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(116px, 1fr));
-  gap: 12px;
+  gap: var(--space-3);
 }
 
+/* Selectable image tile; native toggle button so aria-pressed stays exposed. */
 .candidate {
   min-width: 0;
-  padding: 7px;
+  padding: var(--space-2);
   border: 2px solid transparent;
-  border-radius: 14px;
+  border-radius: var(--md-sys-shape-corner-large);
   color: inherit;
-  background: var(--md-sys-color-surface-container-high);
+  background: var(--md-sys-color-surface-container);
   text-align: left;
   cursor: pointer;
+  transition:
+    background-color var(--motion-duration-short) var(--motion-easing-standard),
+    border-color var(--motion-duration-short) var(--motion-easing-standard);
+}
+
+.candidate:hover {
+  background: color-mix(in srgb, var(--md-sys-color-on-surface) 8%, var(--md-sys-color-surface-container));
 }
 
 .candidate[data-selected] {
   border-color: var(--md-sys-color-primary);
+  color: var(--md-sys-color-on-secondary-container);
   background: var(--md-sys-color-secondary-container);
 }
 
-.candidate:focus-visible,
-.dialog button:focus-visible,
-.dialog input:focus-visible {
-  outline: 3px solid var(--md-sys-color-primary);
+.candidate:focus-visible {
+  outline: 3px solid var(--md-sys-color-secondary);
   outline-offset: 2px;
 }
 
@@ -110,7 +67,7 @@
   display: block;
   width: 100%;
   overflow: hidden;
-  border-radius: 9px;
+  border-radius: var(--md-sys-shape-corner-medium);
   background: var(--md-sys-color-surface-container-highest);
 }
 
@@ -132,19 +89,21 @@
   height: 100%;
   place-items: center;
   color: var(--md-sys-color-on-surface-variant);
-  font-size: 0.8rem;
+  font: var(--md-sys-typescale-body-small);
 }
 
 .candidateLabel,
 .checkBadge {
   display: block;
-  margin-top: 7px;
+  margin-top: var(--space-2);
   overflow-wrap: anywhere;
-  font-size: 0.78rem;
+  font: var(--md-sys-typescale-label-medium);
 }
 
 .checkBadge {
+  margin-top: var(--space-1);
   color: var(--md-sys-color-on-surface-variant);
+  font: var(--md-sys-typescale-body-small);
 }
 
 .checkBadge[data-tone="ok"] {
@@ -158,71 +117,44 @@
 .manualRow,
 .adjustments {
   display: grid;
-  gap: 12px;
-  margin-top: 18px;
+  gap: var(--space-3);
+  margin-top: var(--space-5);
 }
 
 .manualRow {
-  grid-template-columns: 1fr auto;
-  align-items: end;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
 }
 
-.manualRow label,
-.adjustments label {
-  display: grid;
-  gap: 6px;
-  color: var(--md-sys-color-on-surface-variant);
-  font-size: 0.84rem;
-}
-
-.manualRow input {
+.manualRow m3-text-field {
   min-width: 0;
-  height: 40px;
-  padding: 0 11px;
-  border: 1px solid var(--md-sys-color-outline);
-  border-radius: 9px;
-  color: var(--md-sys-color-on-surface);
-  background: var(--md-sys-color-surface-container-lowest);
-  font: inherit;
 }
 
-.adjustments input[type="range"] {
-  width: 100%;
+/* Centre the button on the 56px outlined field, not on its helper text. */
+.manualRow m3-button {
+  margin-top: var(--space-2);
 }
 
-.dialog button:disabled {
-  cursor: default;
-  opacity: 0.45;
+.adjustments {
+  justify-items: start;
 }
 
-.dialogActions {
-  justify-content: flex-end;
-  border-top: 1px solid var(--md-sys-color-outline-variant);
-}
-
-.dialogActions .primaryAction {
-  border-color: var(--md-sys-color-primary);
-  color: var(--md-sys-color-on-primary);
-  background: var(--md-sys-color-primary);
+.adjustment {
+  display: grid;
+  justify-self: stretch;
+  gap: var(--space-1);
+  color: var(--md-sys-color-on-surface-variant);
+  font: var(--md-sys-typescale-body-medium);
 }
 
 @media (max-width: 760px) {
-  .dialog {
-    width: 100vw;
-    max-height: 100dvh;
-    margin: auto 0 0;
-    border-radius: 24px 24px 0 0;
-  }
-
-  .dialogBody {
+  .editors {
     grid-template-columns: 1fr;
-    max-height: calc(100dvh - 180px);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .dialog,
   .candidate {
-    scroll-behavior: auto;
+    transition: none;
   }
 }

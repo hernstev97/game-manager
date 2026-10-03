@@ -1,62 +1,47 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import type { GameRecord } from "@/lib/game-fields";
 import {
   activeFilterChips,
   emptyFieldFilter,
-  isFilterActive,
   type FieldFilterValue,
   type LibraryFilters,
 } from "@/lib/filter-games";
 import { ActiveFilterChips } from "@/components/filters/ActiveFilterChips";
-import { FilterGroupMenu } from "@/components/filters/FilterGroupMenu";
 import {
   fieldForFilter,
   filterGroupsForGames,
   type FilterGroup,
 } from "@/components/filters/filter-logic";
-import { FilterSummary } from "@/components/filters/FilterSummary";
 import { RecentFilterPresets } from "@/components/filters/RecentFilterPresets";
-import {
-  emptyMobileFilters,
-  MobileActiveFilters,
-  MobileFilterSheet,
-} from "@/components/filters/MobileFilterSheet";
-import {
-  MobileLibraryCommandBar,
-  type MobileLibraryCommandBarProps,
-} from "@/components/library/MobileLibraryCommandBar";
+import { FilterSheet, filtersWithoutFields } from "@/components/filters/FilterSheet";
 import { recordRecentFilterPreset } from "@/lib/recent-filters";
 
-type MobileControls = Omit<
-  MobileLibraryCommandBarProps,
-  "visibleCount" | "totalCount" | "fieldFilterCount" | "onOpenFilters"
->;
+/** Number of active field filters (the free-text query is not counted). */
+export function fieldFilterCount(filters: LibraryFilters): number {
+  return activeFilterChips(filters).filter((chip) => chip.fieldId !== "query").length;
+}
 
+/**
+ * Active filter chips plus the filter sheet. The trigger lives in the search
+ * field so the full facet list only appears on demand.
+ */
 export function FilterBar({
   games,
   filters,
-  visibleCount,
-  mobileControlsKey,
-  mobileControls,
+  sheetOpen,
+  onSheetOpenChange,
   onChange,
-  onClear,
 }: {
   games: GameRecord[];
   filters: LibraryFilters;
-  visibleCount: number;
-  mobileControlsKey: string;
-  mobileControls: MobileControls;
+  sheetOpen: boolean;
+  onSheetOpenChange: (open: boolean) => void;
   onChange: (next: LibraryFilters) => void;
-  onClear: () => void;
 }) {
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const [draftFilters, setDraftFilters] = useState(filters);
   const groups = useMemo<FilterGroup[]>(() => filterGroupsForGames(games), [games]);
-  const chips = activeFilterChips(filters);
-  const fieldChips = chips.filter((chip) => chip.fieldId !== "query");
-  const active = isFilterActive(filters);
+  const fieldChips = activeFilterChips(filters).filter((chip) => chip.fieldId !== "query");
 
   const commitFilters = (next: LibraryFilters) => {
     onChange(next);
@@ -70,23 +55,7 @@ export function FilterBar({
     });
   };
 
-  const setDraftField = (fieldId: string, value: FieldFilterValue) => {
-    setDraftFilters((current) => ({
-      ...current,
-      fields: { ...current.fields, [fieldId]: value },
-    }));
-  };
-
-  const openMobileFilters = () => {
-    setDraftFilters(filters);
-    setMobileOpen(true);
-  };
-
   const dismissChip = (fieldId: string, token: string) => {
-    if (fieldId === "query") {
-      onChange({ ...filters, query: "" });
-      return;
-    }
     const field = fieldForFilter(fieldId);
     const current = filters.fields[fieldId] ?? (field ? emptyFieldFilter(field) : undefined);
     if (!current) return;
@@ -101,53 +70,32 @@ export function FilterBar({
   };
 
   return (
-    <section className="filter-bar" aria-label="Filter">
-      <MobileLibraryCommandBar
-        key={mobileControlsKey}
-        {...mobileControls}
-        visibleCount={visibleCount}
-        totalCount={games.length}
-        fieldFilterCount={fieldChips.length}
-        onOpenFilters={openMobileFilters}
-      />
-      <FilterSummary visibleCount={visibleCount} totalCount={games.length} />
-      <div className="desktop-recent-filters">
-        <RecentFilterPresets query={filters.query} onApply={commitFilters} />
-      </div>
-      <FilterGroupMenu games={games} filters={filters} groups={groups} onChange={commitFilters} />
+    <>
       <ActiveFilterChips
-        active={active}
-        chips={chips}
+        chips={fieldChips}
         onDismiss={dismissChip}
-        onClear={onClear}
+        onClear={() => onChange(filtersWithoutFields(filters.query))}
       />
-      <MobileActiveFilters
-        fieldChips={fieldChips}
-        onDismiss={dismissChip}
-        onClear={() => onChange(emptyMobileFilters(filters.query))}
-      />
-      <MobileFilterSheet
-        open={mobileOpen}
+      <FilterSheet
+        open={sheetOpen}
         games={games}
-        draftFilters={draftFilters}
+        filters={filters}
         groups={groups}
-        onClose={() => setMobileOpen(false)}
-        onDraftField={setDraftField}
-        onReset={() => setDraftFilters(emptyMobileFilters(filters.query))}
-        onApply={() => {
-          commitFilters(draftFilters);
-          setMobileOpen(false);
+        onClose={() => onSheetOpenChange(false)}
+        onApply={(next) => {
+          commitFilters(next);
+          onSheetOpenChange(false);
         }}
         recentFilters={(
           <RecentFilterPresets
             query={filters.query}
             onApply={(next) => {
               commitFilters(next);
-              setMobileOpen(false);
+              onSheetOpenChange(false);
             }}
           />
         )}
       />
-    </section>
+    </>
   );
 }

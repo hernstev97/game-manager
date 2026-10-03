@@ -1,10 +1,10 @@
 .sheet {
-  display: none;
+  display: block;
 }
 
 .content {
   display: grid;
-  gap: 20px;
+  gap: var(--space-5);
 }
 
 .group {
@@ -18,38 +18,31 @@
 
 .group legend {
   width: 100%;
-  margin: 0 0 6px;
+  margin: 0 0 var(--space-2);
   padding: 0;
   color: var(--md-sys-color-on-surface-variant);
-  font-size: 0.875rem;
-  font-weight: 650;
-  line-height: 1.25rem;
+  font: var(--md-sys-typescale-title-small);
 }
 
 .group label {
   box-sizing: border-box;
   min-height: 48px;
   margin: 0;
-  padding: 4px 8px;
-  border-radius: 12px;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--md-sys-shape-corner-medium);
   cursor: pointer;
+  font: var(--md-sys-typescale-body-large);
   transition: background-color var(--motion-duration-short)
     var(--motion-easing-standard);
 }
 
 .group label:hover {
-  background: var(--md-sys-color-surface-container-high);
+  background: color-mix(in srgb, var(--md-sys-color-on-surface) 8%, transparent);
 }
 
 .group label:focus-within {
-  outline: 2px solid var(--md-sys-color-primary);
+  outline: 2px solid var(--md-sys-color-secondary);
   outline-offset: 1px;
-}
-
-@media (max-width: 599px) {
-  .sheet {
-    display: block;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {

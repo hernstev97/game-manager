@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import type { LibraryFilters, SortState } from "@/lib/filter-games";
 import type {
   DisplayMode,
@@ -16,6 +16,7 @@ import {
 } from "@/lib/persistence/views";
 import {
   deleteSavedView,
+  isSavedViewMutable,
   duplicateSavedView,
   moveSavedView,
   renameSavedView,
@@ -24,12 +25,12 @@ import {
   updateSavedView,
 } from "./saved-view-helpers";
 import { SavedViewActions } from "./SavedViewActions";
+import { SavedViewChips } from "./SavedViewChips";
+import { SavedViewSheet } from "./SavedViewSheet";
 import {
   SavedViewNameDialog,
   type SavedViewNameDialogMode,
 } from "./SavedViewNameDialog";
-import { MobileSavedViewBar } from "./MobileSavedViewBar";
-import { SavedViewRail } from "./SavedViewRail";
 import styles from "./saved-views.module.css";
 
 type NameDialogState = {
@@ -59,6 +60,8 @@ export function LibraryViewsController({
   onChange: (views: readonly SavedView[], defaultView?: string) => void;
 }) {
   const [nameDialog, setNameDialog] = useState<NameDialogState>(null);
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const sheetTriggerRef = useRef<HTMLButtonElement | null>(null);
   const selectedView = views.find((view) => view.id === activeViewId);
   const current = useMemo<SavedViewComparableState>(() => ({
     name: selectedView?.name ?? "Neue Ansicht",
@@ -81,34 +84,27 @@ export function LibraryViewsController({
   const discardChanges = () => {
     if (selectedView) onSelect(selectedView.id);
   };
+  const customViews = views.filter(isSavedViewMutable);
+  const selectedCustomIndex = selectedView
+    ? customViews.findIndex((view) => view.id === selectedView.id)
+    : -1;
+  const closeSheet = (restoreFocus = true) => {
+    setSheetOpen(false);
+    if (restoreFocus) requestAnimationFrame(() => sheetTriggerRef.current?.focus());
+  };
 
   return (
-    <aside className={styles.controller}>
-      <MobileSavedViewBar
+    <div className={styles.controller}>
+      <SavedViewChips
         views={views}
         selectedViewId={activeViewId}
         dirty={dirty}
         disabled={disabled}
         onSelect={onSelect}
-        onRename={(view) => setNameDialog({ mode: "rename", source: view })}
-        onDuplicate={(view) => setNameDialog({ mode: "duplicate", source: view })}
-        onDelete={(view) => onChange(deleteSavedView(views, view.id))}
-        onSetDefault={(view) => onChange(setDefaultSavedView(views, view.id), view.id)}
-        onMove={(view, direction) => onChange(moveSavedView(views, view.id, direction))}
-        onUpdate={updateSelectedView}
-        onSaveAsNew={() => setNameDialog({ mode: "save" })}
-        onDiscard={discardChanges}
-      />
-      <SavedViewRail
-        views={views}
-        selectedViewId={activeViewId}
-        dirty={dirty}
-        onSelect={onSelect}
-        onRename={(view) => setNameDialog({ mode: "rename", source: view })}
-        onDuplicate={(view) => setNameDialog({ mode: "duplicate", source: view })}
-        onDelete={(view) => onChange(deleteSavedView(views, view.id))}
-        onSetDefault={(view) => onChange(setDefaultSavedView(views, view.id), view.id)}
-        onMove={(view, direction) => onChange(moveSavedView(views, view.id, direction))}
+        onManage={(trigger) => {
+          sheetTriggerRef.current = trigger;
+          setSheetOpen(true);
+        }}
       />
       <SavedViewActions
         selectedView={selectedView}
@@ -116,6 +112,26 @@ export function LibraryViewsController({
         onUpdate={updateSelectedView}
         onSaveAsNew={() => setNameDialog({ mode: "save" })}
         onDiscard={discardChanges}
+      />
+      <SavedViewSheet
+        open={sheetOpen}
+        selectedView={selectedView}
+        dirty={dirty}
+        canMoveUp={selectedCustomIndex > 0}
+        canMoveDown={selectedCustomIndex >= 0 && selectedCustomIndex < customViews.length - 1}
+        onClose={closeSheet}
+        onUpdate={updateSelectedView}
+        onSaveAsNew={() => setNameDialog({ mode: "save" })}
+        onDiscard={discardChanges}
+        onRename={selectedView ? () => setNameDialog({ mode: "rename", source: selectedView }) : undefined}
+        onDuplicate={selectedView ? () => setNameDialog({ mode: "duplicate", source: selectedView }) : undefined}
+        onDelete={selectedView ? () => onChange(deleteSavedView(views, selectedView.id)) : undefined}
+        onSetDefault={selectedView
+          ? () => onChange(setDefaultSavedView(views, selectedView.id), selectedView.id)
+          : undefined}
+        onMove={selectedView
+          ? (direction) => onChange(moveSavedView(views, selectedView.id, direction))
+          : undefined}
       />
       <SavedViewNameDialog
         open={nameDialog !== null}
@@ -135,6 +151,6 @@ export function LibraryViewsController({
           setNameDialog(null);
         }}
       />
-    </aside>
+    </div>
   );
 }

@@ -16,7 +16,7 @@ export function RatingStars({
     return <span>{value == null ? "—" : value.toFixed(1)}</span>;
   }
   return (
-    <div className="filter-stack">
+    <div className="rating-control">
       <M3Slider
         label="Bewertung"
         min={1}
@@ -25,14 +25,6 @@ export function RatingStars({
         value={value ?? 1}
         onChange={(next) => onChange?.(next)}
       />
-      <div className="confirm-row">
-        <strong>{value == null ? "—" : value.toFixed(1)}</strong>
-        {onChange && value != null ? (
-          <m3-button variant="text" onClick={() => onChange(null)}>
-            Zurücksetzen
-          </m3-button>
-        ) : null}
-      </div>
     </div>
   );
 }
@@ -46,13 +38,21 @@ export function RatingField({
   value: unknown;
   onChange: (patch: Partial<GameRecord>) => void;
 }) {
+  const rating = typeof value === "number" ? value : null;
   return (
-    <div className="field">
-      <span className="field-label">{field.label}</span>
-      <RatingStars
-        value={typeof value === "number" ? value : null}
-        onChange={(next) => onChange({ [field.id]: next })}
-      />
+    <div className="rating-field" role="group" aria-label={field.label}>
+      <div className="rating-field-header">
+        <span className="rating-field-label">{field.label}</span>
+        <span className="rating-field-value" aria-live="polite">
+          {rating == null ? "Unbewertet" : rating.toFixed(1)}
+        </span>
+        {rating != null ? (
+          <m3-button variant="text" onClick={() => onChange({ [field.id]: null })}>
+            Zurücksetzen
+          </m3-button>
+        ) : null}
+      </div>
+      <RatingStars value={rating} onChange={(next) => onChange({ [field.id]: next })} />
     </div>
   );
 }

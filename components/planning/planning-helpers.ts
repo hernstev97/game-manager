@@ -54,3 +54,21 @@ export function planningStatusLabel(game: PlanningGame): string {
   if (game.owned) return "Im Besitz";
   return "Nicht gespielt";
 }
+
+/** Moves one game to the start or end of an ordered planning list. */
+export function planningOrderWithEdgeMove(
+  games: readonly PlanningGame[],
+  gameId: string,
+  edge: "start" | "end",
+): string[] | null {
+  const ids = games.map((game) => game.id);
+  const index = ids.indexOf(gameId);
+  if (index < 0) return null;
+  if ((edge === "start" && index === 0) || (edge === "end" && index === ids.length - 1)) {
+    return null;
+  }
+  ids.splice(index, 1);
+  if (edge === "start") ids.unshift(gameId);
+  else ids.push(gameId);
+  return ids;
+}

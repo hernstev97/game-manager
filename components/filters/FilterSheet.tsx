@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 
 import type { GameRecord } from "@/lib/game-fields";
 import { EMPTY_FILTERS, applyFiltersAndSort, emptyFieldFilter, type FieldFilterValue, type LibraryFilters } from "@/lib/filter-games";
@@ -13,87 +13,52 @@ import {
   toggleToken,
   type FilterGroup,
 } from "@/components/filters/filter-logic";
-import type { FilterChip } from "@/components/filters/ActiveFilterChips";
-import { IconTune } from "@/components/m3/icons";
 
-export function MobileFilterOverview({
-  visibleCount,
-  totalCount,
-  fieldChipCount,
-  onOpen,
-}: {
-  visibleCount: number;
-  totalCount: number;
-  fieldChipCount: number;
-  onOpen: () => void;
-}) {
-  return (
-    <div className="mobile-filter-overview">
-      <span className="filter-count" aria-live="polite">
-        {visibleCount === totalCount ? `${totalCount} Spiele` : `${visibleCount} von ${totalCount}`}
-      </span>
-      <m3-button variant={fieldChipCount > 0 ? "tonal" : "outlined"} onClick={onOpen}>
-        <IconTune slot="icon" width={18} height={18} />
-        Filter{fieldChipCount > 0 ? ` (${fieldChipCount})` : ""}
-      </m3-button>
-    </div>
-  );
-}
-
-export function MobileActiveFilters({
-  fieldChips,
-  onDismiss,
-  onClear,
-}: {
-  fieldChips: FilterChip[];
-  onDismiss: (fieldId: string, token: string) => void;
-  onClear: () => void;
-}) {
-  if (fieldChips.length === 0) return null;
-
-  return (
-    <div className="mobile-active-filters" aria-label="Aktive Filter">
-      <div className="mobile-active-filter-scroll">
-        {fieldChips.map((chip) => (
-          <M3Chip
-            key={`${chip.fieldId}-${chip.token}`}
-            variant="input"
-            removable
-            onRemove={() => onDismiss(chip.fieldId, chip.token)}
-          >
-            {chip.label}
-          </M3Chip>
-        ))}
-      </div>
-      <m3-button variant="text" onClick={onClear}>
-        Alle löschen
-      </m3-button>
-    </div>
-  );
-}
-
-export function MobileFilterSheet({
-  open,
-  games,
-  draftFilters,
-  groups,
-  onClose,
-  onDraftField,
-  onReset,
-  onApply,
-  recentFilters,
-}: {
+type FilterSheetProps = {
   open: boolean;
   games: GameRecord[];
-  draftFilters: LibraryFilters;
+  filters: LibraryFilters;
   groups: FilterGroup[];
   onClose: () => void;
-  onDraftField: (fieldId: string, value: FieldFilterValue) => void;
-  onReset: () => void;
-  onApply: () => void;
+  onApply: (next: LibraryFilters) => void;
   recentFilters?: ReactNode;
-}) {
-  if (!open) return null;
+};
+
+/** Draft-based filter editor: changes apply together via the primary action. */
+export function FilterSheet(props: FilterSheetProps) {
+  if (!props.open) return null;
+  return <OpenFilterSheet {...props} />;
+}
+
+function OpenFilterSheet({
+  open,
+  games,
+  filters,
+  groups,
+  onClose,
+  onApply,
+  recentFilters,
+}: FilterSheetProps) {
+  const [draftFilters, setDraftFilters] = useState(filters);
+  // Values no game in the library uses (e.g. unused platforms) stay hidden.
+  const usedTokens = useMemo(() => {
+    const used = new Set<string>();
+    for (const group of groups) {
+      for (const field of group.fields) {
+        for (const choice of facetChoices(field, games, EMPTY_FILTERS)) {
+          if (choice.count > 0) used.add(`${field.id}\u001f${choice.token}`);
+        }
+      }
+    }
+    return used;
+  }, [games, groups]);
+  const onDraftField = (fieldId: string, value: FieldFilterValue) => {
+    setDraftFilters((current) => ({
+      ...current,
+      fields: { ...current.fields, [fieldId]: value },
+    }));
+  };
+  const onReset = () => setDraftFilters(filtersWithoutFields(filters.query));
 
   const draftRating =
     draftFilters.fields.rating?.kind === "rating" ? draftFilters.fields.rating : null;
@@ -104,24 +69,23 @@ export function MobileFilterSheet({
       open={open}
       onClose={onClose}
       headline="Filter"
-      presentation="sheet"
+      presentation="side"
+      className="filter-sheet"
       actions={
         <>
           <m3-button slot="actions" variant="text" onClick={onReset}>
             Zurücksetzen
           </m3-button>
-          <m3-button slot="actions" onClick={onApply}>
+          <m3-button slot="actions" onClick={() => onApply(draftFilters)}>
             {draftVisibleCount} {draftVisibleCount === 1 ? "Spiel" : "Spiele"} anzeigen
           </m3-button>
         </>
       }
     >
-      <div className="mobile-filter-sheet">
-        {recentFilters ? (
-          <div className="mobile-sheet-recent-filters">{recentFilters}</div>
-        ) : null}
+      <div className="filter-sheet-content">
+        {recentFilters}
         {groups.map((group) => (
-          <fieldset key={group.key} className="mobile-filter-group">
+          <fieldset key={group.key} className="filter-group-section">
             <legend>
               {group.label}
               {groupActiveCount(group, draftFilters) > 0 ? (
@@ -142,9 +106,10 @@ export function MobileFilterSheet({
             </legend>
             <div className="chip-row">
               {group.fields.flatMap((field) =>
-                facetChoices(field, games, draftFilters).map((choice) => {
+                facetChoices(field, games, draftFilters).flatMap((choice) => {
                   const selected = isTokenSelected(draftFilters.fields[field.id], choice.token);
-                  return (
+                  if (!selected && !usedTokens.has(`${field.id}\u001f${choice.token}`)) return [];
+                  return [
                     <M3Chip
                       key={`${field.id}-${choice.token}`}
                       variant="filter"
@@ -158,14 +123,14 @@ export function MobileFilterSheet({
                       }
                     >
                       {choice.label} ({choice.count})
-                    </M3Chip>
-                  );
+                    </M3Chip>,
+                  ];
                 }),
               )}
             </div>
             {group.fields.some((field) => field.id === "rating") &&
             draftRating?.selected.includes("gte") ? (
-              <label className="range-row mobile-rating-range">
+              <label className="range-row">
                 <span>Mindestens</span>
                 <M3Slider
                   label="Mindestbewertung"
@@ -185,6 +150,7 @@ export function MobileFilterSheet({
   );
 }
 
-export function emptyMobileFilters(query: string): LibraryFilters {
+/** Clears every field filter while keeping the free-text search. */
+export function filtersWithoutFields(query: string): LibraryFilters {
   return { ...EMPTY_FILTERS, query };
 }

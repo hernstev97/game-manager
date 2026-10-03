@@ -47,7 +47,7 @@ export function OnboardingDialog({ onImport, onAddGame, onConnectSteam }: Onboar
       headline="Willkommen bei gGrid"
       presentation="sheet"
       actions={
-        <m3-button slot="action" variant="text" onClick={() => finish("later")}>
+        <m3-button slot="actions" variant="text" onClick={() => finish("later")}>
           Später
         </m3-button>
       }

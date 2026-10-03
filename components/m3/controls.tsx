@@ -36,32 +36,6 @@ export function M3Chip({
   );
 }
 
-export function M3SplitButton({
-  children,
-  variant = "tonal",
-  menuLabel,
-  onMainClick,
-  onSelect,
-}: {
-  children: ReactNode;
-  variant?: "filled" | "outlined" | "tonal" | "elevated";
-  menuLabel: string;
-  onMainClick: () => void;
-  onSelect?: (value: string) => void;
-}) {
-  const ref = useRef<HTMLElement>(null);
-  useHostEvent(ref, "split-button-click", onMainClick);
-  useHostEvent(ref, "menu-item-select", (event) => {
-    const detail = (event as CustomEvent<{ value?: string }>).detail;
-    if (detail?.value != null) onSelect?.(detail.value);
-  });
-  return (
-    <m3-split-button ref={ref} variant={variant} menuLabel={menuLabel}>
-      {children}
-    </m3-split-button>
-  );
-}
-
 export function M3Switch({
   checked,
   onChange,

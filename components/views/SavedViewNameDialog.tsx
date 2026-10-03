@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useId, useRef, useState } from "react";
+import { useState } from "react";
+import { M3Dialog, M3TextField } from "@/components/m3/host";
 import styles from "./saved-views.module.css";
 
 export type SavedViewNameDialogMode = "save" | "rename" | "duplicate";
@@ -27,61 +28,40 @@ function SavedViewNameDialogBody({
   onConfirm,
   onCancel,
 }: SavedViewNameDialogProps) {
-  const dialogRef = useRef<HTMLDialogElement>(null);
-  const titleId = useId();
   const [name, setName] = useState(initialName);
-
-  useEffect(() => {
-    const dialog = dialogRef.current;
-    if (!dialog) return;
-    if (open && !dialog.open) {
-      dialog.showModal();
-    } else if (!open && dialog.open) {
-      dialog.close();
-    }
-  }, [open]);
-
   const trimmed = name.trim();
+  const submit = () => {
+    if (trimmed) onConfirm(trimmed.slice(0, 80));
+  };
+
   return (
-    <dialog
-      ref={dialogRef}
-      className={styles.dialog}
-      aria-labelledby={titleId}
-      onCancel={(event) => {
-        event.preventDefault();
-        onCancel();
-      }}
-      onClose={() => {
-        if (open) onCancel();
-      }}
+    <M3Dialog
+      open={open}
+      onClose={onCancel}
+      headline={TITLES[mode]}
+      actions={
+        <>
+          <m3-button slot="actions" variant="text" onClick={onCancel}>
+            Abbrechen
+          </m3-button>
+          <m3-button slot="actions" disabled={!trimmed} onClick={submit}>
+            {mode === "rename" ? "Umbenennen" : "Speichern"}
+          </m3-button>
+        </>
+      }
     >
-      <form
-        method="dialog"
-        onSubmit={(event) => {
-          event.preventDefault();
-          if (trimmed) onConfirm(trimmed);
+      <div
+        className={styles.nameField}
+        onKeyDown={(event) => {
+          if (event.key === "Enter") {
+            event.preventDefault();
+            submit();
+          }
         }}
       >
-        <h2 id={titleId}>{TITLES[mode]}</h2>
-        <label>
-          <span>Name</span>
-          <input
-            autoFocus
-            value={name}
-            maxLength={80}
-            onChange={(event) => setName(event.target.value)}
-          />
-        </label>
-        <div className={styles.dialogActions}>
-          <button type="button" className={styles.secondaryButton} onClick={onCancel}>
-            Abbrechen
-          </button>
-          <button type="submit" className={styles.primaryButton} disabled={!trimmed}>
-            {mode === "rename" ? "Umbenennen" : "Speichern"}
-          </button>
-        </div>
-      </form>
-    </dialog>
+        <M3TextField label="Name" value={name} onChange={setName} autoFocus />
+      </div>
+    </M3Dialog>
   );
 }
 

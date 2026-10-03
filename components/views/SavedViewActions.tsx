@@ -4,7 +4,11 @@ import type { SavedView } from "@/lib/model/views";
 import { savedViewDirtyActionDecision } from "./saved-view-helpers";
 import styles from "./saved-views.module.css";
 
-/** Actions for reconciling a selected view with the current library controls. */
+/**
+ * Inline banner that only appears once the controls diverge from the selected
+ * view. It offers the one likely follow-up; every other option lives in the
+ * view sheet behind the selected chip.
+ */
 export type SavedViewActionsProps = {
   selectedView?: SavedView;
   dirty: boolean;
@@ -27,23 +31,23 @@ export function SavedViewActions({
   return (
     <section className={styles.actions} aria-label="Änderungen an der Ansicht">
       <span className={styles.dirtyStatus} aria-live="polite">
-        {decision.message}
+        <span className={styles.dirtyDot} aria-hidden="true" />
+        Geändert
       </span>
       <div className={styles.actionButtons}>
         {onDiscard ? (
-          <button type="button" className={styles.secondaryButton} onClick={onDiscard}>
+          <m3-button variant="text" onClick={onDiscard}>
             Verwerfen
-          </button>
+          </m3-button>
         ) : null}
         {decision.canUpdate ? (
-          <button type="button" className={styles.secondaryButton} onClick={onUpdate}>
-            Ansicht aktualisieren
-          </button>
-        ) : null}
-        {decision.canSaveAsNew ? (
-          <button type="button" className={styles.primaryButton} onClick={onSaveAsNew}>
-            Als neue Ansicht speichern
-          </button>
+          <m3-button variant="tonal" aria-label="Ansicht aktualisieren" onClick={onUpdate}>
+            Aktualisieren
+          </m3-button>
+        ) : decision.canSaveAsNew ? (
+          <m3-button variant="tonal" aria-label="Als neue Ansicht speichern" onClick={onSaveAsNew}>
+            Speichern …
+          </m3-button>
         ) : null}
       </div>
     </section>

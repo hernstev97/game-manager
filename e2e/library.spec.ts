@@ -3,6 +3,7 @@ import {
   CORE_GAMES,
   collectPageErrors,
   expectNoHorizontalOverflow,
+  m3Dialog,
   openSeededLibrary,
 } from "./fixtures";
 
@@ -12,14 +13,15 @@ test("@viewport loads the library, opens the editor, and fits the viewport", asy
   await expectNoHorizontalOverflow(page);
 
   const mobile = testInfo.project.name.startsWith("mobile-");
+  await expect(page.getByRole("navigation", { name: "Gespeicherte Ansichten" })).toBeVisible();
+  await expect(page.getByRole("navigation", { name: "Bibliotheksbereich" })).toBeVisible();
+  // Progressive disclosure: idle task and save states stay out of the chrome.
+  await expect(page.getByRole("button", { name: /Aufgaben-Center öffnen/ })).toHaveCount(0);
+  await expect(page.getByText("Lokal gespeichert", { exact: true })).toHaveCount(0);
   if (mobile) {
-    await expect(page.getByLabel("Gespeicherte Ansicht auswählen")).toBeVisible();
-    await expect(page.locator(".desktop-view-controls")).toBeHidden();
-    await expect(page.getByRole("navigation", { name: "Bibliotheksbereich" })).toBeVisible();
-    const taskButton = page.getByRole("button", { name: /Keine offenen Aufgaben/ });
-    const taskBounds = await taskButton.boundingBox();
-    expect(taskBounds?.width).toBe(48);
-    expect(taskBounds?.height).toBe(48);
+    const navBounds = await page.getByRole("navigation", { name: "Bibliotheksbereich" }).boundingBox();
+    const viewportSize = page.viewportSize();
+    expect((navBounds?.y ?? 0) + (navBounds?.height ?? 0)).toBeCloseTo(viewportSize?.height ?? 0, 0);
     const reducedMotion = await page.getByRole("button", { name: /^Darstellung:/ }).evaluate(
       (element) => ({
         animationName: getComputedStyle(element).animationName,
@@ -35,13 +37,16 @@ test("@viewport loads the library, opens the editor, and fits the viewport", asy
       expect((bounds?.y ?? 0) + (bounds?.height ?? 0)).toBeLessThanOrEqual(844);
     }
   } else {
-    await expect(page.getByRole("navigation", { name: "Gespeicherte Ansichten" })).toBeVisible();
-    await expect(page.locator(".desktop-view-controls")).toBeVisible();
+    const navBounds = await page.getByRole("navigation", { name: "Bibliotheksbereich" }).boundingBox();
+    expect(navBounds?.x).toBe(0);
+    expect(navBounds?.width).toBe(96);
   }
   await expect(page).toHaveScreenshot("library-density.png");
 
   await page.getByText("Alpha Quest", { exact: true }).first().click();
   await expect(page.getByText("Spiel 1 von 4: Alpha Quest", { exact: true })).toBeVisible();
+  await expect(page.getByRole("group", { name: "Status" })).toBeVisible();
+  await expect(page.locator("details#editor-identity")).not.toHaveAttribute("open", "");
   await expect(page.locator(".editor-save-state")).toContainText("Lokal gespeichert");
   await expectNoHorizontalOverflow(page);
   if (testInfo.project.name === "desktop-1280") {
@@ -56,15 +61,7 @@ test("@mobile keeps menus and the confirmed filter sheet inside the viewport", a
   const errors = collectPageErrors(page);
   await openSeededLibrary(page);
 
-  const moreActions = page.locator('m3-icon-button[aria-label="Weitere Aktionen"]');
-  await moreActions.click();
-  await expect(page.getByRole("menuitem", { name: "Sicherung exportieren" })).toBeVisible();
-  await expect(page).toHaveScreenshot("mobile-library-menu.png");
-  await moreActions.click();
-
-  const mobileSort = page
-    .getByLabel("Bibliothekssteuerung")
-    .getByLabel("Sortierkriterium wählen");
+  const mobileSort = page.getByRole("button", { name: "Sortierkriterium wählen" });
   await mobileSort.click();
   const sortMenu = page.locator("m3-menu[open]");
   await expect(sortMenu.getByRole("menuitem", { name: "Alphabetisch" })).toBeVisible();
@@ -73,11 +70,14 @@ test("@mobile keeps menus and the confirmed filter sheet inside the viewport", a
   expect(sortBounds).not.toBeNull();
   expect(viewport).not.toBeNull();
   expect((sortBounds?.x ?? 0) + (sortBounds?.width ?? 0)).toBeLessThanOrEqual(viewport?.width ?? 0);
+  await expect(page).toHaveScreenshot("mobile-sort-menu.png");
   await mobileSort.click();
 
   await page.getByRole("button", { name: "Filter", exact: true }).click();
-  await expect(page.locator(".mobile-filter-sheet")).toBeVisible();
-  await expect(page.locator(".mobile-filter-sheet m3-chip").filter({ hasText: "PC (3)" })).toBeVisible();
+  await expect(page.locator(".filter-sheet-content")).toBeVisible();
+  await expect(page.locator(".filter-sheet-content m3-chip").filter({ hasText: "PC (3)" })).toBeVisible();
+  // Values no game uses stay hidden.
+  await expect(page.locator(".filter-sheet-content m3-chip").filter({ hasText: "Wii U" })).toHaveCount(0);
   await expect(page).toHaveScreenshot("mobile-filter-sheet.png");
   await expectNoHorizontalOverflow(page);
   expect(errors).toEqual([]);
@@ -88,9 +88,9 @@ test("@mobile manages the active view and exposes dirty state compactly", async 
   await openSeededLibrary(page);
 
   await page.getByRole("button", { name: "Filter", exact: true }).click();
-  await page.locator(".mobile-filter-sheet m3-chip").filter({ hasText: "PC (3)" }).click();
+  await page.locator(".filter-sheet-content m3-chip").filter({ hasText: "PC (3)" }).click();
   await page.getByRole("button", { name: "3 Spiele anzeigen" }).click();
-  await expect(page.getByText("Geändert", { exact: true })).toBeVisible();
+  await expect(page.getByRole("region", { name: "Änderungen an der Ansicht" })).toBeVisible();
 
   const manage = page.getByRole("button", { name: /Ansicht „Alle Spiele“ verwalten/ });
   await manage.click();
@@ -217,7 +217,7 @@ test("@mobile applies a filter, removes its chip, and enters selection from over
   await openSeededLibrary(page);
 
   await page.getByRole("button", { name: "Filter", exact: true }).click();
-  await page.locator(".mobile-filter-sheet m3-chip").filter({ hasText: "PC (3)" }).click();
+  await page.locator(".filter-sheet-content m3-chip").filter({ hasText: "PC (3)" }).click();
   await page.getByRole("button", { name: "3 Spiele anzeigen" }).click();
   const activeFilters = page.getByLabel("Aktive Filter");
   await expect(activeFilters).toContainText("PC");
@@ -230,9 +230,7 @@ test("@mobile applies a filter, removes its chip, and enters selection from over
   });
   await expect(activeFilters).toBeHidden();
 
-  const more = page.getByRole("button", { name: "Weitere Aktionen" });
-  await more.click();
-  await page.getByRole("menuitem", { name: "Mehrere auswählen" }).click();
+  await page.getByRole("button", { name: "Mehrere auswählen" }).click();
   await expect(page.getByRole("region", { name: "Sammelbearbeitung" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Spiel hinzufügen" })).toBeHidden();
   await expect(page.getByRole("navigation", { name: "Bibliotheksbereich" }).getByRole("button").first()).toBeDisabled();
@@ -250,19 +248,23 @@ test("@desktop saves a view and renders franchise groups in the cover grid", asy
   const errors = collectPageErrors(page);
   await openSeededLibrary(page);
 
-  const platformGroup = page.locator(".desktop-filter-groups .anchor").filter({ hasText: "Plattform" });
-  await platformGroup.locator("m3-button").click();
-  await platformGroup.locator("m3-menu-item").filter({ hasText: "PC (3)" }).click();
-  await expect(page.getByText("3 von 4 sichtbar", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Filter", exact: true }).click();
+  await expect(page.locator(".filter-sheet")).toBeVisible();
+  await page.locator(".filter-sheet-content m3-chip").filter({ hasText: "PC (3)" }).click();
+  await page.getByRole("button", { name: "3 Spiele anzeigen" }).click();
+  await expect(page.getByText("3 von 4", { exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Filter, 1 aktiv" })).toBeVisible();
 
   await page.getByRole("button", { name: "Als neue Ansicht speichern" }).click();
-  await page.getByRole("dialog", { name: "Neue Ansicht speichern" }).getByRole("textbox").fill("PC Spiele");
-  await page.getByRole("dialog", { name: "Neue Ansicht speichern" }).getByRole("button", { name: "Speichern" }).click();
+  await m3Dialog(page, "Neue Ansicht speichern").getByRole("textbox").fill("PC Spiele");
+  await m3Dialog(page, "Neue Ansicht speichern").getByRole("button", { name: "Speichern" }).click();
   await expect(page.getByRole("button", { name: "PC Spiele" })).toBeVisible();
 
   await page.getByRole("button", { name: "Alle löschen" }).click();
+  await page.getByRole("button", { name: /^Darstellung:/ }).click();
   await page.getByRole("radio", { name: "Cover-Raster" }).click();
-  await page.getByLabel("Gruppierung").selectOption("franchise");
+  await page.getByRole("radio", { name: "Franchise" }).click();
+  await page.getByRole("button", { name: "Fertig" }).click();
   await expect(page.getByRole("grid", { name: "Spiele als Cover-Raster" }).first()).toBeVisible();
   await expect(page.getByRole("heading", { name: "Saga" })).toBeVisible();
   await expect(page.getByText("2 sichtbare Spiele", { exact: true })).toBeVisible();
@@ -282,9 +284,10 @@ test("@desktop saves a view and renders franchise groups in the cover grid", asy
   expect(groupBounds).not.toBeNull();
   expect(backgroundBounds?.height).toBeLessThan((groupBounds?.height ?? 0) / 2);
 
-  await page.getByRole("button", { name: "PC Spiele" }).click();
-  await expect(page.getByText("3 von 4 sichtbar", { exact: true })).toBeVisible();
-  await expect(page.getByRole("radio", { name: "Liste" })).toHaveAttribute("aria-checked", "true");
+  await page.getByRole("button", { name: "Ansicht „PC Spiele“ verwalten" }).click();
+  await page.getByRole("dialog", { name: "PC Spiele" }).getByRole("button", { name: "Verwerfen" }).click();
+  await expect(page.getByText("3 von 4", { exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Darstellung: Liste" })).toBeVisible();
   expect(errors).toEqual([]);
 });
 
@@ -313,9 +316,8 @@ test("@desktop applies a bulk status, appends the queue, and keyboard-reorders i
 
   await page.getByRole("button", { name: "Auswahl beenden" }).click();
   await page.getByRole("navigation", { name: "Bibliotheksbereich" })
-    .getByRole("button", { name: "Spielwarteschlange", exact: true })
+    .getByRole("button", { name: "Als Nächstes", exact: true })
     .click();
-  await page.getByRole("button", { name: "Reorder-Modus" }).click();
   const gammaHandle = page.getByRole("button", { name: "Gamma Legacy: Spielreihenfolge verschieben" });
   await gammaHandle.focus();
   await gammaHandle.press("Space");
@@ -355,9 +357,11 @@ test("@desktop reviews Steam metadata before applying it", async ({ page }) => {
   await openSeededLibrary(page, CORE_GAMES.map((game) =>
     game.id === "alpha" ? { ...game, steamAppId: 10 } : game));
 
-  await page.locator('m3-icon-button[aria-label="Einstellungen"]').click();
+  await page.getByRole("navigation", { name: "Bibliotheksbereich" })
+    .getByRole("button", { name: "Einstellungen" })
+    .click();
   await page.getByText("Cover, Namen & Preise aktualisieren", { exact: true }).click();
-  const review = page.getByRole("dialog", { name: /Metadaten prüfen · Alpha Quest/ });
+  const review = m3Dialog(page, /Metadaten prüfen · Alpha Quest/);
   await expect(review).toBeVisible({ timeout: 15_000 });
   await expect(review.getByText("Alpha Quest Remastered", { exact: true })).toBeVisible();
   await expect(page).toHaveScreenshot("metadata-review.png");
@@ -389,9 +393,11 @@ test("@desktop completes a Steam artwork review when the cover URL already match
   await openSeededLibrary(page, CORE_GAMES.map((game) =>
     game.id === "alpha" ? { ...game, steamAppId: 10, coverUrl: steamCoverUrl } : game));
 
-  await page.locator('m3-icon-button[aria-label="Einstellungen"]').click();
+  await page.getByRole("navigation", { name: "Bibliotheksbereich" })
+    .getByRole("button", { name: "Einstellungen" })
+    .click();
   await page.getByText("Cover, Namen & Preise aktualisieren", { exact: true }).click();
-  const review = page.getByRole("dialog", { name: /Metadaten prüfen · Alpha Quest/ });
+  const review = m3Dialog(page, /Metadaten prüfen · Alpha Quest/);
   await expect(review).toBeVisible({ timeout: 15_000 });
   const landscapeChange = review.getByRole("listitem").filter({ hasText: "Landscape-Artwork" });
   await expect(landscapeChange.getByLabel("Neuen Wert übernehmen")).toBeEnabled();
@@ -405,8 +411,15 @@ test("@desktop exports, restores, and reloads the local library offline", async 
   const errors = collectPageErrors(page);
   await openSeededLibrary(page);
 
+  const openDataSettings = async () => {
+    await page.getByRole("navigation", { name: "Bibliotheksbereich" })
+      .getByRole("button", { name: "Einstellungen" })
+      .click();
+    await page.getByRole("button", { name: /Daten & Sicherung/ }).click();
+  };
+  await openDataSettings();
   const downloadPromise = page.waitForEvent("download");
-  await page.locator('m3-icon-button[aria-label="Exportieren"]').click();
+  await page.getByRole("button", { name: "Sicherung exportieren" }).click();
   const download = await downloadPromise;
   const stream = await download.createReadStream();
   const chunks: Buffer[] = [];
@@ -417,12 +430,12 @@ test("@desktop exports, restores, and reloads the local library offline", async 
   expect(parsed.games).toHaveLength(4);
   expect(parsed.savedViews.length).toBeGreaterThanOrEqual(7);
 
-  await page.locator(".library-tools input[type=file]").setInputFiles({
+  await page.locator("#settings-data input[type=file]").setInputFiles({
     name: "ggrid-backup.json",
     mimeType: "application/json",
     buffer: backup,
   });
-  const importDialog = page.getByRole("dialog", { name: "Sicherung prüfen" });
+  const importDialog = m3Dialog(page, "Sicherung prüfen");
   await expect(importDialog).toBeVisible();
   await importDialog.getByLabel(/Ersetzen/).check();
   await importDialog.getByRole("button", { name: "Sicherung wiederherstellen" }).click();
@@ -437,7 +450,7 @@ test("@desktop exports, restores, and reloads the local library offline", async 
   });
   await context.setOffline(true);
   await page.reload({ waitUntil: "domcontentloaded" });
-  await expect(page.getByText("4 von 4 sichtbar", { exact: true })).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByText("4 Spiele", { exact: true })).toBeVisible({ timeout: 15_000 });
   await page.evaluate(() => window.dispatchEvent(new Event("offline")));
   await expect(page.getByRole("status").filter({ hasText: "Offline – lokale Bibliotheksdaten" })).toBeVisible();
   await expect(page.locator("html")).toHaveAttribute("data-motion", "none");

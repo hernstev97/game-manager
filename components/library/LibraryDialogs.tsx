@@ -3,7 +3,7 @@
 import { useState } from "react";
 import type { GameRecord } from "@/lib/game-fields";
 import { AddGameDialog } from "@/components/add-game/AddGameDialog";
-import { GameEditor } from "@/components/game-editor";
+import { GameEditor } from "@/components/editor/GameEditorDialog";
 import { MediaManagerDialog } from "@/components/media-manager/MediaManagerDialog";
 import { LibraryMetadataReviewFlow } from "@/components/library/LibraryMetadataReviewFlow";
 import { SteamImportDialog } from "@/components/library/SteamImportDialog";
@@ -15,7 +15,7 @@ import {
 } from "@/lib/runtime/library-runtime";
 import { libraryRepository } from "@/lib/storage";
 import { toastWithUndo } from "@/components/undo";
-import { SettingsDialog } from "@/components/settings-dialog";
+import { SettingsDialog } from "@/components/settings/SettingsDialog";
 import { useLibrary } from "@/store/library";
 
 export function LibraryDialogs({

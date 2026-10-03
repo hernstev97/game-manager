@@ -1,4 +1,4 @@
-import { expect, type Page } from "@playwright/test";
+import { expect, type Locator, type Page } from "@playwright/test";
 
 export type SeedGame = Record<string, unknown> & { id: string; name: string };
 
@@ -122,4 +122,13 @@ export async function expectNoHorizontalOverflow(page: Page): Promise<void> {
     scrollWidth: document.documentElement.scrollWidth,
   }));
   expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.clientWidth + 1);
+}
+
+/**
+ * Locates an M3Dialog by its accessible name. The dialog role lives in the
+ * m3-dialog shadow root while its content is slotted light DOM, so queries
+ * for content must be scoped to the host element.
+ */
+export function m3Dialog(page: Page, name: string | RegExp): Locator {
+  return page.locator("m3-dialog").filter({ has: page.getByRole("dialog", { name }) });
 }

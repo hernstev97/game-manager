@@ -5,7 +5,6 @@ import { toast } from "@/components/m3/snackbar";
 import { IconDownload, IconUpload } from "@/components/m3/icons";
 import { LibrarySnapshotManager } from "@/components/library/LibrarySnapshotManager";
 import { UndoButton } from "@/components/undo";
-import { requestShortcutHelp } from "@/components/shortcuts";
 
 export function DataSettingsPanel({
   hidden,
@@ -35,24 +34,28 @@ export function DataSettingsPanel({
           event.target.value = "";
         }}
       />
+      <h3 className="settings-section-title">Sicherung</h3>
+      <p className="settings-copy">
+        Deine Bibliothek liegt nur in diesem Browser. Exportiere regelmäßig eine JSON-Sicherung.
+      </p>
       <div className="settings-data-actions">
+        <m3-button variant="tonal" onClick={onExport}>
+          <IconDownload slot="icon" />
+          Sicherung exportieren
+        </m3-button>
         <m3-button variant="outlined" onClick={() => importRef.current?.click()}>
           <IconUpload slot="icon" />
           Sicherung importieren
         </m3-button>
-        <m3-button variant="outlined" onClick={onExport}>
-          <IconDownload slot="icon" />
-          Sicherung exportieren
-        </m3-button>
-      </div>
-      <m3-divider />
-      <div className="settings-data-actions">
         <UndoButton />
-        <m3-button variant="text" onClick={requestShortcutHelp}>Tastenkürzel anzeigen</m3-button>
       </div>
-      <m3-divider />
-      <LibrarySnapshotManager />
-      <m3-divider />
+      <details className="settings-disclosure">
+        <summary>Lokale Snapshots</summary>
+        <div className="settings-disclosure-body">
+          <LibrarySnapshotManager />
+        </div>
+      </details>
+      <h3 className="settings-section-title is-danger">Bibliothek leeren</h3>
       {confirmReset ? (
         <div className="confirm-row">
           <span>Alle Spiele in der Bibliothek löschen?</span>

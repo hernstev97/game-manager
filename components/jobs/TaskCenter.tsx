@@ -15,6 +15,7 @@ import {
   type PresentedJobProgress,
 } from "./presenter";
 import styles from "./jobs.module.css";
+import { IconClose } from "@/components/m3/icons";
 
 export type TaskCenterProps = {
   jobs: readonly RuntimeJob[];
@@ -24,6 +25,8 @@ export type TaskCenterProps = {
   titleForJob?: (job: RuntimeJob) => string;
   onCancel?: (jobId: string) => void | Promise<void>;
   onRetry?: (jobId: string) => void | Promise<void>;
+  /** Rendered inside a dialog that already owns the headline and close action. */
+  embedded?: boolean;
   onClose?: () => void;
   pendingActionJobIds?: readonly string[];
   heading?: string;
@@ -173,14 +176,14 @@ function TaskCard({
       {(canCancel && onCancel) || (canRetry && onRetry) ? (
         <div className={styles.jobActions}>
           {canRetry && onRetry ? (
-            <button type="button" className={styles.primaryButton} disabled={pending} onClick={() => void onRetry(job.id)}>
+            <m3-button disabled={pending} onClick={() => void onRetry(job.id)}>
               {pending ? "Wird vorbereitet …" : "Wiederholen"}
-            </button>
+            </m3-button>
           ) : null}
           {canCancel && onCancel ? (
-            <button type="button" className={styles.textButton} disabled={pending} onClick={() => void onCancel(job.id)}>
+            <m3-button variant="text" disabled={pending} onClick={() => void onCancel(job.id)}>
               {pending ? "Wird abgebrochen …" : "Abbrechen"}
-            </button>
+            </m3-button>
           ) : null}
         </div>
       ) : null}
@@ -199,6 +202,7 @@ export function TaskCenter({
   onClose,
   pendingActionJobIds = [],
   heading = "Aufgaben-Center",
+  embedded = false,
 }: TaskCenterProps) {
   const sorted = sortJobsForDisplay(jobs, isOnline);
   const summary = summarizeJobs(jobs, isOnline);
@@ -217,15 +221,15 @@ export function TaskCenter({
 
   return (
     <section className={styles.center} aria-labelledby="task-center-heading">
-      <header className={styles.centerHeader}>
+      <header className={embedded ? "visually-hidden" : styles.centerHeader}>
         <div>
           <p className={styles.eyebrow}>Lokale Aufgabenverwaltung</p>
           <h2 id="task-center-heading">{heading}</h2>
         </div>
-        {onClose ? (
-          <button type="button" className={styles.closeButton} aria-label="Aufgaben-Center schließen" onClick={onClose}>
-            ×
-          </button>
+        {onClose && !embedded ? (
+          <m3-icon-button aria-label="Aufgaben-Center schließen" onClick={onClose}>
+            <IconClose />
+          </m3-icon-button>
         ) : null}
       </header>
 

@@ -5,6 +5,7 @@ import { OfflineActionNotice, useOnlineStatus } from "@/components/pwa";
 
 export function IgdbSettingsPanel({
   hidden,
+  connected,
   idDraft,
   secretDraft,
   busy,
@@ -14,6 +15,7 @@ export function IgdbSettingsPanel({
   onRefresh,
 }: {
   hidden: boolean;
+  connected: boolean;
   idDraft: string;
   secretDraft: string;
   busy: boolean;
@@ -24,8 +26,19 @@ export function IgdbSettingsPanel({
 }) {
   const online = useOnlineStatus();
   return (
-    <section id="settings-igdb" className="settings settings-panel" hidden={hidden}>
-      <p className="settings-copy">
+    <section id="settings-igdb" className="settings settings-panel settings-card" hidden={hidden}>
+      <header className="settings-card-header">
+        <div>
+          <h3 className="settings-section-title">IGDB</h3>
+          <p className="settings-copy">Katalogsuche und Metadaten für alle Plattformen.</p>
+        </div>
+        <span className="settings-status" data-connected={connected}>
+          {connected ? "Eingerichtet" : "Nicht eingerichtet"}
+        </span>
+      </header>
+      <details className="settings-hint" open={!connected}>
+        <summary>So richtest du IGDB ein</summary>
+        <p className="settings-copy">
         Allgemeiner Spielekatalog (Cover, Genre, Franchise, Plattformen) für Steam, Switch, Retro
         und den Rest. Kostenlos über eine Twitch-App:{" "}
         <a href="https://dev.twitch.tv/console/apps/create" target="_blank" rel="noreferrer">
@@ -37,7 +50,8 @@ export function IgdbSettingsPanel({
           IGDB.com
         </a>
         .
-      </p>
+        </p>
+      </details>
       <M3TextField
         label="Twitch Client-ID"
         value={idDraft}
@@ -51,7 +65,7 @@ export function IgdbSettingsPanel({
         type="password"
       />
       <div className="settings-actions">
-        <m3-button onClick={onSave}>Speichern</m3-button>
+        <m3-button variant={connected ? "tonal" : "filled"} onClick={onSave}>Speichern</m3-button>
         <m3-button variant="text" disabled={busy || !online} onClick={() => void onRefresh()}>
           Metadaten aktualisieren
         </m3-button>

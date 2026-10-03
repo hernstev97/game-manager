@@ -25,12 +25,8 @@ export function useLibraryPlanning() {
   const reorderQueue = useLibrary((state) => state.reorderQueue);
   const reorderFavoriteRanks = useLibrary((state) => state.reorderFavoriteRanks);
   const [planningMode, setPlanningMode] = useState<PlanningMode>("library");
-  const [queueReorderMode, setQueueReorderMode] = useState(false);
-  const [favoriteReorderMode, setFavoriteReorderMode] = useState(false);
 
   const changePlanningMode = useCallback((mode: PlanningMode) => {
-    setQueueReorderMode(false);
-    setFavoriteReorderMode(false);
     setPlanningMode(mode);
   }, []);
   const openQueue = useCallback(() => {
@@ -40,12 +36,8 @@ export function useLibraryPlanning() {
 
   return {
     planningMode,
-    queueReorderMode,
-    favoriteReorderMode,
     changePlanningMode,
     openQueue,
-    setQueueReorderMode,
-    setFavoriteReorderMode,
     insertQueue: (gameId: string, placement: QueueInsertion) =>
       recordPlanningMutation(
         "Spiel zur Warteschlange hinzugefügt",

@@ -1,13 +1,101 @@
-m3-top-app-bar {
-  position: sticky;
-  top: 0;
-  z-index: 20;
-  padding: 0 2vw;
-  animation: app-bar-enter var(--motion-duration-long) var(--motion-easing-decelerate) backwards;
+/* Host-level defaults for the @banegasn M3 web components. */
+m3-icon-button {
+  flex: 0 0 auto;
 }
 
-@media (max-width: 599px) {
-  m3-top-app-bar {
-    padding: env(safe-area-inset-top) 0 0;
-  }
+m3-chip {
+  --md-sys-shape-corner-small: 8px;
+}
+
+/* M3 outlined select (components/m3/select.tsx). */
+.m3-select {
+  position: relative;
+  display: inline-grid;
+  min-width: 0;
+  min-width: 120px;
+}
+
+.m3-select select {
+  width: 100%;
+  height: 56px;
+  box-sizing: border-box;
+  padding: var(--space-4) calc(var(--space-4) + 28px) 0 var(--space-4);
+  border: 1px solid var(--md-sys-color-outline);
+  border-radius: var(--md-sys-shape-corner-extra-small);
+  appearance: none;
+  color: var(--md-sys-color-on-surface);
+  background: transparent;
+  font: var(--md-sys-typescale-body-large);
+  cursor: pointer;
+}
+
+.m3-select select:hover {
+  border-color: var(--md-sys-color-on-surface);
+}
+
+.m3-select select:focus-visible {
+  border-color: var(--md-sys-color-primary);
+  outline: 1px solid var(--md-sys-color-primary);
+  outline-offset: 0;
+}
+
+.m3-select select option {
+  color: var(--md-sys-color-on-surface);
+  background: var(--md-sys-color-surface-container);
+}
+
+.m3-select-label {
+  position: absolute;
+  top: 7px;
+  left: var(--space-4);
+  max-width: calc(100% - 56px);
+  overflow: hidden;
+  color: var(--md-sys-color-on-surface-variant);
+  font: var(--md-sys-typescale-body-small);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.m3-select:focus-within .m3-select-label {
+  color: var(--md-sys-color-primary);
+}
+
+.m3-select-arrow {
+  position: absolute;
+  top: 50%;
+  right: var(--space-3);
+  color: var(--md-sys-color-on-surface-variant);
+  translate: 0 -50%;
+  pointer-events: none;
+}
+
+.m3-select[data-disabled] {
+  opacity: 0.38;
+}
+
+/* M3 styling for the native selection controls that remain. */
+input[type="checkbox"],
+input[type="radio"] {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: var(--md-sys-color-primary);
+  cursor: pointer;
+}
+
+input[type="checkbox"]:focus-visible,
+input[type="radio"]:focus-visible {
+  outline: 3px solid var(--md-sys-color-secondary);
+  outline-offset: 3px;
+}
+
+input[type="range"] {
+  accent-color: var(--md-sys-color-primary);
+  cursor: pointer;
+}
+
+input:disabled,
+select:disabled {
+  cursor: default;
 }

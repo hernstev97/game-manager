@@ -1,24 +1,25 @@
 .indicator {
   position: relative;
   display: inline-grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  align-items: center;
-  min-width: 0;
-  min-height: 48px;
-  gap: 10px;
-  overflow: hidden;
-  border: 1px solid var(--md-sys-color-outline-variant);
-  border-radius: 18px;
-  padding: 7px 12px 9px;
-  color: var(--md-sys-color-on-surface);
-  background: var(--md-sys-color-surface-container-high);
+  flex: 0 0 48px;
+  width: 48px;
+  height: 48px;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: var(--md-sys-shape-corner-full);
+  color: var(--md-sys-color-on-surface-variant);
+  background: transparent;
   font: inherit;
-  text-align: left;
   cursor: pointer;
 }
 
+.indicator:hover {
+  background: color-mix(in srgb, currentColor 8%, transparent);
+}
+
 .indicator:focus-visible {
-  outline: 3px solid var(--md-sys-color-tertiary);
+  outline: 3px solid var(--md-sys-color-secondary);
   outline-offset: 2px;
 }
 
@@ -28,7 +29,7 @@
   width: 28px;
   height: 28px;
   place-items: center;
-  border-radius: 50%;
+  border-radius: var(--md-sys-shape-corner-full);
   color: var(--md-sys-color-on-primary-container);
   background: var(--md-sys-color-primary-container);
 }
@@ -58,193 +59,130 @@
   background: var(--md-sys-color-error-container);
 }
 
-.copy {
-  display: grid;
-  min-width: 0;
-  line-height: 1.15;
-}
-
-.copy strong {
-  font-size: 0.78rem;
-}
-
-.copy > span {
-  overflow: hidden;
-  color: var(--md-sys-color-on-surface-variant);
-  font-size: 0.7rem;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.progress {
-  width: 32px;
-  height: 4px;
-  overflow: hidden;
-  border-radius: 999px;
-  background: var(--md-sys-color-surface-container-highest);
-}
-
 .progress span {
   display: block;
   width: var(--compact-progress, 0%);
   height: 100%;
-  border-radius: inherit;
+}
+
+.copy,
+.progress {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+.status-user-paused .icon {
+  color: var(--md-sys-color-on-secondary-container);
+  background: var(--md-sys-color-secondary-container);
+}
+
+.status-offline .icon span {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+}
+
+.status-offline .icon span::after {
+  position: absolute;
+  top: 4px;
+  left: -3px;
+  width: 15px;
+  height: 2px;
+  border-radius: 2px;
+  background: currentColor;
+  content: "";
+  transform: rotate(45deg);
+}
+
+.status-rate-limit .icon span {
+  width: 9px;
+  height: 9px;
+  border-right-color: transparent;
+  border-bottom-color: transparent;
+  border-radius: 1px;
+  transform: rotate(45deg);
+}
+
+.status-user-paused .icon span {
+  width: 3px;
+  height: 12px;
+  border: 0;
+  border-radius: 1px;
+  background: currentColor;
+  box-shadow: 6px 0 currentColor;
+  transform: translateX(-3px);
+}
+
+.status-interrupted .icon span {
+  width: 0;
+  height: 0;
+  border: 0;
+  border-top: 6px solid transparent;
+  border-bottom: 6px solid transparent;
+  border-left: 10px solid currentColor;
+  border-radius: 1px;
+}
+
+.status-failed .icon span {
+  width: 3px;
+  height: 10px;
+  border: 0;
+  border-radius: 2px;
+  background: currentColor;
+}
+
+.status-failed .icon span::after {
+  position: absolute;
+  top: 12px;
+  left: 0;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: currentColor;
+  content: "";
+}
+
+.status-running .icon::before {
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  background: conic-gradient(
+    var(--md-sys-color-primary) var(--compact-progress, 28%),
+    var(--md-sys-color-surface-container-highest) 0
+  );
+  content: "";
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 0);
+  mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 0);
+}
+
+.indeterminate .icon::before {
+  animation: task-status-spin 900ms linear infinite;
+}
+
+.badge,
+.mobileBadge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  display: grid;
+  min-width: 17px;
+  min-height: 17px;
+  place-items: center;
+  border: 2px solid var(--md-sys-color-surface);
+  border-radius: var(--md-sys-shape-corner-full);
+  padding-inline: 3px;
+  color: var(--md-sys-color-on-primary);
   background: var(--md-sys-color-primary);
-  transition: width 180ms ease-out;
+  font: var(--md-sys-typescale-label-small);
+  line-height: 1;
 }
 
 .badge {
-  display: grid;
-  min-width: 22px;
-  min-height: 22px;
-  place-items: center;
-  border-radius: 11px;
-  padding-inline: 4px;
   color: var(--md-sys-color-on-error);
   background: var(--md-sys-color-error);
-  font-size: 0.7rem;
-  font-weight: 750;
-}
-
-.mobileBadge {
-  display: none;
-}
-
-@media (max-width: 599px) {
-  .indicator {
-    flex: 0 0 48px;
-    width: 48px;
-    height: 48px;
-    min-width: 48px;
-    min-height: 48px;
-    grid-template-columns: 1fr;
-    justify-items: center;
-    overflow: visible;
-    border-radius: 50%;
-    padding-inline: 8px;
-    text-align: center;
-  }
-
-  .copy,
-  .progress {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-  }
-
-  .status-user-paused .icon {
-    color: var(--md-sys-color-on-secondary-container);
-    background: var(--md-sys-color-secondary-container);
-  }
-
-  .status-offline .icon span {
-    width: 13px;
-    height: 13px;
-    border-radius: 50%;
-  }
-
-  .status-offline .icon span::after {
-    position: absolute;
-    top: 4px;
-    left: -3px;
-    width: 15px;
-    height: 2px;
-    border-radius: 2px;
-    background: currentColor;
-    content: "";
-    transform: rotate(45deg);
-  }
-
-  .status-rate-limit .icon span {
-    width: 9px;
-    height: 9px;
-    border-right-color: transparent;
-    border-bottom-color: transparent;
-    border-radius: 1px;
-    transform: rotate(45deg);
-  }
-
-  .status-user-paused .icon span {
-    width: 3px;
-    height: 12px;
-    border: 0;
-    border-radius: 1px;
-    background: currentColor;
-    box-shadow: 6px 0 currentColor;
-    transform: translateX(-3px);
-  }
-
-  .status-interrupted .icon span {
-    width: 0;
-    height: 0;
-    border: 0;
-    border-top: 6px solid transparent;
-    border-bottom: 6px solid transparent;
-    border-left: 10px solid currentColor;
-    border-radius: 1px;
-  }
-
-  .status-failed .icon span {
-    width: 3px;
-    height: 10px;
-    border: 0;
-    border-radius: 2px;
-    background: currentColor;
-  }
-
-  .status-failed .icon span::after {
-    position: absolute;
-    top: 12px;
-    left: 0;
-    width: 3px;
-    height: 3px;
-    border-radius: 50%;
-    background: currentColor;
-    content: "";
-  }
-
-  .status-running .icon::before {
-    position: absolute;
-    inset: -3px;
-    border-radius: 50%;
-    background: conic-gradient(
-      var(--md-sys-color-primary) var(--compact-progress, 28%),
-      var(--md-sys-color-surface-container-highest) 0
-    );
-    content: "";
-    -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 0);
-    mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 0);
-  }
-
-  .indeterminate .icon::before {
-    animation: task-status-spin 900ms linear infinite;
-  }
-
-  .badge,
-  .mobileBadge {
-    position: absolute;
-    top: -2px;
-    right: -2px;
-    display: grid;
-    min-width: 17px;
-    min-height: 17px;
-    place-items: center;
-    border: 2px solid var(--md-sys-color-surface);
-    border-radius: 10px;
-    padding-inline: 3px;
-    color: var(--md-sys-color-on-primary);
-    background: var(--md-sys-color-primary);
-    font-size: 0.58rem;
-    font-weight: 750;
-    line-height: 1;
-  }
-
-  .badge {
-    color: var(--md-sys-color-on-error);
-    background: var(--md-sys-color-error);
-  }
 }
 
 @keyframes task-status-spin {

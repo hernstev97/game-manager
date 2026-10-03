@@ -117,12 +117,6 @@ declare module "react" {
         lines?: "1" | "2";
         live?: "polite" | "assertive";
       }>;
-      "m3-split-button": HostProps<{
-        variant?: "filled" | "outlined" | "tonal" | "elevated";
-        open?: boolean;
-        disabled?: boolean;
-        menuLabel?: string;
-      }>;
       "m3-switch": HostProps<{
         checked?: boolean;
         disabled?: boolean;
@@ -150,18 +144,6 @@ declare module "react" {
         errorText?: string;
         showCounter?: boolean;
         autocomplete?: string | null;
-      }>;
-      "m3-tooltip": HostProps<{
-        text?: string;
-        variant?: "plain" | "rich";
-        placement?: "top" | "bottom" | "left" | "right";
-        delay?: number;
-      }>;
-      "m3-top-app-bar": HostProps<{
-        variant?: "small" | "center-aligned" | "medium" | "large";
-        elevated?: boolean;
-        headline?: string;
-        scrollBehavior?: "none" | "hide" | "shrink";
       }>;
     }
   }

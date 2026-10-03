@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
 import {
   editorFieldsByGroup,
+  type FieldGroup,
+  type GameFieldDef,
   type GameRecord,
 } from "@/lib/game-fields";
 import { M3Dialog } from "@/components/m3/host";
@@ -13,12 +14,29 @@ import {
   EditorPager,
   useEditorKeyboardNavigation,
 } from "@/components/editor/EditorNavigation";
-import { EditorTabs } from "@/components/editor/EditorTabs";
 import { EditorHero } from "@/components/editor/EditorHero";
+import { EditorSection } from "@/components/editor/EditorSection";
 import { IdentityPanel } from "@/components/editor/IdentityPanel";
-import { EditorField } from "@/components/editor/fields/EditorField";
-import { FieldProvenanceNote } from "@/components/editor/FieldProvenanceNote";
+import { EditorFieldItem } from "@/components/editor/SourceCard";
+import { StatusChipsField } from "@/components/editor/fields/StatusChipsField";
 import { SaveStatusIndicator } from "@/components/save-status";
+
+/**
+ * Editor sections in order of everyday use. Rarely touched groups start
+ * collapsed; every registry field still renders in its group.
+ */
+const EDITOR_SECTIONS: ReadonlyArray<{
+  group: FieldGroup;
+  title: string;
+  summary?: string;
+  collapsible?: boolean;
+}> = [
+  { group: "status", title: "Status" },
+  { group: "personal", title: "Bewertung & Planung" },
+  { group: "classification", title: "Einordnung" },
+  { group: "progress", title: "Fortschritt", summary: "Schwierigkeit, Spielzeit", collapsible: true },
+  { group: "identity", title: "Quellen & Details", summary: "Steam, IGDB, Cover-URL", collapsible: true },
+];
 
 export type GameEditorProps = {
   game: GameRecord | null;
@@ -51,9 +69,8 @@ export function GameEditor({
   onDelete,
   onManageMedia,
 }: GameEditorProps) {
-  const groups = editorFieldsByGroup();
-  const [tab, setTab] = useState(0);
-  const activeGroup = groups[tab]?.group ?? groups[0]?.group;
+  const groups = new Map(editorFieldsByGroup().map((entry) => [entry.group, entry.fields]));
+  const nameField = groups.get("identity")?.find((field) => field.id === "name");
   const index = game ? visibleGames.findIndex((item) => item.id === game.id) : -1;
   const prevGame = index > 0 ? visibleGames[index - 1] : null;
   const nextGame = index >= 0 && index < visibleGames.length - 1 ? visibleGames[index + 1] : null;
@@ -88,44 +105,49 @@ export function GameEditor({
               ? `Spiel ${index + 1} von ${visibleGames.length}: ${game.name}`
               : game.name}
           </p>
-          <EditorTabs groups={groups} activeTab={tab} onChange={setTab} />
-          {activeGroup === "identity" ? (
-            <EditorHero key={game.id} game={game} onManageMedia={onManageMedia} />
-          ) : null}
-          <span className="editor-save-state"><SaveStatusIndicator /></span>
-          {groups.map((group) => (
-            <section
-              key={`${game.id}-${group.group}`}
-              id={`editor-${group.group}`}
-              hidden={group.group !== activeGroup}
-              className={group.group === "identity" ? "editor-fields editor-identity-fields" : "editor-fields"}
-            >
-              {group.group === "identity" ? (
-                <IdentityPanel
-                  fields={group.fields}
-                  game={game}
-                  games={games}
-                  onChange={(patch) => onChange(game.id, patch)}
-                  onPriority={(priority) => onPriority(game.id, priority)}
-                  onPosition={(fieldId, position) => onPosition(game.id, fieldId, position)}
-                />
-              ) : (
-                group.fields.map((field) => (
-                  <div className="editor-field-with-provenance" key={`${game.id}-${field.id}`}>
-                    <EditorField
-                      field={field}
-                      game={game}
-                      games={games}
-                      onChange={(patch) => onChange(game.id, patch)}
-                      onPriority={(priority) => onPriority(game.id, priority)}
-                      onPosition={(fieldId, position) => onPosition(game.id, fieldId, position)}
-                    />
-                    <FieldProvenanceNote game={game} fieldId={field.id} />
-                  </div>
-                ))
-              )}
-            </section>
-          ))}
+          <EditorHero key={game.id} game={game} onManageMedia={onManageMedia} />
+          <div className="editor-title-row">
+            <EditorFieldItem
+              key={`${game.id}-name`}
+              field={nameField}
+              game={game}
+              games={games}
+              onChange={(patch) => onChange(game.id, patch)}
+              onPriority={(priority) => onPriority(game.id, priority)}
+              onPosition={(fieldId, position) => onPosition(game.id, fieldId, position)}
+            />
+            <span className="editor-save-state"><SaveStatusIndicator /></span>
+          </div>
+          {EDITOR_SECTIONS.map((section) => {
+            const fields = groups.get(section.group) ?? [];
+            if (fields.length === 0) return null;
+            const shared = {
+              game,
+              games,
+              onChange: (patch: Partial<GameRecord>) => onChange(game.id, patch),
+              onPriority: (priority: number | null) => onPriority(game.id, priority),
+              onPosition: (fieldId: "queuePosition" | "favoriteRank", position: number | null) =>
+                onPosition(game.id, fieldId, position),
+            };
+            return (
+              <EditorSection
+                key={`${game.id}-${section.group}`}
+                id={`editor-${section.group}`}
+                title={section.title}
+                summary={section.summary}
+                collapsible={section.collapsible}
+              >
+                {section.group === "identity" ? (
+                  <IdentityPanel
+                    fields={fields.filter((field) => field.id !== "name")}
+                    {...shared}
+                  />
+                ) : (
+                  <SectionFields group={section.group} fields={fields} {...shared} />
+                )}
+              </EditorSection>
+            );
+          })}
           {canPage ? (
             <EditorMobileNavigation
               prevGame={prevGame}
@@ -142,3 +164,42 @@ export function GameEditor({
 }
 
 export { GameEditor as GameEditorDialog };
+
+function SectionFields({
+  group,
+  fields,
+  game,
+  games,
+  onChange,
+  onPriority,
+  onPosition,
+}: {
+  group: FieldGroup;
+  fields: GameFieldDef[];
+  game: GameRecord;
+  games: GameRecord[];
+  onChange: (patch: Partial<GameRecord>) => void;
+  onPriority: (priority: number | null) => void;
+  onPosition: (fieldId: "queuePosition" | "favoriteRank", position: number | null) => void;
+}) {
+  const chipFields = group === "status" ? fields.filter((field) => field.type === "boolean") : [];
+  const otherFields = fields.filter((field) => !chipFields.includes(field));
+  return (
+    <>
+      {chipFields.length > 0 ? (
+        <StatusChipsField fields={chipFields} game={game} onChange={onChange} />
+      ) : null}
+      {otherFields.map((field) => (
+        <EditorFieldItem
+          key={`${game.id}-${field.id}`}
+          field={field}
+          game={game}
+          games={games}
+          onChange={onChange}
+          onPriority={onPriority}
+          onPosition={onPosition}
+        />
+      ))}
+    </>
+  );
+}

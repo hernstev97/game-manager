@@ -10,7 +10,8 @@ type DialogEl = HTMLElement & {
   close: (reason?: string) => boolean;
 };
 
-type DialogPresentation = "default" | "fullscreen" | "sheet" | "editor";
+/** `side` is a modal side sheet on wide windows and a bottom sheet on compact ones. */
+type DialogPresentation = "default" | "fullscreen" | "sheet" | "side" | "editor";
 
 export function M3Dialog({
   open,
@@ -20,6 +21,8 @@ export function M3Dialog({
   actions,
   className,
   presentation = "default",
+  size = "default",
+  dismissible = true,
   leadingAction,
 }: {
   open: boolean;
@@ -29,14 +32,33 @@ export function M3Dialog({
   actions?: ReactNode;
   className?: string;
   presentation?: DialogPresentation;
+  /** `wide` lets comparison-heavy dialogs grow beyond the 560px default on large screens. */
+  size?: "default" | "wide";
+  /** When false, Escape and scrim clicks are ignored (e.g. while saving). */
+  dismissible?: boolean;
   leadingAction?: ReactNode;
 }) {
   const ref = useRef<DialogEl>(null);
+  const dismissibleRef = useRef(dismissible);
   useHostEvent(ref, "dialog-close", onClose);
+  useHostEvent(ref, "dialog-request-close", (event) => {
+    const reason = (event as CustomEvent<{ reason?: string }>).detail?.reason;
+    if (!dismissibleRef.current && reason !== "programmatic") event.preventDefault();
+  });
+
+  useEffect(() => {
+    dismissibleRef.current = dismissible;
+  }, [dismissible]);
 
   const presentationClass =
-    presentation === "default" ? "" : `adaptive-${presentation}`;
-  const classes = [className, presentationClass].filter(Boolean).join(" ");
+    presentation === "default"
+      ? ""
+      : presentation === "side"
+        ? "adaptive-sheet adaptive-side"
+        : `adaptive-${presentation}`;
+  const classes = [className, presentationClass, size === "wide" ? "wide-dialog" : "", actions ? "" : "no-actions"]
+    .filter(Boolean)
+    .join(" ");
 
   useEffect(() => {
     const dialog = ref.current;

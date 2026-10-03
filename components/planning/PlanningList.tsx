@@ -29,7 +29,6 @@ type PlanningListProps = {
   listLabel: string;
   positionLabel: "Spielreihenfolge" | "Persönlicher Rang";
   emptyMessage: string;
-  reorderMode: boolean;
   disabled?: boolean;
   onReorder: (orderedIds: readonly string[]) => void;
   onOpenGame?: (gameId: string) => void;
@@ -40,6 +39,7 @@ type RowProps = Pick<
   PlanningListProps,
   "positionLabel" | "disabled" | "onOpenGame" | "renderActions"
 > & {
+  sortable?: boolean;
   game: PlanningGame;
   visiblePosition: number;
   itemRef?: Ref<HTMLLIElement>;
@@ -59,7 +59,7 @@ function PlanningRow({
   itemStyle,
   dragging,
   dragHandle,
-}: RowProps) {
+}: Omit<RowProps, "sortable">) {
   const name = game.name || "Unbenanntes Spiel";
 
   return (
@@ -69,6 +69,7 @@ function PlanningRow({
       style={itemStyle}
       data-dragging={dragging || undefined}
     >
+      {dragHandle}
       <span
         className={styles.position}
         aria-label={`${positionLabel} ${visiblePosition}`}
@@ -80,7 +81,7 @@ function PlanningRow({
         coverUrl={game.coverUrl}
         steamAppId={game.steamAppId}
         className={styles.cover}
-        sizes="(max-width: 520px) 64px, 88px"
+        sizes="(max-width: 520px) 48px, 64px"
       />
       <div className={styles.itemCopy}>
         {onOpenGame ? (
@@ -98,14 +99,16 @@ function PlanningRow({
         <span className={styles.status}>{planningStatusLabel(game)}</span>
       </div>
       <div className={styles.itemActions}>
-        {dragHandle}
         {renderActions(game, visiblePosition)}
       </div>
     </li>
   );
 }
 
-function SortablePlanningRow(props: Omit<RowProps, "itemRef" | "itemStyle" | "dragging" | "dragHandle">) {
+function SortablePlanningRow({
+  sortable = true,
+  ...props
+}: Omit<RowProps, "itemRef" | "itemStyle" | "dragging" | "dragHandle">) {
   const {
     attributes,
     listeners,
@@ -114,7 +117,7 @@ function SortablePlanningRow(props: Omit<RowProps, "itemRef" | "itemStyle" | "dr
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: props.game.id });
+  } = useSortable({ id: props.game.id, disabled: !sortable });
   const itemStyle: CSSProperties = {
     transform: CSS.Transform.toString(transform),
     transition,
@@ -128,7 +131,7 @@ function SortablePlanningRow(props: Omit<RowProps, "itemRef" | "itemStyle" | "dr
       type="button"
       className={styles.dragHandle}
       aria-label={`${name}: ${props.positionLabel} verschieben`}
-      disabled={props.disabled}
+      disabled={props.disabled || !sortable}
       {...attributes}
       {...listeners}
     >
@@ -147,7 +150,7 @@ function SortablePlanningRow(props: Omit<RowProps, "itemRef" | "itemStyle" | "dr
   );
 }
 
-function ActivePlanningList(props: PlanningListProps) {
+function SortablePlanningListBody(props: PlanningListProps) {
   const sensors = useSensors(
     useSensor(MouseSensor, { activationConstraint: { distance: 6 } }),
     useSensor(TouchSensor, { activationConstraint: { delay: 180, tolerance: 8 } }),
@@ -186,6 +189,7 @@ function ActivePlanningList(props: PlanningListProps) {
               visiblePosition={index + 1}
               positionLabel={props.positionLabel}
               disabled={props.disabled}
+              sortable={props.games.length > 1}
               onOpenGame={props.onOpenGame}
               renderActions={props.renderActions}
             />
@@ -196,25 +200,10 @@ function ActivePlanningList(props: PlanningListProps) {
   );
 }
 
+/** Always-sortable list: drag the handle or use Space + arrow keys. */
 export function PlanningList(props: PlanningListProps) {
   if (props.games.length === 0) {
     return <p className={styles.emptyState}>{props.emptyMessage}</p>;
   }
-  if (props.reorderMode) return <ActivePlanningList {...props} />;
-
-  return (
-    <ol className={styles.list} aria-label={props.listLabel}>
-      {props.games.map((game, index) => (
-        <PlanningRow
-          key={game.id}
-          game={game}
-          visiblePosition={index + 1}
-          positionLabel={props.positionLabel}
-          disabled={props.disabled}
-          onOpenGame={props.onOpenGame}
-          renderActions={props.renderActions}
-        />
-      ))}
-    </ol>
-  );
+  return <SortablePlanningListBody {...props} />;
 }
