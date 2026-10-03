@@ -108,6 +108,7 @@
 }
 
 .library-result-count {
+  flex: 0 0 auto;
   min-width: 0;
   overflow: hidden;
   color: var(--md-sys-color-on-surface-variant);
@@ -119,6 +120,7 @@
 
 .library-results-actions {
   display: flex;
+  flex: 0 1 auto;
   min-width: 0;
   align-items: center;
   gap: var(--space-1);
@@ -424,5 +426,16 @@
     flex-direction: column;
     align-items: stretch;
     width: 100%;
+  }
+}
+
+/* Keep toasts clear of the bulk action bar while selecting. */
+.library-app:has(.app-main.is-selection-mode) m3-snackbar {
+  bottom: 140px;
+}
+
+@media (max-width: 599px) {
+  .library-app:has(.app-main.is-selection-mode) m3-snackbar {
+    bottom: calc(176px + env(safe-area-inset-bottom));
   }
 }

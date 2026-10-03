@@ -46,15 +46,24 @@
 
 .bulkActions {
   min-width: 0;
-  overflow-x: auto;
+  justify-content: flex-end;
 }
 
 .quickActions {
   flex-wrap: wrap;
 }
 
+.bar button.iconButton {
+  display: inline-grid;
+  width: 40px;
+  padding: 0;
+  place-items: center;
+  border-color: transparent;
+}
+
+/* Static so the panel anchors to the fixed bar, not to the summary. */
 .moreActions {
-  position: relative;
+  position: static;
   flex: 0 0 auto;
 }
 
@@ -86,11 +95,11 @@
 }
 
 .moreActionsPanel {
-  position: fixed;
+  position: absolute;
   z-index: 1001;
-  right: max(var(--space-5), env(safe-area-inset-right));
-  bottom: 104px;
-  left: max(var(--space-5), env(safe-area-inset-left));
+  right: 0;
+  bottom: calc(100% + var(--space-2));
+  left: 0;
   display: grid;
   max-width: 980px;
   max-height: min(70vh, 620px);
@@ -254,6 +263,12 @@
   margin-top: var(--space-6);
 }
 
+@media (min-width: 600px) {
+  .bar {
+    left: calc(var(--app-rail-width) + var(--space-5));
+  }
+}
+
 @media (max-width: 599px) {
   .bar {
     right: var(--space-2);
@@ -270,10 +285,8 @@
     grid-column: 1 / -1;
   }
 
-  .bulkActions,
-  .quickActions {
-    flex-wrap: nowrap;
-    overflow-x: auto;
+  .bulkActions {
+    justify-content: flex-start;
   }
 
   .quickActions button {

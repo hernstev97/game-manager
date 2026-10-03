@@ -1,17 +1,13 @@
 "use client";
 
 import { M3Chip } from "@/components/m3/host";
-import { IconQueue } from "@/components/m3/icons";
 import { PlanSlotField } from "@/components/editor/fields/PlanSlotField";
 
 export function PriorityBadge({ value }: { value: number | null }) {
   if (value == null) return null;
   return (
     <span className="priority-badge" title={`Als Nächstes: Platz ${value}`}>
-      <M3Chip>
-        <IconQueue slot="icon" width={18} height={18} />
-        #{value}
-      </M3Chip>
+      <M3Chip>#{value}</M3Chip>
     </span>
   );
 }
