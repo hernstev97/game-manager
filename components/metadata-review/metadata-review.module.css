@@ -1,14 +1,14 @@
 .dialog {
-  width: min(1040px, calc(100vw - 32px));
+  width: min(1040px, calc(100vw - var(--space-8)));
   max-width: none;
-  max-height: min(900px, calc(100dvh - 32px));
+  max-height: min(900px, calc(100dvh - var(--space-8)));
   padding: 0;
   overflow: hidden;
-  border: 1px solid var(--md-sys-color-outline-variant);
-  border-radius: 24px;
+  border: 0;
+  border-radius: var(--md-sys-shape-corner-extra-large);
   color: var(--md-sys-color-on-surface);
-  background: var(--md-sys-color-surface-container-low);
-  box-shadow: 0 20px 60px color-mix(in srgb, var(--md-sys-color-scrim) 34%, transparent);
+  background: var(--md-sys-color-surface-container-high);
+  box-shadow: var(--md-sys-elevation-level3);
 }
 
 .dialog::backdrop {
@@ -20,9 +20,9 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  padding: 18px 22px;
-  background: var(--md-sys-color-surface-container);
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-6);
+  background: transparent;
 }
 
 .header h2,
@@ -34,37 +34,37 @@
 }
 
 .header h2 {
-  font-size: 1.35rem;
-  line-height: 1.25;
+  font: var(--md-sys-typescale-headline-small);
 }
 
 .header p {
   max-width: 72ch;
-  margin-top: 5px;
+  margin-top: var(--space-1);
   color: var(--md-sys-color-on-surface-variant);
-  font-size: 0.9rem;
+  font: var(--md-sys-typescale-body-medium);
 }
 
 .dialog button {
   min-height: 44px;
-  padding: 0 16px;
-  border: 1px solid var(--md-sys-color-outline);
-  border-radius: 999px;
-  color: inherit;
+  padding: 0 var(--space-4);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-corner-full);
+  color: var(--md-sys-color-primary);
   background: transparent;
-  font: inherit;
+  font: var(--md-sys-typescale-label-large);
   cursor: pointer;
   transition:
     background-color var(--motion-duration-short) var(--motion-easing-standard),
-    border-color var(--motion-duration-short) var(--motion-easing-standard);
+    border-color var(--motion-duration-short) var(--motion-easing-standard),
+    box-shadow var(--motion-duration-short) var(--motion-easing-standard);
 }
 
 .dialog button:hover:not(:disabled) {
-  background: var(--md-sys-color-surface-container-highest);
+  background: color-mix(in srgb, var(--md-sys-color-primary) 8%, transparent);
 }
 
 .dialog button:focus-visible {
-  outline: 3px solid var(--md-sys-color-primary);
+  outline: 3px solid var(--md-sys-color-secondary);
   outline-offset: 2px;
 }
 
@@ -77,29 +77,36 @@
   flex: 0 0 auto;
   width: 44px;
   padding: 0 !important;
+  border-color: transparent !important;
+  color: var(--md-sys-color-on-surface-variant) !important;
+  /* Glyph sizing for the close icon, not text. */
   font-size: 1.5rem !important;
-  line-height: 1;
+  line-height: 1 !important;
+}
+
+.iconButton:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--md-sys-color-on-surface-variant) 8%, transparent) !important;
 }
 
 .toolbar {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 12px 22px;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-6);
   border-block: 1px solid var(--md-sys-color-outline-variant);
-  background: var(--md-sys-color-surface-container-lowest);
+  background: var(--md-sys-color-surface-container);
 }
 
 .toolbar span {
   margin-left: auto;
   color: var(--md-sys-color-on-surface-variant);
-  font-size: 0.86rem;
+  font: var(--md-sys-typescale-body-medium);
   white-space: nowrap;
 }
 
 .body {
   max-height: calc(100dvh - 244px);
-  padding: 20px 22px 28px;
+  padding: var(--space-5) var(--space-6) var(--space-6);
   overflow: auto;
   overscroll-behavior: contain;
 }
@@ -107,56 +114,57 @@
 .changeList,
 .volatileSection ul {
   display: grid;
-  gap: 14px;
+  gap: var(--space-3);
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
 .volatileSection h3 {
-  font-size: 1rem;
+  font: var(--md-sys-typescale-title-medium);
 }
 
 .volatileSection {
-  margin-top: 24px;
-  padding: 16px;
-  border: 1px dashed var(--md-sys-color-outline);
-  border-radius: 18px;
+  margin-top: var(--space-6);
+  padding: var(--space-4);
+  border-radius: var(--md-sys-shape-corner-large-increased);
+  background: var(--md-sys-color-surface-container-lowest);
 }
 
 .volatileSection > p {
-  margin-top: 6px;
+  margin-top: var(--space-1);
   color: var(--md-sys-color-on-surface-variant);
-  font-size: 0.86rem;
+  font: var(--md-sys-typescale-body-medium);
 }
 
 .volatileSection ul {
-  margin-top: 12px;
+  margin-top: var(--space-3);
 }
 
 .volatileSection li {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 10px;
+  gap: var(--space-2);
 }
 
 .volatileSection li > div {
   min-width: 0;
-  padding: 10px;
-  border-radius: 10px;
+  padding: var(--space-3);
+  border-radius: var(--md-sys-shape-corner-medium);
   background: var(--md-sys-color-surface-container);
 }
 
 .volatileSection li > div > span {
   display: block;
-  margin-bottom: 6px;
+  margin-bottom: var(--space-2);
   color: var(--md-sys-color-on-surface-variant);
-  font-size: 0.75rem;
+  font: var(--md-sys-typescale-label-medium);
 }
 
 .emptyState {
-  padding: 28px 12px;
+  padding: var(--space-8) var(--space-3);
   color: var(--md-sys-color-on-surface-variant);
+  font: var(--md-sys-typescale-body-large);
   text-align: center;
 }
 
@@ -172,7 +180,8 @@
 }
 
 .actions .primaryAction:hover:not(:disabled) {
-  background: color-mix(in srgb, var(--md-sys-color-primary) 88%, var(--md-sys-color-on-primary));
+  background: color-mix(in srgb, var(--md-sys-color-on-primary) 8%, var(--md-sys-color-primary));
+  box-shadow: var(--md-sys-elevation-level1);
 }
 
 @media (max-width: 600px) {
@@ -180,26 +189,26 @@
     width: 100vw;
     max-height: 100dvh;
     margin: auto 0 0;
-    border-radius: 24px 24px 0 0;
+    border-radius: var(--md-sys-shape-corner-extra-large) var(--md-sys-shape-corner-extra-large) 0 0;
   }
 
   .header,
   .actions {
-    padding: 14px 12px;
+    padding: var(--space-3);
   }
 
   .header h2 {
-    font-size: 1.12rem;
+    font: var(--md-sys-typescale-title-large);
   }
 
   .toolbar {
     flex-wrap: wrap;
-    padding: 10px 12px;
+    padding: var(--space-2) var(--space-3);
   }
 
   .toolbar button {
     flex: 1 1 130px;
-    padding-inline: 10px;
+    padding-inline: var(--space-3);
   }
 
   .toolbar span {
@@ -210,7 +219,7 @@
 
   .body {
     max-height: calc(100dvh - 278px);
-    padding: 12px;
+    padding: var(--space-3);
   }
 
   .volatileSection li {
@@ -219,7 +228,7 @@
 
   .actions button {
     flex: 1 1 0;
-    padding-inline: 10px;
+    padding-inline: var(--space-3);
   }
 }
 

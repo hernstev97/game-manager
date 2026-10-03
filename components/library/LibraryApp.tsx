@@ -198,6 +198,7 @@ export function LibraryApp() {
         onGroupBy={setGroupBy}
         onSelectionMode={(enabled) => enabled ? startSelection(selectedId ?? undefined) : endSelection()}
         onSettings={() => setSettingsOpen(true)}
+        onImport={(file) => void importFile(file)}
         onFilterChange={onFilterChange}
         onClearFilters={onClearFilters}
         onOpenAdd={() => openAddDialog()}

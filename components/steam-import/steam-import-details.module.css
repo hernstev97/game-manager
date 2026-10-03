@@ -2,59 +2,57 @@
 .planSummary {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-  gap: 8px;
+  gap: var(--space-2);
   margin: 0;
 }
 
 .categorySummary div,
 .planSummary div {
   min-width: 0;
-  padding: 12px;
-  border: 1px solid var(--md-sys-color-outline-variant);
-  border-radius: 14px;
+  padding: var(--space-3);
+  border-radius: var(--md-sys-shape-corner-large);
   background: var(--md-sys-color-surface-container-low);
 }
 
 .categorySummary dt,
 .planSummary dt {
   color: var(--md-sys-color-on-surface-variant);
-  font-size: 0.78rem;
+  font: var(--md-sys-typescale-body-small);
 }
 
 .categorySummary dd,
 .planSummary dd {
-  margin: 4px 0 0;
-  font-size: 1.15rem;
-  font-weight: 750;
+  margin: var(--space-1) 0 0;
+  font: var(--md-sys-typescale-emphasized-title-large);
 }
 
 .issues {
-  padding: 10px 12px;
-  border-radius: 14px;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--md-sys-shape-corner-large);
   background: var(--md-sys-color-surface-container);
 }
 
 .issues summary {
   cursor: pointer;
-  font-weight: 650;
+  font: var(--md-sys-typescale-title-small);
 }
 
 .issues ul,
 .reportWarnings {
-  margin: 10px 0 0;
-  padding-left: 22px;
+  margin: var(--space-2) 0 0;
+  padding-left: var(--space-5);
 }
 
 .issues li,
 .reportWarnings li {
-  margin-top: 5px;
-  line-height: 1.4;
+  margin-top: var(--space-1);
+  font: var(--md-sys-typescale-body-medium);
 }
 
 .selectionHeader {
   display: flex;
   min-width: 0;
-  gap: 12px;
+  gap: var(--space-3);
   align-items: flex-start;
   justify-content: space-between;
 }
@@ -67,13 +65,13 @@
 .selectionHeader p,
 .matchNote {
   color: var(--md-sys-color-on-surface-variant);
-  line-height: 1.45;
+  font: var(--md-sys-typescale-body-medium);
 }
 
 .gameList {
   display: grid;
   min-width: 0;
-  gap: 8px;
+  gap: var(--space-2);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -81,22 +79,21 @@
 
 .gameList > li {
   min-width: 0;
-  padding: 12px;
-  border: 1px solid var(--md-sys-color-outline-variant);
-  border-radius: 16px;
+  padding: var(--space-3);
+  border-radius: var(--md-sys-shape-corner-large);
   background: var(--md-sys-color-surface-container-low);
   content-visibility: auto;
   contain-intrinsic-size: 88px;
 }
 
 .gameList > li[data-category="conflict"] {
-  border-color: var(--md-sys-color-error);
+  box-shadow: inset 0 0 0 2px var(--md-sys-color-error);
 }
 
 .gameChoice {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
-  gap: 10px;
+  gap: var(--space-3);
   align-items: center;
   min-width: 0;
   cursor: pointer;
@@ -117,31 +114,36 @@
   gap: 2px;
 }
 
+.gameChoice strong,
+.jobOptions label strong {
+  font: var(--md-sys-typescale-title-medium);
+}
+
 .gameChoice small,
 .jobOptions small {
   color: var(--md-sys-color-on-surface-variant);
+  font: var(--md-sys-typescale-body-small);
 }
 
 .categoryBadge {
-  padding: 5px 8px;
-  border-radius: 999px;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--md-sys-shape-corner-full);
   color: var(--md-sys-color-on-secondary-container);
   background: var(--md-sys-color-secondary-container);
-  font-size: 0.72rem;
-  font-weight: 700;
+  font: var(--md-sys-typescale-label-medium);
   text-align: center;
 }
 
 .mappingChoice {
   display: grid;
   grid-template-columns: minmax(130px, 1fr) minmax(180px, 2fr);
-  gap: 8px 12px;
+  gap: var(--space-2) var(--space-3);
   align-items: center;
-  margin-top: 10px;
-  padding-top: 10px;
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
   border-top: 1px solid var(--md-sys-color-outline-variant);
   color: var(--md-sys-color-on-surface-variant);
-  font-size: 0.86rem;
+  font: var(--md-sys-typescale-body-medium);
 }
 
 .mappingChoice select {
@@ -149,57 +151,62 @@
   width: 100%;
   min-width: 0;
   min-height: 42px;
-  padding: 0 34px 0 10px;
+  /* Right padding leaves room for the native dropdown arrow. */
+  padding: 0 var(--space-8) 0 var(--space-3);
   border: 1px solid var(--md-sys-color-outline);
-  border-radius: 10px;
+  border-radius: var(--md-sys-shape-corner-medium);
   color: var(--md-sys-color-on-surface);
-  background: var(--md-sys-color-surface);
+  background: var(--md-sys-color-surface-container-lowest);
   font: inherit;
 }
 
 .gameChoice input:focus-visible,
 .mappingChoice select:focus-visible,
 .jobOptions input:focus-visible {
-  outline: 3px solid var(--md-sys-color-primary);
-  outline-offset: 3px;
+  outline: 3px solid var(--md-sys-color-secondary);
+  outline-offset: 2px;
 }
 
 .matchNote {
-  margin: 8px 0 0 30px;
-  font-size: 0.82rem;
+  /* Optical alignment with the game name: checkbox width + row gap. */
+  margin: var(--space-2) 0 0 calc(20px + var(--space-3));
 }
 
 .jobOptions {
   display: grid;
   min-width: 0;
-  gap: 8px;
+  gap: var(--space-2);
   margin: 0;
-  padding: 12px;
-  border: 1px solid var(--md-sys-color-outline-variant);
-  border-radius: 16px;
+  padding: 0;
+  border: 0;
 }
 
 .jobOptions legend {
-  padding: 0 5px;
-  font-weight: 700;
+  padding: 0 0 var(--space-2);
+  font: var(--md-sys-typescale-title-small);
 }
 
 .jobOptions label {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
-  gap: 10px;
+  gap: var(--space-3);
   align-items: start;
-  padding: 10px;
-  border-radius: 12px;
+  padding: var(--space-3);
+  border-radius: var(--md-sys-shape-corner-medium);
   background: var(--md-sys-color-surface-container-low);
   cursor: pointer;
+  transition: background-color var(--motion-duration-short) var(--motion-easing-standard);
+}
+
+.jobOptions label:hover {
+  background: color-mix(in srgb, var(--md-sys-color-on-surface) 8%, var(--md-sys-color-surface-container-low));
 }
 
 .jobProgress {
   display: grid;
-  gap: 6px;
-  padding: 12px;
-  border-radius: 14px;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border-radius: var(--md-sys-shape-corner-large);
   background: var(--md-sys-color-surface-container-low);
 }
 
@@ -210,6 +217,7 @@
 
 .jobProgress small {
   color: var(--md-sys-color-on-surface-variant);
+  font: var(--md-sys-typescale-body-small);
 }
 
 @media (max-width: 520px) {

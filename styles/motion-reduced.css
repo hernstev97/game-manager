@@ -19,10 +19,6 @@
   transform: none;
 }
 
-:root[data-motion="none"] .mobile-add-fab:hover {
-  translate: none;
-}
-
 html[data-motion="none"]::view-transition-group(*),
 html[data-motion="none"]::view-transition-old(*),
 html[data-motion="none"]::view-transition-new(*) {
@@ -78,9 +74,5 @@ html[data-motion="none"]::view-transition-new(*) {
   .editor-pager:hover:not(:disabled),
   .settings-nav-item:active {
     transform: none;
-  }
-
-  .mobile-add-fab:hover {
-    translate: none;
   }
 }

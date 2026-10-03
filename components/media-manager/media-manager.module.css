@@ -1,14 +1,14 @@
 .dialog {
-  width: min(1080px, calc(100vw - 32px));
+  width: min(1080px, calc(100vw - var(--space-8)));
   max-width: none;
-  max-height: min(880px, calc(100dvh - 32px));
+  max-height: min(880px, calc(100dvh - var(--space-8)));
   padding: 0;
   overflow: hidden;
-  border: 1px solid var(--md-sys-color-outline-variant);
-  border-radius: 24px;
+  border: 0;
+  border-radius: var(--md-sys-shape-corner-extra-large);
   color: var(--md-sys-color-on-surface);
-  background: var(--md-sys-color-surface-container-low);
-  box-shadow: 0 20px 60px color-mix(in srgb, var(--md-sys-color-scrim) 34%, transparent);
+  background: var(--md-sys-color-surface-container-high);
+  box-shadow: var(--md-sys-elevation-level3);
 }
 .dialog::backdrop {
   background: color-mix(in srgb, var(--md-sys-color-scrim) 52%, transparent);
@@ -19,9 +19,9 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  padding: 18px 22px;
-  background: var(--md-sys-color-surface-container);
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-6);
+  background: transparent;
 }
 
 .dialogHeader h1,
@@ -30,13 +30,13 @@
 }
 
 .dialogHeader h1 {
-  font-size: 1.35rem;
+  font: var(--md-sys-typescale-headline-small);
 }
 
 .dialogHeader p {
-  margin: 4px 0 0;
+  margin: var(--space-1) 0 0;
   color: var(--md-sys-color-on-surface-variant);
-  font-size: 0.9rem;
+  font: var(--md-sys-typescale-body-medium);
 }
 
 .dialogHeader button,
@@ -44,26 +44,42 @@
 .manualRow button,
 .adjustments button {
   min-height: 40px;
-  padding: 0 16px;
-  border: 1px solid var(--md-sys-color-outline);
-  border-radius: 999px;
-  color: inherit;
+  padding: 0 var(--space-4);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-corner-full);
+  color: var(--md-sys-color-primary);
   background: transparent;
-  font: inherit;
+  font: var(--md-sys-typescale-label-large);
   cursor: pointer;
+  transition:
+    background-color var(--motion-duration-short) var(--motion-easing-standard),
+    box-shadow var(--motion-duration-short) var(--motion-easing-standard);
+}
+
+.dialogHeader button:hover:not(:disabled),
+.dialogActions button:hover:not(:disabled),
+.manualRow button:hover:not(:disabled),
+.adjustments button:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--md-sys-color-primary) 8%, transparent);
 }
 
 .dialogHeader button {
   width: 40px;
   padding: 0;
+  border-color: transparent;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.dialogHeader button:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--md-sys-color-on-surface-variant) 8%, transparent);
 }
 
 .dialogBody {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 24px;
+  gap: var(--space-6);
   max-height: calc(100dvh - 190px);
-  padding: 22px;
+  padding: var(--space-6);
   overflow: auto;
 }
 
@@ -72,36 +88,44 @@
 }
 
 .editorSection h2 {
-  margin-bottom: 14px;
-  font-size: 1.05rem;
+  margin-bottom: var(--space-3);
+  font: var(--md-sys-typescale-title-small);
 }
 
 .candidateList {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(116px, 1fr));
-  gap: 12px;
+  gap: var(--space-3);
 }
 
 .candidate {
   min-width: 0;
-  padding: 7px;
+  padding: var(--space-2);
   border: 2px solid transparent;
-  border-radius: 14px;
+  border-radius: var(--md-sys-shape-corner-large);
   color: inherit;
-  background: var(--md-sys-color-surface-container-high);
+  background: var(--md-sys-color-surface-container);
   text-align: left;
   cursor: pointer;
+  transition:
+    background-color var(--motion-duration-short) var(--motion-easing-standard),
+    border-color var(--motion-duration-short) var(--motion-easing-standard);
+}
+
+.candidate:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--md-sys-color-on-surface) 8%, var(--md-sys-color-surface-container));
 }
 
 .candidate[data-selected] {
   border-color: var(--md-sys-color-primary);
+  color: var(--md-sys-color-on-secondary-container);
   background: var(--md-sys-color-secondary-container);
 }
 
 .candidate:focus-visible,
 .dialog button:focus-visible,
 .dialog input:focus-visible {
-  outline: 3px solid var(--md-sys-color-primary);
+  outline: 3px solid var(--md-sys-color-secondary);
   outline-offset: 2px;
 }
 
@@ -110,7 +134,7 @@
   display: block;
   width: 100%;
   overflow: hidden;
-  border-radius: 9px;
+  border-radius: var(--md-sys-shape-corner-medium);
   background: var(--md-sys-color-surface-container-highest);
 }
 
@@ -132,19 +156,21 @@
   height: 100%;
   place-items: center;
   color: var(--md-sys-color-on-surface-variant);
-  font-size: 0.8rem;
+  font: var(--md-sys-typescale-body-small);
 }
 
 .candidateLabel,
 .checkBadge {
   display: block;
-  margin-top: 7px;
+  margin-top: var(--space-2);
   overflow-wrap: anywhere;
-  font-size: 0.78rem;
+  font: var(--md-sys-typescale-label-medium);
 }
 
 .checkBadge {
+  margin-top: var(--space-1);
   color: var(--md-sys-color-on-surface-variant);
+  font: var(--md-sys-typescale-body-small);
 }
 
 .checkBadge[data-tone="ok"] {
@@ -158,8 +184,8 @@
 .manualRow,
 .adjustments {
   display: grid;
-  gap: 12px;
-  margin-top: 18px;
+  gap: var(--space-3);
+  margin-top: var(--space-5);
 }
 
 .manualRow {
@@ -170,24 +196,25 @@
 .manualRow label,
 .adjustments label {
   display: grid;
-  gap: 6px;
+  gap: var(--space-1);
   color: var(--md-sys-color-on-surface-variant);
-  font-size: 0.84rem;
+  font: var(--md-sys-typescale-body-medium);
 }
 
 .manualRow input {
   min-width: 0;
   height: 40px;
-  padding: 0 11px;
+  padding: 0 var(--space-3);
   border: 1px solid var(--md-sys-color-outline);
-  border-radius: 9px;
+  border-radius: var(--md-sys-shape-corner-medium);
   color: var(--md-sys-color-on-surface);
   background: var(--md-sys-color-surface-container-lowest);
-  font: inherit;
+  font: var(--md-sys-typescale-body-large);
 }
 
 .adjustments input[type="range"] {
   width: 100%;
+  accent-color: var(--md-sys-color-primary);
 }
 
 .dialog button:disabled {
@@ -206,12 +233,17 @@
   background: var(--md-sys-color-primary);
 }
 
+.dialogActions .primaryAction:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--md-sys-color-on-primary) 8%, var(--md-sys-color-primary));
+  box-shadow: var(--md-sys-elevation-level1);
+}
+
 @media (max-width: 760px) {
   .dialog {
     width: 100vw;
     max-height: 100dvh;
     margin: auto 0 0;
-    border-radius: 24px 24px 0 0;
+    border-radius: var(--md-sys-shape-corner-extra-large) var(--md-sys-shape-corner-extra-large) 0 0;
   }
 
   .dialogBody {
@@ -224,5 +256,10 @@
   .dialog,
   .candidate {
     scroll-behavior: auto;
+  }
+
+  .dialog button,
+  .candidate {
+    transition: none;
   }
 }

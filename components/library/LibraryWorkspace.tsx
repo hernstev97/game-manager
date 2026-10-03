@@ -11,6 +11,7 @@ import { FilterBar, fieldFilterCount } from "@/components/filters/FilterBar";
 import { LibraryCollection } from "@/components/library/LibraryCollection";
 import { LibraryResultsBar } from "@/components/library/LibraryResultsBar";
 import { LibrarySearchField } from "@/components/library/LibrarySearchField";
+import { WelcomeLibrary } from "@/components/library/EmptyLibrary";
 import { LibraryViewsController } from "@/components/views";
 import {
   FavoriteRankingView,
@@ -51,6 +52,7 @@ export function LibraryWorkspace({
   onGroupBy,
   onSelectionMode,
   onSettings,
+  onImport,
   onFilterChange,
   onClearFilters,
   onOpenAdd,
@@ -90,6 +92,7 @@ export function LibraryWorkspace({
   onGroupBy: (groupBy: GroupByMode) => void;
   onSelectionMode: (enabled: boolean) => void;
   onSettings: () => void;
+  onImport: (file: File) => void;
   onFilterChange: (next: LibraryFilters) => void;
   onClearFilters: () => void;
   onOpenAdd: () => void;
@@ -119,7 +122,7 @@ export function LibraryWorkspace({
       />
       <div className={`app-main${selectionMode ? " is-selection-mode" : ""}`}>
         <header className="app-header">
-          {planningMode === "library" ? (
+          {planningMode === "library" && games.length > 0 ? (
             <LibrarySearchField
               key={`${activeViewId}:${searchEpoch}`}
               query={filters.query}
@@ -156,6 +159,8 @@ export function LibraryWorkspace({
               onRemoveRank={onFavoriteRemove}
               onOpenGame={onOpenGame}
             />
+          ) : games.length === 0 ? (
+            <WelcomeLibrary onAdd={onOpenAdd} onImport={onImport} onConnectSteam={onSettings} />
           ) : (
             <>
               <div className="library-controls">

@@ -9,6 +9,7 @@ import { planLibraryImport, type PreparedImportPlan } from "@/lib/import-export"
 import { libraryRepository } from "@/lib/storage";
 import { useLibrary } from "@/store/library";
 import styles from "./backup-import.module.css";
+import { IconClose } from "@/components/m3/icons";
 
 const RESOLUTION_LABELS: Record<ImportConflictResolution, string> = {
   "use-incoming": "Importierten Eintrag verwenden",
@@ -90,7 +91,7 @@ export function BackupImportDialog({
           <h1 id="backup-import-title">Sicherung prüfen</h1>
           <p>{fileName}</p>
         </div>
-        <button type="button" aria-label="Importprüfung schließen" disabled={busy} onClick={onClose}>✕</button>
+        <button type="button" aria-label="Importprüfung schließen" disabled={busy} onClick={onClose}><IconClose width={20} height={20} /></button>
       </header>
       {"error" in planned ? (
         <p className={styles.error} role="alert">{planned.error}</p>

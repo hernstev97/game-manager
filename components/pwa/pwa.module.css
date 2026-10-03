@@ -2,65 +2,70 @@
   position: fixed;
   inset: env(safe-area-inset-top) 0 auto;
   z-index: 1200;
-  padding: 8px 16px;
+  padding: var(--space-2) var(--space-4);
   color: var(--md-sys-color-on-primary-container);
   background: var(--md-sys-color-primary-container);
   text-align: center;
-  font-size: 0.875rem;
-  box-shadow: 0 1px 3px rgb(0 0 0 / 18%);
+  font: var(--md-sys-typescale-label-large);
+  box-shadow: var(--md-sys-elevation-level1);
 }
 
 .promptStack {
   position: fixed;
-  right: max(16px, env(safe-area-inset-right));
-  bottom: max(16px, env(safe-area-inset-bottom));
+  right: max(var(--space-4), env(safe-area-inset-right));
+  bottom: max(var(--space-4), env(safe-area-inset-bottom));
   z-index: 1100;
   display: grid;
   width: min(380px, calc(100vw - 32px));
-  gap: 10px;
+  gap: var(--space-3);
   pointer-events: none;
 }
 
 .card,
 .workerError {
   pointer-events: auto;
-  border: 1px solid var(--md-sys-color-outline-variant);
-  border-radius: 20px;
-  padding: 14px 16px;
+  border-radius: var(--md-sys-shape-corner-large-increased);
+  padding: var(--space-4);
   color: var(--md-sys-color-on-surface);
   background: var(--md-sys-color-surface-container-high);
-  box-shadow: 0 6px 20px rgb(0 0 0 / 18%);
+  box-shadow: var(--md-sys-elevation-level3);
 }
 
 .card {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 14px;
+  gap: var(--space-4);
+}
+
+.card strong {
+  font: var(--md-sys-typescale-title-medium);
 }
 
 .card p,
 .workerError,
 .actionNotice {
-  margin: 4px 0 0;
-  font-size: 0.875rem;
-  line-height: 1.35;
+  margin: var(--space-1) 0 0;
+  font: var(--md-sys-typescale-body-medium);
+}
+
+.card p {
+  color: var(--md-sys-color-on-surface-variant);
 }
 
 .actions {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--space-1);
 }
 
 .primaryButton,
 .textButton {
   min-height: 40px;
   border: 0;
-  border-radius: 999px;
-  padding: 0 16px;
-  font: inherit;
-  font-weight: 650;
+  border-radius: var(--md-sys-shape-corner-full);
+  padding: 0 var(--space-4);
+  font: var(--md-sys-typescale-label-large);
   cursor: pointer;
 }
 
@@ -69,14 +74,23 @@
   background: var(--md-sys-color-primary);
 }
 
+.primaryButton:hover {
+  background: color-mix(in srgb, var(--md-sys-color-on-primary) 8%, var(--md-sys-color-primary));
+  box-shadow: var(--md-sys-elevation-level1);
+}
+
 .textButton {
   color: var(--md-sys-color-primary);
   background: transparent;
 }
 
+.textButton:hover {
+  background: color-mix(in srgb, var(--md-sys-color-primary) 8%, transparent);
+}
+
 .primaryButton:focus-visible,
 .textButton:focus-visible {
-  outline: 3px solid var(--md-sys-color-tertiary);
+  outline: 3px solid var(--md-sys-color-secondary);
   outline-offset: 2px;
 }
 
@@ -91,8 +105,8 @@
 
 @media (max-width: 599px) {
   .promptStack {
-    right: 12px;
-    bottom: max(12px, env(safe-area-inset-bottom));
+    right: var(--space-3);
+    bottom: max(var(--space-3), env(safe-area-inset-bottom));
     width: calc(100vw - 24px);
   }
 
@@ -104,7 +118,14 @@
 @media (prefers-reduced-motion: no-preference) {
   .card,
   .offlineBanner {
-    animation: pwa-enter 180ms ease-out;
+    animation: pwa-enter var(--motion-duration-medium) var(--md-sys-motion-spring-fast-spatial);
+  }
+
+  .primaryButton,
+  .textButton {
+    transition:
+      background-color var(--motion-duration-short) var(--md-sys-motion-spring-fast-effects),
+      box-shadow var(--motion-duration-short) var(--md-sys-motion-spring-fast-effects);
   }
 }
 

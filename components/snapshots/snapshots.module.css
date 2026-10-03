@@ -1,6 +1,6 @@
 .manager {
   display: grid;
-  gap: 14px;
+  gap: var(--space-4);
 }
 
 .headingRow,
@@ -9,7 +9,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: var(--space-2);
   flex-wrap: wrap;
 }
 
@@ -18,15 +18,27 @@
   margin: 0;
 }
 
+.headingRow h3 {
+  font: var(--md-sys-typescale-title-medium);
+}
+
+.headingRow p {
+  font: var(--md-sys-typescale-body-medium);
+}
+
 .headingRow p,
 .previewButton span,
 .empty {
   color: var(--md-sys-color-on-surface-variant);
 }
 
+.empty {
+  font: var(--md-sys-typescale-body-medium);
+}
+
 .list {
   display: grid;
-  gap: 8px;
+  gap: var(--space-2);
   max-height: 360px;
   overflow: auto;
   content-visibility: auto;
@@ -34,10 +46,9 @@
 
 .card {
   display: grid;
-  gap: 6px;
-  padding: 10px;
-  border: 1px solid var(--md-sys-color-outline-variant);
-  border-radius: 14px;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border-radius: var(--md-sys-shape-corner-large);
   background: var(--md-sys-color-surface-container);
 }
 
@@ -46,46 +57,71 @@
   gap: 2px;
   padding: 2px;
   border: 0;
+  border-radius: var(--md-sys-shape-corner-small);
   color: inherit;
   text-align: start;
   background: transparent;
+  font: var(--md-sys-typescale-body-medium);
   cursor: pointer;
 }
 
+.previewButton strong {
+  color: var(--md-sys-color-on-surface);
+  font: var(--md-sys-typescale-title-small);
+}
+
+.previewButton:hover {
+  background: color-mix(in srgb, var(--md-sys-color-on-surface) 8%, transparent);
+}
+
 .previewButton:focus-visible {
-  outline: 3px solid var(--md-sys-color-primary);
-  outline-offset: 3px;
+  outline: 3px solid var(--md-sys-color-secondary);
+  outline-offset: 2px;
 }
 
 .error {
   display: grid;
-  gap: 4px;
-  padding: 12px;
-  border-radius: 12px;
+  gap: var(--space-1);
+  padding: var(--space-3);
+  border-radius: var(--md-sys-shape-corner-medium);
   color: var(--md-sys-color-on-error-container);
   background: var(--md-sys-color-error-container);
+  font: var(--md-sys-typescale-body-medium);
+}
+
+.error strong {
+  font: var(--md-sys-typescale-title-small);
 }
 
 .preview {
   display: grid;
-  gap: 12px;
+  gap: var(--space-3);
+}
+
+.preview strong {
+  font: var(--md-sys-typescale-title-small);
 }
 
 .detail {
   display: grid;
-  gap: 10px;
-  padding: 14px;
+  gap: var(--space-3);
+  padding: var(--space-4);
   border: 1px solid var(--md-sys-color-primary);
-  border-radius: 14px;
+  border-radius: var(--md-sys-shape-corner-large);
   background: var(--md-sys-color-surface-container-high);
+  font: var(--md-sys-typescale-body-medium);
 }
 
 .detail h4,
 .detail p { margin: 0; }
 
+.detail h4 {
+  font: var(--md-sys-typescale-title-medium);
+}
+
 .preview ul {
-  margin-block: 6px;
-  padding-inline-start: 20px;
+  margin-block: var(--space-1);
+  padding-inline-start: var(--space-5);
 }
 
 .srOnly {
@@ -106,5 +142,11 @@
   .cardActions m3-button,
   .headingRow m3-button {
     width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .previewButton {
+    transition: background-color var(--motion-duration-short) var(--md-sys-motion-spring-fast-effects);
   }
 }

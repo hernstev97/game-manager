@@ -23,11 +23,16 @@ breakpoint block is split only where the original cascade crossed a domain
 boundary. `motion-reduced.css` remains last so its reduced-motion overrides
 continue to win.
 
+All values come from the Material 3 Expressive tokens in `tokens.css`
+(`--md-sys-shape-corner-*`, `--md-sys-typescale-*`, `--space-*`,
+`--md-sys-elevation-level*`, `--md-sys-motion-spring-*`). Avoid hardcoded
+radii, font sizes, and colors.
+
 The effective z-index hierarchy is:
 
-- `m3-top-app-bar`: `20`
-- `.library-tools`: `10`
-- `.mobile-add-fab`: `45`
+- `.app-header` (sticky search/title bar): `20`
+- Navigation rail / bar: `30`
+- `.app-fab`: `45`
 - `m3-snackbar`: `80`
 - Saved-view action menus: `3`
 - Open franchise group/editor: `50` (above the mobile add FAB)

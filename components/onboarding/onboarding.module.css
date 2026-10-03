@@ -1,41 +1,70 @@
 .lead,
-.pwaNote span,
 .actions span {
   color: var(--md-sys-color-on-surface-variant);
+}
+
+.lead {
+  font: var(--md-sys-typescale-body-large);
 }
 
 .actions {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
-  margin-block: 16px;
+  gap: var(--space-3);
+  margin-block: var(--space-4);
 }
 
 .actions button {
   display: grid;
-  gap: 6px;
+  align-content: start;
+  gap: var(--space-2);
   min-height: 126px;
-  padding: 16px;
-  border: 1px solid var(--md-sys-color-outline-variant);
-  border-radius: 16px;
+  padding: var(--space-4);
+  border: 0;
+  border-radius: var(--md-sys-shape-corner-large);
   color: inherit;
   text-align: start;
   background: var(--md-sys-color-surface-container);
+  font: var(--md-sys-typescale-body-medium);
   cursor: pointer;
 }
 
-.actions button:hover { background: var(--md-sys-color-surface-container-high); }
-.actions button:focus-visible { outline: 3px solid var(--md-sys-color-primary); outline-offset: 2px; }
+.actions strong {
+  color: var(--md-sys-color-on-surface);
+  font: var(--md-sys-typescale-title-medium);
+}
+
+.actions button:hover {
+  background: color-mix(in srgb, var(--md-sys-color-on-surface) 8%, var(--md-sys-color-surface-container));
+}
+
+.actions button:active {
+  background: color-mix(in srgb, var(--md-sys-color-on-surface) 10%, var(--md-sys-color-surface-container));
+}
+
+.actions button:focus-visible { outline: 3px solid var(--md-sys-color-secondary); outline-offset: 2px; }
 
 .pwaNote {
   display: grid;
-  gap: 4px;
-  padding: 12px;
-  border-radius: 14px;
+  gap: var(--space-1);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--md-sys-shape-corner-large);
+  color: var(--md-sys-color-on-secondary-container);
   background: var(--md-sys-color-secondary-container);
+  font: var(--md-sys-typescale-body-medium);
+}
+
+.pwaNote strong {
+  font: var(--md-sys-typescale-title-small);
 }
 
 @media (max-width: 599px) {
   .actions { grid-template-columns: 1fr; }
   .actions button { min-height: 92px; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .actions button {
+    transition: background-color var(--motion-duration-short) var(--md-sys-motion-spring-fast-effects);
+  }
 }

@@ -41,7 +41,9 @@ export function M3Dialog({
       : presentation === "side"
         ? "adaptive-sheet adaptive-side"
         : `adaptive-${presentation}`;
-  const classes = [className, presentationClass].filter(Boolean).join(" ");
+  const classes = [className, presentationClass, actions ? "" : "no-actions"]
+    .filter(Boolean)
+    .join(" ");
 
   useEffect(() => {
     const dialog = ref.current;

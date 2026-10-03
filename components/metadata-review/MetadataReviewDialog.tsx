@@ -10,6 +10,7 @@ import {
 import { MetadataFieldReview } from "./MetadataFieldReview";
 import { MetadataValue } from "./MetadataValue";
 import styles from "./metadata-review.module.css";
+import { IconClose } from "@/components/m3/icons";
 
 export type MetadataReviewDialogProps = {
   open: boolean;
@@ -62,7 +63,7 @@ export function MetadataReviewDialog({
           </p>
         </div>
         <button type="button" className={styles.iconButton} aria-label="Metadaten-Prüfung schließen" onClick={onCancel}>
-          <span aria-hidden="true">×</span>
+          <IconClose width={20} height={20} />
         </button>
       </header>
 

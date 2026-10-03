@@ -167,12 +167,6 @@
   --md-sys-color-inverse-primary: var(--color-primary-container);
 }
 
-@media (max-width: 599px) {
-  :root {
-    --mobile-page-gutter: 12px;
-  }
-}
-
 /*
  * Material 3 Expressive foundation. Every component style should draw from
  * these scales instead of ad-hoc radii, font sizes, and spacing.

@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import styles from "./bulk-actions.module.css";
+import { IconClose } from "@/components/m3/icons";
 
 export function BulkActionBar({
   selectedCount,
@@ -34,7 +35,7 @@ export function BulkActionBar({
       </div>
       {children ? <div className={styles.bulkActions}>{children}</div> : null}
       <button type="button" className={styles.closeButton} aria-label="Auswahlmodus schließen" onClick={onClose}>
-        ×
+        <IconClose width={20} height={20} />
       </button>
     </section>
   );

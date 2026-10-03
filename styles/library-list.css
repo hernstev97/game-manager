@@ -11,16 +11,27 @@
 .row-leading {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-2);
 }
 
 .drag-handle {
   width: 32px;
   height: 32px;
   border: 0;
+  border-radius: var(--md-sys-shape-corner-full);
   padding: 0;
   background: transparent;
   color: var(--md-sys-color-on-surface-variant);
+  transition: background-color var(--motion-duration-short) var(--motion-easing-standard);
+}
+
+.drag-handle:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--md-sys-color-on-surface-variant) 8%, transparent);
+}
+
+.drag-handle:focus-visible {
+  outline: 3px solid var(--md-sys-color-secondary);
+  outline-offset: 2px;
 }
 
 .selection-toggle {
@@ -30,11 +41,11 @@
   flex: 0 0 30px;
   place-items: center;
   border: 2px solid var(--md-sys-color-outline);
-  border-radius: 50%;
+  border-radius: var(--md-sys-shape-corner-full);
   padding: 0;
   color: var(--md-sys-color-on-primary);
   background: transparent;
-  font-weight: 800;
+  font: var(--md-sys-typescale-emphasized-label-large);
   cursor: pointer;
 }
 
@@ -44,7 +55,7 @@
 }
 
 .selection-toggle:focus-visible {
-  outline: 3px solid var(--md-sys-color-tertiary);
+  outline: 3px solid var(--md-sys-color-secondary);
   outline-offset: 2px;
 }
 
@@ -63,7 +74,7 @@
   width: 175px;
   height: 82px;
   object-fit: cover;
-  border-radius: 8px;
+  border-radius: var(--md-sys-shape-corner-small);
   display: block;
   background: var(--md-sys-color-surface-container-high);
   transition:
@@ -78,8 +89,8 @@
 .game-row:focus-within .cover-img,
 .game-row:focus-within .cover-placeholder {
   transform: translateY(-1px) scale(1.025);
-  border-radius: 11px;
-  box-shadow: 0 8px 18px color-mix(in srgb, var(--md-sys-color-scrim) 18%, transparent);
+  border-radius: var(--md-sys-shape-corner-medium);
+  box-shadow: var(--md-sys-elevation-level2);
   filter: saturate(1.06);
 }
 
@@ -91,18 +102,16 @@
 .cover-placeholder {
   display: flex;
   align-items: flex-end;
-  padding: 6px 8px;
+  padding: var(--space-2);
   color: var(--md-sys-color-on-primary);
   background: var(--md-sys-color-primary);
-  font-size: 0.8rem;
-  font-weight: 700;
-  line-height: 1;
+  font: var(--md-sys-typescale-label-medium);
 }
 
 .row-trailing {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-2);
   color: var(--md-sys-color-on-surface-variant);
   font-variant-numeric: tabular-nums;
   transition:
@@ -153,32 +162,24 @@
   }
 }
 
-.empty-state {
-  width: 100%;
-  animation: soft-pop var(--motion-duration-long) var(--motion-easing-decelerate) backwards;
-}
-
-.loading-state,
-.empty-state {
+.loading-state {
   display: grid;
   justify-items: center;
-  gap: 12px;
-  padding: 48px 16px;
+  gap: var(--space-3);
+  padding: var(--space-12) var(--space-4);
   text-align: center;
   color: var(--md-sys-color-on-surface-variant);
 }
 
-.empty-state h2,
 .loading-state h2 {
   margin: 0;
   color: var(--md-sys-color-on-surface);
-  font-size: 1.25rem;
-  font-weight: 600;
+  font: var(--md-sys-typescale-title-large);
 }
 
-.empty-state p,
 .loading-state p {
   margin: 0;
+  font: var(--md-sys-typescale-body-medium);
 }
 
 @media (max-width: 839px) {
@@ -195,8 +196,8 @@
 
 @media (max-width: 599px) {
   .game-list {
-    margin-inline: calc(var(--mobile-page-gutter) * -1);
-    width: calc(100% + (var(--mobile-page-gutter) * 2));
+    margin-inline: calc(var(--app-gutter) * -1);
+    width: calc(100% + (var(--app-gutter) * 2));
   }
 
   .game-list.is-contained {
@@ -216,14 +217,14 @@
 
   .game-row {
     --_item-min-height: 72px;
-    --_item-padding-start: 8px;
-    --_item-padding-end: 8px;
-    --_leading-gap: 10px;
-    --_trailing-gap: 4px;
+    --_item-padding-start: var(--space-2);
+    --_item-padding-end: var(--space-2);
+    --_leading-gap: var(--space-2);
+    --_trailing-gap: var(--space-1);
   }
 
   .row-leading {
-    gap: 4px;
+    gap: var(--space-1);
   }
 
   .drag-handle {
@@ -241,9 +242,9 @@
   .cover-placeholder {
     width: 104px;
     height: 49px;
-    border-radius: 6px;
   }
 
+  /* Optical: rating and priority badge read as one cluster on phones. */
   .row-trailing {
     gap: 2px;
   }
@@ -253,6 +254,6 @@
   }
 
   .game-row-name {
-    font-weight: 550;
+    font-weight: 500;
   }
 }

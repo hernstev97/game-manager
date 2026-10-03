@@ -9,6 +9,7 @@ import type { ArtworkDraft, ArtworkOrientation, MediaCandidate } from "@/lib/med
 import type { ImageCheck } from "@/lib/model";
 import { ArtworkDraftEditor } from "@/components/media-manager/ArtworkDraftEditor";
 import styles from "./media-manager.module.css";
+import { IconClose } from "@/components/m3/icons";
 
 const defaultChecker = new ImageChecker();
 const EMPTY_SOURCES: MediaCandidateSources = {};
@@ -125,7 +126,7 @@ function MediaManagerDialogContent({
           <h1 id="media-manager-title">Medien für {game.name || "Unbenanntes Spiel"}</h1>
           <p>Eine Auswahl wird erst mit „Speichern“ übernommen.</p>
         </div>
-        <button type="button" aria-label="Medienverwaltung schließen" onClick={onClose}>✕</button>
+        <button type="button" aria-label="Medienverwaltung schließen" onClick={onClose}><IconClose width={20} height={20} /></button>
       </header>
       <div className={styles.dialogBody}>
         {editor("portrait", portraitCandidates)}

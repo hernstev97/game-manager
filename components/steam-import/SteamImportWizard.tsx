@@ -20,8 +20,7 @@ export function SteamImportWizard(props: SteamImportWizardProps) {
     >
       <header className={styles.header}>
         <div>
-          <p className={styles.eyebrow}>Steam-Import</p>
-          <h2 id="steam-import-title">Bibliothek sicher übernehmen</h2>
+          <h2 id="steam-import-title" className="visually-hidden">Steam-Bibliothek importieren</h2>
           <p>
             App-IDs werden eindeutig abgeglichen. Namensähnlichkeiten brauchen
             immer deine ausdrückliche Zuordnung.
