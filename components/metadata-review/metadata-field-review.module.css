@@ -128,19 +128,7 @@
   opacity: 0.5;
 }
 
-.decision input {
-  width: 20px;
-  height: 20px;
-  margin: 0;
-  accent-color: var(--md-sys-color-primary);
-}
-
-.decision input:focus-visible {
-  outline: 3px solid var(--md-sys-color-secondary);
-  outline-offset: 2px;
-}
-
-@media (max-width: 600px) {
+@media (max-width: 599px) {
   .changeCard {
     padding: var(--space-3);
   }

@@ -99,14 +99,6 @@
   cursor: pointer;
 }
 
-.gameChoice input,
-.jobOptions input {
-  width: 20px;
-  height: 20px;
-  margin: 0;
-  accent-color: var(--md-sys-color-primary);
-}
-
 .gameChoice span:nth-child(2),
 .jobOptions label span {
   display: grid;
@@ -135,41 +127,19 @@
 }
 
 .mappingChoice {
-  display: grid;
-  grid-template-columns: minmax(130px, 1fr) minmax(180px, 2fr);
-  gap: var(--space-2) var(--space-3);
-  align-items: center;
   margin-top: var(--space-3);
   padding-top: var(--space-3);
   border-top: 1px solid var(--md-sys-color-outline-variant);
-  color: var(--md-sys-color-on-surface-variant);
-  font: var(--md-sys-typescale-body-medium);
 }
 
-.mappingChoice select {
-  box-sizing: border-box;
+.mappingChoice > :global(.m3-select) {
+  display: grid;
   width: 100%;
-  min-width: 0;
-  min-height: 42px;
-  /* Right padding leaves room for the native dropdown arrow. */
-  padding: 0 var(--space-8) 0 var(--space-3);
-  border: 1px solid var(--md-sys-color-outline);
-  border-radius: var(--md-sys-shape-corner-medium);
-  color: var(--md-sys-color-on-surface);
-  background: var(--md-sys-color-surface-container-lowest);
-  font: inherit;
-}
-
-.gameChoice input:focus-visible,
-.mappingChoice select:focus-visible,
-.jobOptions input:focus-visible {
-  outline: 3px solid var(--md-sys-color-secondary);
-  outline-offset: 2px;
 }
 
 .matchNote {
   /* Optical alignment with the game name: checkbox width + row gap. */
-  margin: var(--space-2) 0 0 calc(20px + var(--space-3));
+  margin: var(--space-2) 0 0 calc(18px + var(--space-3));
 }
 
 .jobOptions {
@@ -233,9 +203,5 @@
   .categoryBadge {
     grid-column: 2;
     justify-self: start;
-  }
-
-  .mappingChoice {
-    grid-template-columns: 1fr;
   }
 }

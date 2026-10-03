@@ -20,8 +20,7 @@
 .summary,
 .selectionActions,
 .bulkActions,
-.quickActions,
-.dialogActions {
+.quickActions {
   display: flex;
   align-items: center;
   gap: var(--space-2);
@@ -53,36 +52,30 @@
   flex-wrap: wrap;
 }
 
-.bar button.iconButton {
-  display: inline-grid;
-  width: 40px;
-  padding: 0;
-  place-items: center;
-  border-color: transparent;
-}
-
 /* Static so the panel anchors to the fixed bar, not to the summary. */
 .moreActions {
   position: static;
   flex: 0 0 auto;
 }
 
+/* Native disclosure styled as an M3 outlined button. */
 .moreActions summary {
   display: inline-flex;
   align-items: center;
+  gap: var(--space-2);
   min-height: 40px;
   box-sizing: border-box;
-  border: 1px solid var(--md-sys-color-outline);
+  border: 1px solid var(--md-sys-color-outline-variant);
   border-radius: var(--md-sys-shape-corner-full);
-  padding: 0 var(--space-4);
-  background: var(--md-sys-color-surface-container-low);
+  padding: 0 var(--space-3) 0 var(--space-4);
+  color: var(--md-sys-color-on-surface-variant);
   font: var(--md-sys-typescale-label-large);
   cursor: pointer;
   list-style: none;
 }
 
 .moreActions summary:hover {
-  background: color-mix(in srgb, var(--md-sys-color-on-surface) 8%, var(--md-sys-color-surface-container-low));
+  background: color-mix(in srgb, var(--md-sys-color-on-surface-variant) 8%, transparent);
 }
 
 .moreActions summary:focus-visible {
@@ -92,6 +85,20 @@
 
 .moreActions summary::-webkit-details-marker {
   display: none;
+}
+
+.moreActions[open] summary {
+  border-color: transparent;
+  color: var(--md-sys-color-on-secondary-container);
+  background: var(--md-sys-color-secondary-container);
+}
+
+.disclosureIcon {
+  flex: 0 0 auto;
+}
+
+.moreActions[open] .disclosureIcon {
+  rotate: 180deg;
 }
 
 .moreActionsPanel {
@@ -113,86 +120,10 @@
   box-shadow: var(--md-sys-elevation-level2);
 }
 
-.bar button,
-.fieldControl button,
-.quickActions button,
-.dialog button,
-.fieldControl select,
-.fieldControl input {
-  min-height: 40px;
-  border: 1px solid var(--md-sys-color-outline);
-  border-radius: var(--md-sys-shape-corner-full);
-  padding: 0 var(--space-4);
-  color: inherit;
-  background: transparent;
-  font: var(--md-sys-typescale-label-large);
-  cursor: pointer;
-}
-
-.bar button:hover:not(:disabled),
-.fieldControl button:hover:not(:disabled),
-.quickActions button:hover:not(:disabled),
-.dialog button:hover:not(:disabled) {
-  background: color-mix(in srgb, currentColor 8%, transparent);
-}
-
-.bar button:focus-visible,
-.fieldControl button:focus-visible,
-.quickActions button:focus-visible,
-.dialog button:focus-visible,
-.fieldControl select:focus-visible,
-.fieldControl input:focus-visible {
-  outline: 3px solid var(--md-sys-color-secondary);
-  outline-offset: 2px;
-}
-
-.bar button:disabled,
-.fieldControl:disabled,
-.quickActions button:disabled {
-  cursor: default;
-  opacity: 0.38;
-}
-
-.textButton,
-.closeButton {
-  border-color: transparent !important;
-}
-
-.textButton {
-  color: var(--md-sys-color-primary) !important;
-}
-
-.closeButton {
-  width: 44px;
-  padding: 0 !important;
-  font: var(--md-sys-typescale-headline-small) !important;
-}
-
-.primaryButton {
-  border-color: var(--md-sys-color-primary) !important;
-  color: var(--md-sys-color-on-primary) !important;
-  background: var(--md-sys-color-primary) !important;
-}
-
-.primaryButton:hover:not(:disabled) {
-  background: color-mix(in srgb, var(--md-sys-color-on-primary) 8%, var(--md-sys-color-primary)) !important;
-  box-shadow: var(--md-sys-elevation-level1);
-}
-
-.dangerButton {
-  border-color: var(--md-sys-color-error) !important;
-  color: var(--md-sys-color-on-error) !important;
-  background: var(--md-sys-color-error) !important;
-}
-
-.dangerButton:hover:not(:disabled) {
-  background: color-mix(in srgb, var(--md-sys-color-on-error) 8%, var(--md-sys-color-error)) !important;
-  box-shadow: var(--md-sys-elevation-level1);
-}
-
 .fieldControl {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: var(--space-3);
   margin: 0;
   border: 0;
@@ -201,66 +132,28 @@
   background: var(--md-sys-color-surface-container-low);
 }
 
-.fieldControl label {
-  display: grid;
-  gap: var(--space-1);
+.fieldControl legend {
+  padding: 0 0 var(--space-2);
   color: var(--md-sys-color-on-surface-variant);
-  font: var(--md-sys-typescale-label-medium);
+  font: var(--md-sys-typescale-title-small);
 }
 
-.fieldControl select,
-.fieldControl input {
-  color: var(--md-sys-color-on-surface);
-  font: var(--md-sys-typescale-body-medium);
+.fieldControl:disabled legend {
+  color: color-mix(in srgb, var(--md-sys-color-on-surface) 38%, transparent);
 }
 
-.fieldControl select {
-  min-width: 140px;
-  background: var(--md-sys-color-surface-container-highest);
+.fieldControl :global(.m3-select) {
+  flex: 0 1 180px;
+}
+
+.fieldControl m3-text-field {
+  flex: 1 1 200px;
+  min-width: 0;
 }
 
 .classificationControls {
   display: grid;
   gap: var(--space-3);
-}
-
-.growingField {
-  flex: 1 1 180px;
-}
-
-.fieldControl input {
-  min-width: 0;
-  cursor: text;
-  background: var(--md-sys-color-surface-container-highest);
-}
-
-.dialog {
-  width: min(480px, calc(100vw - 32px));
-  border: 0;
-  border-radius: var(--md-sys-shape-corner-extra-large);
-  padding: var(--space-6);
-  color: var(--md-sys-color-on-surface);
-  background: var(--md-sys-color-surface-container-high);
-  box-shadow: var(--md-sys-elevation-level3);
-  font: var(--md-sys-typescale-body-medium);
-}
-
-.dialog::backdrop {
-  background: color-mix(in srgb, var(--md-sys-color-scrim) 32%, transparent);
-}
-
-.dialog h2 {
-  margin: 0 0 var(--space-4);
-  font: var(--md-sys-typescale-headline-small);
-}
-
-.dialog p {
-  color: var(--md-sys-color-on-surface-variant);
-}
-
-.dialogActions {
-  justify-content: flex-end;
-  margin-top: var(--space-6);
 }
 
 @media (min-width: 600px) {
@@ -289,10 +182,6 @@
     justify-content: flex-start;
   }
 
-  .quickActions button {
-    flex: 0 0 auto;
-  }
-
   .closeButton {
     grid-column: 2;
     grid-row: 1;
@@ -300,27 +189,24 @@
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .bar,
-  .dialog {
+  .bar {
     animation: bulk-enter var(--motion-duration-medium) var(--md-sys-motion-spring-fast-spatial);
   }
 
-  .bar button,
-  .fieldControl button,
-  .quickActions button,
-  .dialog button,
   .moreActions summary {
     transition:
       background-color var(--motion-duration-short) var(--md-sys-motion-spring-fast-effects),
-      box-shadow var(--motion-duration-short) var(--md-sys-motion-spring-fast-effects);
+      color var(--motion-duration-short) var(--md-sys-motion-spring-fast-effects);
+  }
+
+  .disclosureIcon {
+    transition: rotate var(--motion-duration-medium) var(--md-sys-motion-spring-fast-spatial);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .bar,
-  .dialog,
-  .bar *,
-  .dialog * {
+  .bar * {
     scroll-behavior: auto !important;
     transition: none !important;
     animation: none !important;

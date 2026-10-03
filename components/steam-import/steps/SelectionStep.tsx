@@ -6,6 +6,7 @@ import {
   needsResolution,
   selectedResolutionValue,
 } from "../wizard-labels";
+import { M3Select } from "@/components/m3/host";
 import styles from "../steam-import.module.css";
 import detailStyles from "../steam-import-details.module.css";
 
@@ -45,15 +46,14 @@ export function SelectionStep({
             {controller.selectedAppIds.length} von {comparison.items.length} ausgewählt
           </p>
         </div>
-        <button
-          type="button"
-          className={styles.textButton}
+        <m3-button
+          variant="text"
           onClick={() =>
             controller.setSelectedAppIds(defaultSteamImportSelection(comparison))
           }
         >
           Sichere Auswahl wiederherstellen
-        </button>
+        </m3-button>
       </div>
       <ul className={detailStyles.gameList}>
         {comparison.items.map((item) => {
@@ -84,19 +84,17 @@ export function SelectionStep({
                 </span>
               </label>
               {requiresChoice ? (
-                <label className={detailStyles.mappingChoice}>
-                  <span>
-                    {item.category === "possible-match"
-                      ? "Unsicheren Namensfund zuordnen"
-                      : "Konflikt auflösen"}
-                  </span>
-                  <select
+                <div className={detailStyles.mappingChoice}>
+                  <M3Select
+                    label={
+                      item.category === "possible-match"
+                        ? "Unsicheren Namensfund zuordnen"
+                        : "Konflikt auflösen"
+                    }
                     value={selectedResolutionValue(
                       controller.resolutions[String(appId)],
                     )}
-                    onChange={(event) =>
-                      controller.setResolution(appId, event.target.value)
-                    }
+                    onChange={(value) => controller.setResolution(appId, value)}
                   >
                     <option value="">Nicht automatisch zusammenführen</option>
                     {item.candidateGameIds.map((gameId) => (
@@ -105,8 +103,8 @@ export function SelectionStep({
                       </option>
                     ))}
                     <option value="new">Als neues Spiel importieren</option>
-                  </select>
-                </label>
+                  </M3Select>
+                </div>
               ) : item.matchedGameId ? (
                 <p className={detailStyles.matchNote}>
                   Zuordnung: {controller.existingById.get(item.matchedGameId)?.name ?? item.matchedGameId}
@@ -123,12 +121,11 @@ export function SelectionStep({
         </p>
       ) : null}
       <div className={styles.actions}>
-        <button type="button" className={styles.secondaryButton} onClick={controller.restart}>
+        <m3-button variant="outlined" onClick={controller.restart}>
           Neu laden
-        </button>
-        <button
-          type="button"
-          className={styles.primaryButton}
+        </m3-button>
+        <m3-button
+          variant="filled"
           disabled={
             controller.selectedAppIds.length === 0 ||
             controller.unresolvedSelected.length > 0
@@ -136,7 +133,7 @@ export function SelectionStep({
           onClick={() => controller.setStep("options")}
         >
           Optionen
-        </button>
+        </m3-button>
       </div>
     </div>
   );

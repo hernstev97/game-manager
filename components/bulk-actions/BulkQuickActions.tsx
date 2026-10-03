@@ -25,18 +25,20 @@ export function BulkQuickActions({
 
   return (
     <div className={styles.quickActions} role="toolbar" aria-label="Aktionen für ausgewählte Spiele">
-      <button type="button" onClick={onAddToQueue} disabled={disabled}>Warteschlange +</button>
+      <m3-button variant="tonal" onClick={onAddToQueue} disabled={disabled}>
+        Warteschlange +
+      </m3-button>
       <div className="anchor">
         <button
           type="button"
-          className={styles.iconButton}
+          className="icon-toggle"
           aria-label="Weitere Aktionen für die Auswahl"
           aria-haspopup="menu"
           aria-expanded={moreOpen}
           disabled={disabled}
           onClick={() => setMoreOpen((current) => !current)}
         >
-          <IconMore width={20} height={20} />
+          <IconMore />
         </button>
         <M3Menu
           open={moreOpen}

@@ -130,19 +130,16 @@
   color: var(--md-sys-color-on-surface);
 }
 
-.editor summary,
-.editor button {
-  min-height: 40px;
-  border: 0;
-  border-radius: var(--md-sys-shape-corner-full);
-  padding: var(--space-2) var(--space-4);
-  font: var(--md-sys-typescale-label-large);
-  cursor: pointer;
-}
-
+/* Native disclosure trigger, styled as an M3 tonal button. */
 .editor summary {
   display: inline-flex;
   align-items: center;
+  min-height: 40px;
+  box-sizing: border-box;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--md-sys-shape-corner-full);
+  font: var(--md-sys-typescale-label-large);
+  cursor: pointer;
   background: var(--md-sys-color-secondary-container);
   color: var(--md-sys-color-on-secondary-container);
   list-style: none;
@@ -157,9 +154,7 @@
   display: none;
 }
 
-.editor summary:focus-visible,
-.editor button:focus-visible,
-.editor input:focus-visible {
+.editor summary:focus-visible {
   outline: 3px solid var(--md-sys-color-secondary);
   outline-offset: 2px;
 }
@@ -181,26 +176,14 @@
   box-shadow: var(--md-sys-elevation-level3);
 }
 
-.editor label {
+.urlField m3-text-field {
+  min-width: 0;
+}
+
+.sliderField {
   display: grid;
-  gap: var(--space-2);
+  gap: var(--space-1);
   font: var(--md-sys-typescale-label-large);
-}
-
-.urlField input {
-  min-height: 42px;
-  box-sizing: border-box;
-  border: 1px solid var(--md-sys-color-outline);
-  border-radius: var(--md-sys-shape-corner-medium);
-  padding: 0 var(--space-3);
-  background: var(--md-sys-color-surface-container-lowest);
-  color: var(--md-sys-color-on-surface);
-  font: var(--md-sys-typescale-body-large);
-}
-
-.editor input[type="range"] {
-  width: 100%;
-  accent-color: var(--md-sys-color-primary);
 }
 
 .editorActions {
@@ -210,23 +193,9 @@
   gap: var(--space-2);
 }
 
-.editor .saveButton {
-  background: var(--md-sys-color-primary);
-  color: var(--md-sys-color-on-primary);
-}
-
-.editor .saveButton:hover {
-  background: color-mix(in srgb, var(--md-sys-color-on-primary) 8%, var(--md-sys-color-primary));
-  box-shadow: var(--md-sys-elevation-level1);
-}
-
-.editor .removeButton {
-  background: var(--md-sys-color-error-container);
-  color: var(--md-sys-color-on-error-container);
-}
-
-.editor .removeButton:hover {
-  background: color-mix(in srgb, var(--md-sys-color-on-error-container) 8%, var(--md-sys-color-error-container));
+/* Destructive text button: m3-button reads its label colour from primary. */
+.removeButton {
+  --md-sys-color-primary: var(--md-sys-color-error);
 }
 
 @media (max-width: 719px) {

@@ -5,6 +5,7 @@ import { useMemo, useState, type KeyboardEvent } from "react";
 import type { GameRecord } from "@/lib/game-fields";
 import { buildPortraitCandidates } from "@/lib/media/candidates";
 import { artworkTransformStyle } from "@/lib/media/focal-style";
+import { IconCheck } from "@/components/m3/icons";
 import styles from "./library-grid.module.css";
 
 const passthroughLoader = ({ src }: ImageLoaderProps) => src;
@@ -99,7 +100,7 @@ export function GameCoverCard({
             <span className={styles.placeholder} aria-hidden="true">{initials(game.name)}</span>
           )}
           {selectionMode ? (
-            <span className={styles.selectionMark} aria-hidden="true">{selected ? "✓" : ""}</span>
+            <span className={styles.selectionMark} aria-hidden="true">{selected ? <IconCheck width={18} height={18} /> : null}</span>
           ) : null}
         </span>
         <span className={styles.cardCopy}>

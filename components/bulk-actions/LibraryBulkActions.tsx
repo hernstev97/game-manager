@@ -22,6 +22,7 @@ import {
 } from "@/lib/runtime/library-runtime";
 import { createMetadataRefreshJobs } from "@/lib/runtime/library-job-factories";
 import { libraryRepository } from "@/lib/storage";
+import { IconExpandMore } from "@/components/m3/icons";
 import { toast } from "@/components/m3/snackbar";
 import { toastWithUndo } from "@/components/undo";
 import { useLibrary } from "@/store/library";
@@ -131,7 +132,10 @@ export function LibraryBulkActions({ visibleGames }: { visibleGames: readonly Ga
           onRequestDelete={() => setConfirmDelete(true)}
         />
         <details className={styles.moreActions}>
-          <summary>Felder bearbeiten</summary>
+          <summary>
+            Felder bearbeiten
+            <IconExpandMore className={styles.disclosureIcon} width={18} height={18} />
+          </summary>
           <div className={styles.moreActionsPanel}>
             <BulkBooleanControl
               disabled={selectedCount === 0}

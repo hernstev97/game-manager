@@ -1,94 +1,28 @@
-.dialog {
-  width: min(1080px, calc(100vw - var(--space-8)));
-  max-width: none;
-  max-height: min(880px, calc(100dvh - var(--space-8)));
-  padding: 0;
-  overflow: hidden;
-  border: 0;
-  border-radius: var(--md-sys-shape-corner-extra-large);
+.content {
+  display: grid;
+  gap: var(--space-5);
+  min-width: 0;
   color: var(--md-sys-color-on-surface);
-  background: var(--md-sys-color-surface-container-high);
-  box-shadow: var(--md-sys-elevation-level3);
-}
-.dialog::backdrop {
-  background: color-mix(in srgb, var(--md-sys-color-scrim) 52%, transparent);
 }
 
-.dialogHeader,
-.dialogActions {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-4);
-  padding: var(--space-4) var(--space-6);
-  background: transparent;
-}
-
-.dialogHeader h1,
-.editorSection h2 {
+.description {
   margin: 0;
-}
-
-.dialogHeader h1 {
-  font: var(--md-sys-typescale-headline-small);
-}
-
-.dialogHeader p {
-  margin: var(--space-1) 0 0;
   color: var(--md-sys-color-on-surface-variant);
   font: var(--md-sys-typescale-body-medium);
 }
 
-.dialogHeader button,
-.dialogActions button,
-.manualRow button,
-.adjustments button {
-  min-height: 40px;
-  padding: 0 var(--space-4);
-  border: 1px solid var(--md-sys-color-outline-variant);
-  border-radius: var(--md-sys-shape-corner-full);
-  color: var(--md-sys-color-primary);
-  background: transparent;
-  font: var(--md-sys-typescale-label-large);
-  cursor: pointer;
-  transition:
-    background-color var(--motion-duration-short) var(--motion-easing-standard),
-    box-shadow var(--motion-duration-short) var(--motion-easing-standard);
-}
-
-.dialogHeader button:hover:not(:disabled),
-.dialogActions button:hover:not(:disabled),
-.manualRow button:hover:not(:disabled),
-.adjustments button:hover:not(:disabled) {
-  background: color-mix(in srgb, var(--md-sys-color-primary) 8%, transparent);
-}
-
-.dialogHeader button {
-  width: 40px;
-  padding: 0;
-  border-color: transparent;
-  color: var(--md-sys-color-on-surface-variant);
-}
-
-.dialogHeader button:hover:not(:disabled) {
-  background: color-mix(in srgb, var(--md-sys-color-on-surface-variant) 8%, transparent);
-}
-
-.dialogBody {
+.editors {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: var(--space-6);
-  max-height: calc(100dvh - 190px);
-  padding: var(--space-6);
-  overflow: auto;
 }
 
 .editorSection {
   min-width: 0;
 }
 
-.editorSection h2 {
-  margin-bottom: var(--space-3);
+.editorSection h3 {
+  margin: 0 0 var(--space-3);
   font: var(--md-sys-typescale-title-small);
 }
 
@@ -98,6 +32,7 @@
   gap: var(--space-3);
 }
 
+/* Selectable image tile; native toggle button so aria-pressed stays exposed. */
 .candidate {
   min-width: 0;
   padding: var(--space-2);
@@ -112,7 +47,7 @@
     border-color var(--motion-duration-short) var(--motion-easing-standard);
 }
 
-.candidate:hover:not(:disabled) {
+.candidate:hover {
   background: color-mix(in srgb, var(--md-sys-color-on-surface) 8%, var(--md-sys-color-surface-container));
 }
 
@@ -122,9 +57,7 @@
   background: var(--md-sys-color-secondary-container);
 }
 
-.candidate:focus-visible,
-.dialog button:focus-visible,
-.dialog input:focus-visible {
+.candidate:focus-visible {
   outline: 3px solid var(--md-sys-color-secondary);
   outline-offset: 2px;
 }
@@ -189,76 +122,38 @@
 }
 
 .manualRow {
-  grid-template-columns: 1fr auto;
-  align-items: end;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
 }
 
-.manualRow label,
-.adjustments label {
+.manualRow m3-text-field {
+  min-width: 0;
+}
+
+/* Centre the button on the 56px outlined field, not on its helper text. */
+.manualRow m3-button {
+  margin-top: var(--space-2);
+}
+
+.adjustments {
+  justify-items: start;
+}
+
+.adjustment {
   display: grid;
+  justify-self: stretch;
   gap: var(--space-1);
   color: var(--md-sys-color-on-surface-variant);
   font: var(--md-sys-typescale-body-medium);
 }
 
-.manualRow input {
-  min-width: 0;
-  height: 40px;
-  padding: 0 var(--space-3);
-  border: 1px solid var(--md-sys-color-outline);
-  border-radius: var(--md-sys-shape-corner-medium);
-  color: var(--md-sys-color-on-surface);
-  background: var(--md-sys-color-surface-container-lowest);
-  font: var(--md-sys-typescale-body-large);
-}
-
-.adjustments input[type="range"] {
-  width: 100%;
-  accent-color: var(--md-sys-color-primary);
-}
-
-.dialog button:disabled {
-  cursor: default;
-  opacity: 0.45;
-}
-
-.dialogActions {
-  justify-content: flex-end;
-  border-top: 1px solid var(--md-sys-color-outline-variant);
-}
-
-.dialogActions .primaryAction {
-  border-color: var(--md-sys-color-primary);
-  color: var(--md-sys-color-on-primary);
-  background: var(--md-sys-color-primary);
-}
-
-.dialogActions .primaryAction:hover:not(:disabled) {
-  background: color-mix(in srgb, var(--md-sys-color-on-primary) 8%, var(--md-sys-color-primary));
-  box-shadow: var(--md-sys-elevation-level1);
-}
-
 @media (max-width: 760px) {
-  .dialog {
-    width: 100vw;
-    max-height: 100dvh;
-    margin: auto 0 0;
-    border-radius: var(--md-sys-shape-corner-extra-large) var(--md-sys-shape-corner-extra-large) 0 0;
-  }
-
-  .dialogBody {
+  .editors {
     grid-template-columns: 1fr;
-    max-height: calc(100dvh - 180px);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .dialog,
-  .candidate {
-    scroll-behavior: auto;
-  }
-
-  .dialog button,
   .candidate {
     transition: none;
   }

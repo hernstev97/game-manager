@@ -3,6 +3,7 @@ import {
   CORE_GAMES,
   collectPageErrors,
   expectNoHorizontalOverflow,
+  m3Dialog,
   openSeededLibrary,
 } from "./fixtures";
 
@@ -255,8 +256,8 @@ test("@desktop saves a view and renders franchise groups in the cover grid", asy
   await expect(page.getByRole("button", { name: "Filter, 1 aktiv" })).toBeVisible();
 
   await page.getByRole("button", { name: "Als neue Ansicht speichern" }).click();
-  await page.getByRole("dialog", { name: "Neue Ansicht speichern" }).getByRole("textbox").fill("PC Spiele");
-  await page.getByRole("dialog", { name: "Neue Ansicht speichern" }).getByRole("button", { name: "Speichern" }).click();
+  await m3Dialog(page, "Neue Ansicht speichern").getByRole("textbox").fill("PC Spiele");
+  await m3Dialog(page, "Neue Ansicht speichern").getByRole("button", { name: "Speichern" }).click();
   await expect(page.getByRole("button", { name: "PC Spiele" })).toBeVisible();
 
   await page.getByRole("button", { name: "Alle löschen" }).click();
@@ -360,7 +361,7 @@ test("@desktop reviews Steam metadata before applying it", async ({ page }) => {
     .getByRole("button", { name: "Einstellungen" })
     .click();
   await page.getByText("Cover, Namen & Preise aktualisieren", { exact: true }).click();
-  const review = page.getByRole("dialog", { name: /Metadaten prüfen · Alpha Quest/ });
+  const review = m3Dialog(page, /Metadaten prüfen · Alpha Quest/);
   await expect(review).toBeVisible({ timeout: 15_000 });
   await expect(review.getByText("Alpha Quest Remastered", { exact: true })).toBeVisible();
   await expect(page).toHaveScreenshot("metadata-review.png");
@@ -396,7 +397,7 @@ test("@desktop completes a Steam artwork review when the cover URL already match
     .getByRole("button", { name: "Einstellungen" })
     .click();
   await page.getByText("Cover, Namen & Preise aktualisieren", { exact: true }).click();
-  const review = page.getByRole("dialog", { name: /Metadaten prüfen · Alpha Quest/ });
+  const review = m3Dialog(page, /Metadaten prüfen · Alpha Quest/);
   await expect(review).toBeVisible({ timeout: 15_000 });
   const landscapeChange = review.getByRole("listitem").filter({ hasText: "Landscape-Artwork" });
   await expect(landscapeChange.getByLabel("Neuen Wert übernehmen")).toBeEnabled();
@@ -434,7 +435,7 @@ test("@desktop exports, restores, and reloads the local library offline", async 
     mimeType: "application/json",
     buffer: backup,
   });
-  const importDialog = page.getByRole("dialog", { name: "Sicherung prüfen" });
+  const importDialog = m3Dialog(page, "Sicherung prüfen");
   await expect(importDialog).toBeVisible();
   await importDialog.getByLabel(/Ersetzen/).check();
   await importDialog.getByRole("button", { name: "Sicherung wiederherstellen" }).click();

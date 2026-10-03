@@ -9,9 +9,7 @@ export function UpdatePrompt({ applyUpdate }: { applyUpdate: () => void }) {
         <strong>Update verfügbar</strong>
         <p>Die neue Version wird erst nach deiner Bestätigung aktiviert.</p>
       </div>
-      <button className={styles.primaryButton} type="button" onClick={applyUpdate}>
-        Aktualisieren
-      </button>
+      <m3-button onClick={applyUpdate}>Aktualisieren</m3-button>
     </aside>
   );
 }

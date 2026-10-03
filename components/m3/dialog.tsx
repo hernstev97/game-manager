@@ -21,6 +21,8 @@ export function M3Dialog({
   actions,
   className,
   presentation = "default",
+  size = "default",
+  dismissible = true,
   leadingAction,
 }: {
   open: boolean;
@@ -30,10 +32,23 @@ export function M3Dialog({
   actions?: ReactNode;
   className?: string;
   presentation?: DialogPresentation;
+  /** `wide` lets comparison-heavy dialogs grow beyond the 560px default on large screens. */
+  size?: "default" | "wide";
+  /** When false, Escape and scrim clicks are ignored (e.g. while saving). */
+  dismissible?: boolean;
   leadingAction?: ReactNode;
 }) {
   const ref = useRef<DialogEl>(null);
+  const dismissibleRef = useRef(dismissible);
   useHostEvent(ref, "dialog-close", onClose);
+  useHostEvent(ref, "dialog-request-close", (event) => {
+    const reason = (event as CustomEvent<{ reason?: string }>).detail?.reason;
+    if (!dismissibleRef.current && reason !== "programmatic") event.preventDefault();
+  });
+
+  useEffect(() => {
+    dismissibleRef.current = dismissible;
+  }, [dismissible]);
 
   const presentationClass =
     presentation === "default"
@@ -41,7 +56,7 @@ export function M3Dialog({
       : presentation === "side"
         ? "adaptive-sheet adaptive-side"
         : `adaptive-${presentation}`;
-  const classes = [className, presentationClass, actions ? "" : "no-actions"]
+  const classes = [className, presentationClass, size === "wide" ? "wide-dialog" : "", actions ? "" : "no-actions"]
     .filter(Boolean)
     .join(" ");
 

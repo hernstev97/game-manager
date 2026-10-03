@@ -13,20 +13,13 @@ import styles from "./steam-import.module.css";
 export function SteamImportWizard(props: SteamImportWizardProps) {
   const controller = useSteamImportWizard(props);
   const online = props.online ?? true;
+  // The host dialog provides the headline; the wizard only adds its intro.
   return (
-    <section
-      className={[styles.wizard, props.className].filter(Boolean).join(" ")}
-      aria-labelledby="steam-import-title"
-    >
-      <header className={styles.header}>
-        <div>
-          <h2 id="steam-import-title" className="visually-hidden">Steam-Bibliothek importieren</h2>
-          <p>
-            App-IDs werden eindeutig abgeglichen. Namensähnlichkeiten brauchen
-            immer deine ausdrückliche Zuordnung.
-          </p>
-        </div>
-      </header>
+    <div className={[styles.wizard, props.className].filter(Boolean).join(" ")}>
+      <p className={styles.intro}>
+        App-IDs werden eindeutig abgeglichen. Namensähnlichkeiten brauchen
+        immer deine ausdrückliche Zuordnung.
+      </p>
       <StepIndicator step={controller.step} />
       {!online ? (
         <p className={styles.notice} role="status">
@@ -52,6 +45,6 @@ export function SteamImportWizard(props: SteamImportWizardProps) {
       {controller.step === "report" && controller.report ? (
         <ReportStep controller={controller} />
       ) : null}
-    </section>
+    </div>
   );
 }

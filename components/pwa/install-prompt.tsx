@@ -64,13 +64,11 @@ export function InstallPrompt() {
       </div>
       <div className={styles.actions}>
         {promptEvent ? (
-          <button className={styles.primaryButton} type="button" onClick={() => void install()}>
-            Installieren
-          </button>
+          <m3-button onClick={() => void install()}>Installieren</m3-button>
         ) : null}
-        <button className={styles.textButton} type="button" onClick={() => setDismissed(true)}>
+        <m3-button variant="text" onClick={() => setDismissed(true)}>
           Später
-        </button>
+        </m3-button>
       </div>
     </aside>
   );

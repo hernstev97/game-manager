@@ -7,7 +7,7 @@ import type { GameRecord } from "@/lib/game-fields";
 import { CoverImage } from "@/components/media/CoverImage";
 import { PriorityBadge } from "@/components/editor/fields/PriorityField";
 import { RatingStars } from "@/components/editor/fields/RatingField";
-import { IconGrip } from "@/components/m3/icons";
+import { IconCheck, IconGrip } from "@/components/m3/icons";
 import { useHostEvent } from "@/components/m3/events";
 import { GameRowText } from "@/components/library/GameRowText";
 
@@ -43,7 +43,7 @@ function SelectionToggle({
       aria-label={selected ? `${gameName} aus Auswahl entfernen` : `${gameName} auswählen`}
       aria-pressed={selected}
     >
-      {selected ? "✓" : ""}
+      {selected ? <IconCheck width={18} height={18} /> : null}
     </button>
   );
 }

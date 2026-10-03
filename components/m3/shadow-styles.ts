@@ -190,6 +190,30 @@ export const ADAPTIVE_DIALOG_STYLE = `
 }
 
 @media (min-width: 600px) {
+  /* Large-screen dialogs keep their close action, pinned to the top end. */
+  :host(.adaptive-fullscreen) .dialog[open] .icon-slot,
+  :host(.adaptive-editor) .dialog[open] .icon-slot {
+    position: absolute;
+    z-index: 2;
+    top: 12px;
+    right: 12px;
+    display: flex !important;
+    margin: 0;
+    padding: 0;
+  }
+
+  :host(.wide-dialog) .dialog[open] {
+    width: min(1080px, calc(100vw - 48px));
+    max-width: none;
+    max-height: min(900px, calc(100dvh - 48px));
+  }
+
+  :host(.wide-dialog) .dialog[open] .headline,
+  :host(.settings-dialog) .dialog[open] .headline {
+    padding-right: 64px;
+    text-align: left;
+  }
+
   :host(.settings-dialog) .dialog[open] {
     width: min(920px, calc(100vw - 48px));
     max-width: none;
@@ -197,9 +221,6 @@ export const ADAPTIVE_DIALOG_STYLE = `
     max-height: none;
   }
 
-  :host(.settings-dialog) .dialog[open] .headline {
-    text-align: left;
-  }
 }
 
 @keyframes ggrid-side-enter {

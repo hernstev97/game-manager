@@ -1,15 +1,16 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import type { GameRecord } from "@/lib/game-fields";
 import { buildLandscapeCandidates, buildPortraitCandidates, type MediaCandidateSources } from "@/lib/media/candidates";
 import { ImageChecker } from "@/lib/media/image-checker";
 import { createDirtyMediaPatch, type MediaSelectionPatch } from "@/lib/media/selection";
 import type { ArtworkDraft, ArtworkOrientation, MediaCandidate } from "@/lib/media/types";
 import type { ImageCheck } from "@/lib/model";
+import { M3Dialog } from "@/components/m3/host";
+import { IconClose } from "@/components/m3/icons";
 import { ArtworkDraftEditor } from "@/components/media-manager/ArtworkDraftEditor";
 import styles from "./media-manager.module.css";
-import { IconClose } from "@/components/m3/icons";
 
 const defaultChecker = new ImageChecker();
 const EMPTY_SOURCES: MediaCandidateSources = {};
@@ -47,7 +48,6 @@ function MediaManagerDialogContent({
   onApply,
   onClose,
 }: MediaManagerDialogProps) {
-  const dialogRef = useRef<HTMLDialogElement>(null);
   const portraitCandidates = useMemo(() => buildPortraitCandidates(game, sources), [game, sources]);
   const landscapeCandidates = useMemo(() => buildLandscapeCandidates(game, sources), [game, sources]);
   const [drafts, setDrafts] = useState<Partial<Record<ArtworkOrientation, ArtworkDraft>>>({});
@@ -55,13 +55,6 @@ function MediaManagerDialogContent({
   const [manual, setManual] = useState<Record<ArtworkOrientation, string>>({ portrait: "", landscape: "" });
   const [checks, setChecks] = useState<ReadonlyMap<string, ImageCheck>>(() => new Map());
   const [checking, setChecking] = useState<ArtworkOrientation | null>(null);
-
-  useEffect(() => {
-    const dialog = dialogRef.current;
-    if (!dialog) return;
-    if (open && !dialog.open) dialog.showModal();
-    if (!open && dialog.open) dialog.close();
-  }, [open]);
 
   const update = (orientation: ArtworkOrientation, draft: ArtworkDraft) => {
     setDrafts((current) => ({ ...current, [orientation]: draft }));
@@ -114,28 +107,35 @@ function MediaManagerDialogContent({
   );
 
   return (
-    <dialog
-      ref={dialogRef}
-      className={styles.dialog}
-      aria-labelledby="media-manager-title"
-      onCancel={(event) => { event.preventDefault(); onClose(); }}
-      onClose={() => { if (open) onClose(); }}
+    <M3Dialog
+      open={open}
+      onClose={onClose}
+      headline={`Medien für ${game.name || "Unbenanntes Spiel"}`}
+      presentation="fullscreen"
+      size="wide"
+      leadingAction={
+        <m3-icon-button aria-label="Medienverwaltung schließen" onClick={onClose}>
+          <IconClose />
+        </m3-icon-button>
+      }
+      actions={
+        <>
+          <m3-button className="desktop-dialog-cancel" slot="actions" variant="text" onClick={onClose}>
+            Abbrechen
+          </m3-button>
+          <m3-button slot="actions" disabled={dirty.size === 0} onClick={apply}>
+            Speichern
+          </m3-button>
+        </>
+      }
     >
-      <header className={styles.dialogHeader}>
-        <div>
-          <h1 id="media-manager-title">Medien für {game.name || "Unbenanntes Spiel"}</h1>
-          <p>Eine Auswahl wird erst mit „Speichern“ übernommen.</p>
+      <div className={styles.content}>
+        <p className={styles.description}>Eine Auswahl wird erst mit „Speichern“ übernommen.</p>
+        <div className={styles.editors}>
+          {editor("portrait", portraitCandidates)}
+          {editor("landscape", landscapeCandidates)}
         </div>
-        <button type="button" aria-label="Medienverwaltung schließen" onClick={onClose}><IconClose width={20} height={20} /></button>
-      </header>
-      <div className={styles.dialogBody}>
-        {editor("portrait", portraitCandidates)}
-        {editor("landscape", landscapeCandidates)}
       </div>
-      <footer className={styles.dialogActions}>
-        <button type="button" onClick={onClose}>Abbrechen</button>
-        <button type="button" className={styles.primaryAction} disabled={dirty.size === 0} onClick={apply}>Speichern</button>
-      </footer>
-    </dialog>
+    </M3Dialog>
   );
 }

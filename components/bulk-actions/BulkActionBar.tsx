@@ -26,17 +26,17 @@ export function BulkActionBar({
         <span>{selectedCount === 1 ? "Spiel ausgewählt" : "Spiele ausgewählt"}</span>
       </div>
       <div className={styles.selectionActions} role="toolbar" aria-label="Auswahl ändern">
-        <button type="button" className={styles.textButton} onClick={onSelectAllVisible} disabled={visibleCount === 0}>
+        <m3-button variant="text" onClick={onSelectAllVisible} disabled={visibleCount === 0}>
           Alle sichtbaren ({visibleCount})
-        </button>
-        <button type="button" className={styles.textButton} onClick={onClear} disabled={selectedCount === 0}>
+        </m3-button>
+        <m3-button variant="text" onClick={onClear} disabled={selectedCount === 0}>
           Auswahl aufheben
-        </button>
+        </m3-button>
       </div>
       {children ? <div className={styles.bulkActions}>{children}</div> : null}
-      <button type="button" className={styles.closeButton} aria-label="Auswahlmodus schließen" onClick={onClose}>
-        <IconClose width={20} height={20} />
-      </button>
+      <m3-icon-button className={styles.closeButton} aria-label="Auswahlmodus schließen" onClick={onClose}>
+        <IconClose />
+      </m3-icon-button>
     </section>
   );
 }

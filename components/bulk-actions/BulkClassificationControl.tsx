@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { BulkListField } from "../../lib/bulk/operations";
+import { M3Select, M3TextField } from "@/components/m3/host";
 import styles from "./bulk-actions.module.css";
 
 type ListOperation = "add" | "remove";
@@ -26,42 +27,38 @@ export function BulkClassificationControl({
     <div className={styles.classificationControls}>
       <fieldset className={styles.fieldControl} disabled={disabled}>
         <legend>Plattformen oder Genres</legend>
-        <label>
-          <span>Feld</span>
-          <select value={field} onChange={(event) => setField(event.target.value as BulkListField)}>
-            <option value="platforms">Plattformen</option>
-            <option value="genres">Genres</option>
-          </select>
-        </label>
-        <label>
-          <span>Aktion</span>
-          <select value={operation} onChange={(event) => setOperation(event.target.value as ListOperation)}>
-            <option value="add">Hinzufügen</option>
-            <option value="remove">Entfernen</option>
-          </select>
-        </label>
-        <label className={styles.growingField}>
-          <span>Werte (kommagetrennt)</span>
-          <input value={values} onChange={(event) => setValues(event.target.value)} />
-        </label>
-        <button
-          type="button"
-          className={styles.primaryButton}
-          disabled={parsedValues.length === 0}
+        <M3Select label="Feld" value={field} disabled={disabled} onChange={(next) => setField(next as BulkListField)}>
+          <option value="platforms">Plattformen</option>
+          <option value="genres">Genres</option>
+        </M3Select>
+        <M3Select label="Aktion" value={operation} disabled={disabled} onChange={(next) => setOperation(next as ListOperation)}>
+          <option value="add">Hinzufügen</option>
+          <option value="remove">Entfernen</option>
+        </M3Select>
+        <M3TextField
+          label="Werte (kommagetrennt)"
+          value={values}
+          disabled={disabled}
+          onChange={setValues}
+        />
+        <m3-button
+          disabled={disabled || parsedValues.length === 0}
           onClick={() => onListApply(field, operation, parsedValues)}
         >
           Anwenden
-        </button>
+        </m3-button>
       </fieldset>
       <fieldset className={styles.fieldControl} disabled={disabled}>
         <legend>Franchise setzen</legend>
-        <label className={styles.growingField}>
-          <span>Franchise (leer zum Entfernen)</span>
-          <input value={franchise} onChange={(event) => setFranchise(event.target.value)} />
-        </label>
-        <button type="button" className={styles.primaryButton} onClick={() => onFranchiseApply(franchise)}>
+        <M3TextField
+          label="Franchise (leer zum Entfernen)"
+          value={franchise}
+          disabled={disabled}
+          onChange={setFranchise}
+        />
+        <m3-button disabled={disabled} onClick={() => onFranchiseApply(franchise)}>
           Anwenden
-        </button>
+        </m3-button>
       </fieldset>
     </div>
   );

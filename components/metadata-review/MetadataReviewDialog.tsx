@@ -1,16 +1,17 @@
 "use client";
 
-import { useEffect, useId, useRef } from "react";
+import { useId } from "react";
 import {
   deselectAllMetadataChanges,
   selectAllSafeMetadataChanges,
   setMetadataChangeSelected,
   type MetadataReview,
 } from "@/lib/metadata";
+import { M3Dialog } from "@/components/m3/host";
+import { IconClose } from "@/components/m3/icons";
 import { MetadataFieldReview } from "./MetadataFieldReview";
 import { MetadataValue } from "./MetadataValue";
 import styles from "./metadata-review.module.css";
-import { IconClose } from "@/components/m3/icons";
 
 export type MetadataReviewDialogProps = {
   open: boolean;
@@ -29,55 +30,53 @@ export function MetadataReviewDialog({
   onConfirm,
   onCancel,
 }: MetadataReviewDialogProps) {
-  const dialogRef = useRef<HTMLDialogElement>(null);
-  const titleId = useId();
-  const descriptionId = useId();
+  const pricesId = useId();
   const selectedCount = review.metadata.filter((change) => change.selected).length;
 
-  useEffect(() => {
-    const dialog = dialogRef.current;
-    if (!dialog) return;
-    if (open && !dialog.open) dialog.showModal();
-    if (!open && dialog.open) dialog.close();
-  }, [open]);
-
   return (
-    <dialog
-      ref={dialogRef}
-      className={styles.dialog}
-      aria-labelledby={titleId}
-      aria-describedby={descriptionId}
-      onCancel={(event) => {
-        event.preventDefault();
-        onCancel();
-      }}
-      onClose={() => {
-        if (open) onCancel();
-      }}
+    <M3Dialog
+      open={open}
+      onClose={onCancel}
+      headline={`Metadaten prüfen${gameName ? ` · ${gameName}` : ""}`}
+      presentation="fullscreen"
+      size="wide"
+      leadingAction={
+        <m3-icon-button aria-label="Metadaten-Prüfung schließen" onClick={onCancel}>
+          <IconClose />
+        </m3-icon-button>
+      }
+      actions={
+        <>
+          <m3-button className="desktop-dialog-cancel" slot="actions" variant="text" onClick={onCancel}>
+            Abbrechen
+          </m3-button>
+          <m3-button slot="actions" disabled={selectedCount === 0} onClick={() => onConfirm(review)}>
+            Auswahl übernehmen
+          </m3-button>
+        </>
+      }
     >
-      <header className={styles.header}>
-        <div>
-          <h2 id={titleId}>Metadaten prüfen{gameName ? ` · ${gameName}` : ""}</h2>
-          <p id={descriptionId}>
-            Vergleiche jeden Vorschlag. Erst „Auswahl übernehmen“ erzeugt den bestätigten Review-Auftrag.
-          </p>
+      <div className={styles.content}>
+        <p className={styles.description}>
+          Vergleiche jeden Vorschlag. Erst „Auswahl übernehmen“ erzeugt den bestätigten Review-Auftrag.
+        </p>
+
+        <div className={styles.toolbar} role="group" aria-label="Auswahlaktionen">
+          <m3-button
+            variant="tonal"
+            onClick={() => onReviewChange(selectAllSafeMetadataChanges(review))}
+          >
+            Alle sicheren auswählen
+          </m3-button>
+          <m3-button
+            variant="text"
+            onClick={() => onReviewChange(deselectAllMetadataChanges(review))}
+          >
+            Alle abwählen
+          </m3-button>
+          <span aria-live="polite">{selectedCount} ausgewählt</span>
         </div>
-        <button type="button" className={styles.iconButton} aria-label="Metadaten-Prüfung schließen" onClick={onCancel}>
-          <IconClose width={20} height={20} />
-        </button>
-      </header>
 
-      <div className={styles.toolbar} aria-label="Auswahlaktionen">
-        <button type="button" onClick={() => onReviewChange(selectAllSafeMetadataChanges(review))}>
-          Alle sicheren auswählen
-        </button>
-        <button type="button" onClick={() => onReviewChange(deselectAllMetadataChanges(review))}>
-          Alle abwählen
-        </button>
-        <span aria-live="polite">{selectedCount} ausgewählt</span>
-      </div>
-
-      <div className={styles.body}>
         {review.metadata.length ? (
           <ul className={styles.changeList}>
             {review.metadata.map((change) => (
@@ -102,8 +101,8 @@ export function MetadataReviewDialog({
         )}
 
         {review.volatilePrices.length ? (
-          <section className={styles.volatileSection} aria-labelledby={`${titleId}-prices`}>
-            <h3 id={`${titleId}-prices`}>Volatile Preis-Snapshots</h3>
+          <section className={styles.volatileSection} aria-labelledby={pricesId}>
+            <h3 id={pricesId}>Volatile Preis-Snapshots</h3>
             <p>Preise sind zeitabhängig und werden bewusst nicht zusammen mit Metadaten übernommen.</p>
             <ul>
               {review.volatilePrices.map((change) => (
@@ -122,18 +121,6 @@ export function MetadataReviewDialog({
           </section>
         ) : null}
       </div>
-
-      <footer className={styles.actions}>
-        <button type="button" onClick={onCancel}>Abbrechen</button>
-        <button
-          type="button"
-          className={styles.primaryAction}
-          disabled={selectedCount === 0}
-          onClick={() => onConfirm(review)}
-        >
-          Auswahl übernehmen
-        </button>
-      </footer>
-    </dialog>
+    </M3Dialog>
   );
 }

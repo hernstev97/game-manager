@@ -3,18 +3,12 @@
   width: min(100%, 920px);
   min-width: 0;
   margin: 0 auto;
-  padding: clamp(var(--space-3), 3vw, var(--space-6));
-  border: 0;
-  border-radius: var(--md-sys-shape-corner-extra-large);
   color: var(--md-sys-color-on-surface);
-  /* The host dialog already provides the surface; no nested outlined card. */
-  background: transparent;
+  /* The host dialog already provides the surface and padding. */
   overflow-wrap: anywhere;
 }
 
-.header h2,
-.header p,
-.eyebrow,
+.intro,
 .content h3,
 .content p,
 .centeredPanel h3,
@@ -27,21 +21,10 @@
   font: var(--md-sys-typescale-title-medium);
 }
 
-.header h2 {
-  margin-top: var(--space-1);
-  font: var(--md-sys-typescale-headline-small);
-}
-
-.header p:not(.eyebrow) {
+.intro {
   max-width: 68ch;
-  margin-top: var(--space-2);
   color: var(--md-sys-color-on-surface-variant);
   font: var(--md-sys-typescale-body-medium);
-}
-
-.eyebrow {
-  color: var(--md-sys-color-primary);
-  font: var(--md-sys-typescale-title-small);
 }
 
 .steps {
@@ -107,64 +90,6 @@
   font: var(--md-sys-typescale-body-medium);
 }
 
-.primaryButton,
-.secondaryButton,
-.textButton {
-  min-height: 42px;
-  border-radius: var(--md-sys-shape-corner-full);
-  font: var(--md-sys-typescale-label-large);
-  cursor: pointer;
-  transition:
-    background-color var(--motion-duration-short) var(--motion-easing-standard),
-    box-shadow var(--motion-duration-short) var(--motion-easing-standard);
-}
-
-.primaryButton {
-  padding: 0 var(--space-5);
-  border: 0;
-  color: var(--md-sys-color-on-primary);
-  background: var(--md-sys-color-primary);
-}
-
-.primaryButton:hover:not(:disabled) {
-  background: color-mix(in srgb, var(--md-sys-color-on-primary) 8%, var(--md-sys-color-primary));
-  box-shadow: var(--md-sys-elevation-level1);
-}
-
-.secondaryButton {
-  padding: 0 var(--space-4);
-  border: 1px solid var(--md-sys-color-outline-variant);
-  color: var(--md-sys-color-primary);
-  background: transparent;
-}
-
-.textButton {
-  min-height: 36px;
-  padding: 0 var(--space-3);
-  border: 0;
-  color: var(--md-sys-color-primary);
-  background: transparent;
-}
-
-.secondaryButton:hover:not(:disabled),
-.textButton:hover:not(:disabled) {
-  background: color-mix(in srgb, var(--md-sys-color-primary) 8%, transparent);
-}
-
-.primaryButton:disabled,
-.secondaryButton:disabled,
-.textButton:disabled {
-  cursor: not-allowed;
-  opacity: 0.52;
-}
-
-.primaryButton:focus-visible,
-.secondaryButton:focus-visible,
-.textButton:focus-visible {
-  outline: 3px solid var(--md-sys-color-secondary);
-  outline-offset: 2px;
-}
-
 .progress {
   width: min(100%, 360px);
   accent-color: var(--md-sys-color-primary);
@@ -206,10 +131,6 @@
 }
 
 @media (max-width: 520px) {
-  .wizard {
-    border-radius: var(--md-sys-shape-corner-large-increased);
-  }
-
   .steps {
     grid-template-columns: 1fr;
   }
@@ -223,12 +144,9 @@
     flex-direction: column;
   }
 
-  .primaryButton,
-  .secondaryButton,
-  .textButton {
+  .actions m3-button {
     width: 100%;
   }
-
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -28,9 +28,11 @@ export function ReportStep({
           Die ausgewählten Bibliothekswerte wurden bestätigt.
         </p>
       )}
-      <button type="button" className={styles.primaryButton} onClick={controller.restart}>
-        Weiteren Import starten
-      </button>
+      <div className={styles.actions}>
+        <m3-button variant="filled" onClick={controller.restart}>
+          Weiteren Import starten
+        </m3-button>
+      </div>
     </div>
   );
 }

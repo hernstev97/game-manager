@@ -53,83 +53,8 @@
   gap: var(--space-1);
 }
 
-.primaryButton,
-.secondaryButton {
-  min-height: 40px;
-  border: 0;
-  border-radius: var(--md-sys-shape-corner-full);
-  padding: 0 var(--space-6);
-  font: var(--md-sys-typescale-label-large);
-  cursor: pointer;
-}
-
-.primaryButton {
-  background: var(--md-sys-color-primary);
-  color: var(--md-sys-color-on-primary);
-}
-
-.secondaryButton {
-  padding-inline: var(--space-3);
-  background: transparent;
-  color: var(--md-sys-color-primary);
-}
-
-.secondaryButton:hover {
-  background: color-mix(in srgb, var(--md-sys-color-primary) 8%, transparent);
-}
-
-.primaryButton:disabled {
-  cursor: default;
-  opacity: 0.45;
-}
-
-.dialog {
-  width: min(420px, calc(100vw - 32px));
-  box-sizing: border-box;
-  border: 0;
-  border-radius: var(--md-sys-shape-corner-extra-large);
-  padding: var(--space-6);
-  background: var(--md-sys-color-surface-container-high);
-  box-shadow: var(--md-sys-elevation-level3);
-  color: var(--md-sys-color-on-surface);
-}
-
-.dialog::backdrop {
-  background: color-mix(in srgb, var(--md-sys-color-scrim) 32%, transparent);
-}
-
-.dialog form,
-.dialog label {
+.nameField {
   display: grid;
-  gap: 12px;
-}
-
-.dialog form {
-  gap: 20px;
-}
-
-.dialog h2 {
-  margin: 0;
-  font: var(--md-sys-typescale-headline-small);
-}
-
-.dialog input {
-  min-height: 56px;
-  box-sizing: border-box;
-  border: 1px solid var(--md-sys-color-outline);
-  border-radius: var(--md-sys-shape-corner-extra-small);
-  padding: 0 var(--space-4);
-  background: transparent;
-  color: var(--md-sys-color-on-surface);
-  font: var(--md-sys-typescale-body-large);
-}
-
-.dialog input:focus {
-  border-color: var(--md-sys-color-primary);
-  outline: 1px solid var(--md-sys-color-primary);
-}
-
-.dialog label {
-  color: var(--md-sys-color-on-surface-variant);
-  font: var(--md-sys-typescale-body-small);
+  min-width: min(360px, calc(100vw - 96px));
+  padding-top: var(--space-2);
 }

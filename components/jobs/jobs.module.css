@@ -57,44 +57,9 @@
   font: var(--md-sys-typescale-title-small);
 }
 
-.closeButton,
-.jobActions button {
-  min-height: 40px;
-  box-sizing: border-box;
-  border: 1px solid var(--md-sys-color-outline);
-  border-radius: var(--md-sys-shape-corner-full);
-  padding: 0 var(--space-4);
-  color: inherit;
-  background: transparent;
-  font: var(--md-sys-typescale-label-large);
-  cursor: pointer;
-}
-
-.closeButton {
-  width: 48px;
-  min-height: 48px;
-  flex: 0 0 auto;
-  padding: 0;
-  border-color: transparent;
-  color: var(--md-sys-color-on-surface-variant);
-  font: var(--md-sys-typescale-headline-small);
-}
-
-.closeButton:hover,
-.jobActions button:hover:not(:disabled) {
-  background: color-mix(in srgb, currentColor 8%, transparent);
-}
-
-.closeButton:focus-visible,
-.jobActions button:focus-visible,
 .errorDetails summary:focus-visible {
   outline: 3px solid var(--md-sys-color-secondary);
   outline-offset: 2px;
-}
-
-.jobActions button:disabled {
-  cursor: default;
-  opacity: 0.38;
 }
 
 .sessionNotice,
@@ -318,22 +283,6 @@
   gap: var(--space-2);
 }
 
-.primaryButton {
-  border-color: var(--md-sys-color-primary) !important;
-  color: var(--md-sys-color-on-primary) !important;
-  background: var(--md-sys-color-primary) !important;
-}
-
-.primaryButton:hover:not(:disabled) {
-  background: color-mix(in srgb, var(--md-sys-color-on-primary) 8%, var(--md-sys-color-primary)) !important;
-  box-shadow: var(--md-sys-elevation-level1);
-}
-
-.textButton {
-  border-color: transparent !important;
-  color: var(--md-sys-color-primary) !important;
-}
-
 .emptyState {
   padding-block: var(--space-8);
   text-align: center;
@@ -383,7 +332,7 @@
     padding: var(--space-2);
   }
 
-  .jobActions button {
+  .jobActions m3-button {
     flex: 1 1 120px;
   }
 }
@@ -392,13 +341,6 @@
   .center,
   .jobCard {
     animation: task-enter var(--motion-duration-medium) var(--md-sys-motion-spring-fast-spatial);
-  }
-
-  .closeButton,
-  .jobActions button {
-    transition:
-      background-color var(--motion-duration-short) var(--md-sys-motion-spring-fast-effects),
-      box-shadow var(--motion-duration-short) var(--md-sys-motion-spring-fast-effects);
   }
 }
 
